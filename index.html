@@ -1,1 +1,351 @@
-<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Tournament Manager</title></head><body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elite FF Tournaments</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 430px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      border-radius: 18px;
+      padding: 25px;
+      margin-top: 60px;
+      box-shadow: 0 10px 35px rgba(0,0,0,.35);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .secondary {
+      background: #475569;
+    }
+
+    .secondary:hover {
+      background: #334155;
+    }
+
+    .message {
+      min-height: 24px;
+      margin-top: 15px;
+      text-align: center;
+      color: #fbbf24;
+    }
+
+    .dashboard {
+      display: none;
+      margin-top: 25px;
+    }
+
+    .box {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .box h3 {
+      margin-top: 0;
+    }
+
+    .logout {
+      background: #dc2626;
+    }
+
+    .logout:hover {
+      background: #b91c1c;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card" id="loginCard">
+
+    <h1>Elite FF Tournaments</h1>
+    <div class="subtitle">Tournament Manager</div>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Enter email"
+      autocomplete="email"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Enter password"
+      autocomplete="current-password"
+    >
+
+    <button onclick="login()">Login</button>
+
+    <button class="secondary" onclick="signup()">
+      Create Account
+    </button>
+
+    <p class="message" id="message"></p>
+
+  </div>
+
+
+  <div class="card dashboard" id="dashboard">
+
+    <h1>Welcome 🎮</h1>
+
+    <div class="subtitle">
+      Elite FF Tournament Manager
+    </div>
+
+    <div class="box">
+      <h3>Admin Dashboard</h3>
+      <p id="userEmail"></p>
+    </div>
+
+    <div class="box">
+      <h3>🏆 Tournaments</h3>
+      <p>Create and manage your Free Fire tournaments.</p>
+    </div>
+
+    <div class="box">
+      <h3>👥 Players</h3>
+      <p>Manage registered players and teams.</p>
+    </div>
+
+    <div class="box">
+      <h3>💰 Payments</h3>
+      <p>Manage tournament payment records.</p>
+    </div>
+
+    <button class="logout" onclick="logout()">
+      Logout
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+  /*
+    IMPORTANT:
+    Replace these two values with your Supabase project details.
+
+    SUPABASE_URL:
+    Supabase Dashboard → Project Settings → API → Project URL
+
+    SUPABASE_KEY:
+    Supabase Dashboard → Project Settings → API
+    Use the Publishable key / anon key.
+
+    NEVER put your service_role/secret key here.
+  */
+
+  const SUPABASE_URL = "YOUR_SUPABASE_URL";
+  const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  const message = document.getElementById("message");
+  const loginCard = document.getElementById("loginCard");
+  const dashboard = document.getElementById("dashboard");
+  const userEmail = document.getElementById("userEmail");
+
+
+  function showMessage(text) {
+    message.textContent = text;
+  }
+
+
+  async function login() {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    if (!email || !password) {
+      showMessage("Please enter email and password.");
+      return;
+    }
+
+    showMessage("Logging in...");
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+    if (error) {
+      showMessage(error.message);
+      return;
+    }
+
+    showMessage("");
+
+    showDashboard(data.user);
+  }
+
+
+  async function signup() {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    if (!email || !password) {
+      showMessage("Enter email and password first.");
+      return;
+    }
+
+    if (password.length < 6) {
+      showMessage("Password must be at least 6 characters.");
+      return;
+    }
+
+    showMessage("Creating account...");
+
+    const { data, error } =
+      await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+      });
+
+    if (error) {
+      showMessage(error.message);
+      return;
+    }
+
+    if (data.session) {
+      showDashboard(data.user);
+    } else {
+      showMessage(
+        "Account created. Check your email for confirmation."
+      );
+    }
+  }
+
+
+  async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    dashboard.style.display = "none";
+    loginCard.style.display = "block";
+
+    document.getElementById("password").value = "";
+
+    showMessage("Logged out.");
+  }
+
+
+  function showDashboard(user) {
+
+    loginCard.style.display = "none";
+    dashboard.style.display = "block";
+
+    if (user && user.email) {
+      userEmail.textContent =
+        "Logged in as: " + user.email;
+    }
+  }
+
+
+  async function checkUser() {
+
+    const { data } =
+      await supabaseClient.auth.getSession();
+
+    if (data.session && data.session.user) {
+      showDashboard(data.session.user);
+    }
+  }
+
+
+  supabaseClient.auth.onAuthStateChange(
+    function(event, session) {
+
+      if (session && session.user) {
+        showDashboard(session.user);
+      }
+
+    }
+  );
+
+
+  checkUser();
+</script>
+
+</body>
+</html>
