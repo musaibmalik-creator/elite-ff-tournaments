@@ -501,7 +501,11 @@ document.getElementById("backButton");
 
 const backPlayersButton =
 document.getElementById("backPlayersButton");
+const paymentsSection =
+document.getElementById("paymentsSection");
 
+const backPaymentsButton =
+document.getElementById("backPaymentsButton");
 const saveTournamentButton =
 document.getElementById("saveTournamentButton");
 
@@ -1292,7 +1296,7 @@ openPaymentsButton.addEventListener(
 
     playersSection.classList.add("hidden");
 
-    alert("Manage Payments clicked!");
+    paymentsSection.classList.remove("hidden");
 
   }
 );
