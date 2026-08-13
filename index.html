@@ -1838,8 +1838,9 @@ console.log(
   </div>
 
 </section>
-<script type="module">window.openPaymentPage = async function(id) {
-
+<script type="module">
+  window.openPaymentPage = async function(id) {
+alert("PAYMENT FUNCTION STARTED");
   try {
 
     const { data, error } = await supabase
