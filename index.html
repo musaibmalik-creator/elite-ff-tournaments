@@ -897,68 +897,111 @@ data
 
 /* TOURNAMENT CARD */
 
-function tournamentCard(t){
+function tournamentCard(tournament) {
 
-return`
+  return `
 
-<div class="tournament-card">
+    <div class="tournament-card">
 
-<span class="badge">
-${escapeHtml(t.status||"Tournament")}
-</span>
+      <span class="badge">
+        ${escapeHtml(
+          tournament.status ||
+          "Tournament"
+        )}
+      </span>
 
-<h3>
-🏆 ${escapeHtml(t.name||"Unnamed")}
-</h3>
+      <h3>
+        🏆 ${escapeHtml(
+          tournament.name ||
+          "Unnamed Tournament"
+        )}
+      </h3>
 
-<div class="info">
+      <div class="tournament-info">
 
-🎮 Sport:
-${escapeHtml(t.sport||"Free Fire")}
-<br>
+        <div>
+          🎮 Sport:
+          ${escapeHtml(
+            tournament.sport ||
+            "Free Fire"
+          )}
+        </div>
 
-💰 Entry:
-₹${t.entry_fee??0}
-<br>
+        <div>
+          💰 Entry Fee:
+          ₹${escapeHtml(
+            tournament.entry_fee ??
+            0
+          )}
+        </div>
 
-🏆 Prize:
-₹${t.prize_pool??0}
-<br>
+        <div>
+          🏆 Prize Pool:
+          ₹${escapeHtml(
+            tournament.prize_pool ??
+            0
+          )}
+        </div>
 
-👥 Max Teams:
-${t.max_teams??0}
-<br>
+        <div>
+          👥 Max Teams:
+          ${escapeHtml(
+            tournament.max_teams ??
+            0
+          )}
+        </div>
 
-📝 ${escapeHtml(
-t.description||"No description"
-)}
-<br>
+        <div>
+          📝 Description:
+          ${escapeHtml(
+            tournament.description ||
+            "No description"
+          )}
+        </div>
 
-📅 ${
-t.starts_at
-?new Date(t.starts_at)
-.toLocaleString()
-:"Not set"
-}
+        <div>
+          📅 Starts:
+          ${escapeHtml(
+            tournament.starts_at
+              ? new Date(
+                  tournament.starts_at
+                ).toLocaleString()
+              : "Not set"
+          )}
+        </div>
 
-</div>
+      </div>
 
-<button
-onclick="editTournament('${t.id}')"
->
-✏️ Edit
-</button>
+      <button
+        class="menu-button"
+        onclick="openPaymentPage('${escapeHtml(
+          tournament.id
+        )}')"
+      >
+        💳 Pay Entry Fee
+      </button>
 
-<button
-class="danger"
-onclick="deleteTournament('${t.id}')"
->
-🗑️ Delete
-</button>
+      <button
+        class="menu-button"
+        onclick="editTournament('${escapeHtml(
+          tournament.id
+        )}')"
+      >
+        ✏️ Edit
+      </button>
 
-</div>
+      <button
+        class="danger"
+        onclick="deleteTournament('${escapeHtml(
+          tournament.id
+        )}')"
+      >
+        🗑️ Delete
+      </button>
 
-`;
+    </div>
+
+  `;
 
 }
 
