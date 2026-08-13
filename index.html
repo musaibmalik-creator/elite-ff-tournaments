@@ -1254,7 +1254,22 @@ await loadPlayers();
 }
 );
 
+/* PAYMENTS */
 
+openPaymentsButton.addEventListener(
+  "click",
+  async () => {
+
+    dashboard.classList.add("hidden");
+
+    tournamentsSection.classList.add("hidden");
+
+    playersSection.classList.add("hidden");
+
+    alert("Manage Payments clicked!");
+
+  }
+);
 backPlayersButton.addEventListener(
 "click",
 ()=>{
