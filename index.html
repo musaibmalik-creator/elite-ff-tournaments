@@ -1925,7 +1925,10 @@ async function(id) {
       Number(
         data.entry_fee || 0
       );
-
+selectedPaymentTournament = {
+  id: data.id,
+  amount: amount
+};
 
     if (tournamentName) {
 
@@ -1988,7 +1991,7 @@ async function(id) {
 
 };
 
-
+let selectedPaymentTournament = null;
 const submitPaymentButton =
   document.getElementById(
     "submitPaymentButton"
@@ -2018,11 +2021,9 @@ if (submitPaymentButton) {
           ? paymentUTR.value.trim()
           : "";
 
-
       if (!utr) {
 
         if (paymentMessage) {
-
           paymentMessage.textContent =
             "Please enter UTR / Transaction ID.";
         }
@@ -2030,28 +2031,56 @@ if (submitPaymentButton) {
         return;
       }
 
+      if (!selectedPaymentTournament) {
 
-      submitPaymentButton.disabled =
-        true;
+        if (paymentMessage) {
+          paymentMessage.textContent =
+            "Tournament information not found.";
+        }
 
+        return;
+      }
+
+      submitPaymentButton.disabled = true;
 
       submitPaymentButton.textContent =
         "Submitting...";
 
-
       try {
 
-        if (paymentMessage) {
+        const { error } =
+          await supabase
+            .from("payments")
+            .insert({
 
+              tournament_id:
+                selectedPaymentTournament.id,
+
+              amount:
+                selectedPaymentTournament.amount,
+
+              utr: utr,
+
+              status: "pending"
+
+            });
+
+        if (error) {
+          throw error;
+        }
+
+        if (paymentMessage) {
           paymentMessage.textContent =
             "Payment submitted! Waiting for admin approval. ✅";
         }
 
+        if (paymentUTR) {
+          paymentUTR.value = "";
+        }
 
       } catch (error) {
 
         if (paymentMessage) {
-
           paymentMessage.textContent =
             "Payment Error: " +
             error.message;
@@ -2059,11 +2088,11 @@ if (submitPaymentButton) {
 
       } finally {
 
-        submitPaymentButton.disabled =
-          false;
+        submitPaymentButton.disabled = false;
 
         submitPaymentButton.textContent =
           "✅ Submit Payment";
+
       }
 
     }
