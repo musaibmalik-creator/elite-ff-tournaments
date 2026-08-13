@@ -972,18 +972,18 @@ function tournamentCard(tournament) {
       </div>
 
       <button
-        class="menu-button"
-        onclick="openPaymentPage('${escapeHtml(
-  tournament.id
-)}')"
-      >
-        💳 Pay Entry Fee
-      </button>
+  class="menu-button"
+  type="button"
+  onclick="openPaymentPage('${tournament.id}')"
+>
+  💳 Pay Entry Fee
+</button>
 
       <button
         class="menu-button"
-        onclick="alert('BUTTON WORKING')"
-      >
+        onclick="editTournament('${escapeHtml(
+  tournament.id
+)}')"
         ✏️ Edit
       </button>
 
