@@ -584,6 +584,35 @@ async function loadPayments() {
     `).join("");
 
 }
+ async function approvePayment(paymentId) {
+  const { error } = await supabase
+    .from("payments")
+    .update({ status: "approved" })
+    .eq("id", paymentId);
+
+  if (error) {
+    alert("Approve Error: " + error.message);
+    return;
+  }
+
+  alert("Payment approved! ✅");
+  await loadPayments();
+}
+
+async function rejectPayment(paymentId) {
+  const { error } = await supabase
+    .from("payments")
+    .update({ status: "rejected" })
+    .eq("id", paymentId);
+
+  if (error) {
+    alert("Reject Error: " + error.message);
+    return;
+  }
+
+  alert("Payment rejected! ❌");
+  await loadPayments();
+} 
 const cancelEditButton =
 document.getElementById("cancelEditButton");
 
