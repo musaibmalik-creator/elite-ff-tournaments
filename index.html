@@ -584,6 +584,7 @@ async function loadPayments() {
     `).join("");
 
 }
+  
  async function approvePayment(paymentId) {
   const { error } = await supabase
     .from("payments")
@@ -613,6 +614,8 @@ async function rejectPayment(paymentId) {
   alert("Payment rejected! ❌");
   await loadPayments();
 } 
+  window.approvePayment = approvePayment;
+window.rejectPayment = rejectPayment;
 const cancelEditButton =
 document.getElementById("cancelEditButton");
 
