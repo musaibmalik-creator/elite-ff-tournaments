@@ -974,7 +974,10 @@ function tournamentCard(tournament) {
       <button
   class="menu-button"
   type="button"
-  onclick="window.openPaymentPage('${escapeHtml(tournament.id)}')"
+  onclick="
+    document.getElementById('paymentSection').style.display='block';
+    window.openPaymentPage('${escapeHtml(tournament.id)}');
+  "
 >
   💳 Pay Entry Fee
 </button>
