@@ -1720,6 +1720,82 @@ console.log(
 );
 
 </script>
+<!-- =========================
+     PAYMENT PAGE
+========================= -->
 
+<section id="paymentSection" style="display:none;">
+
+  <div class="card">
+
+    <h2>💳 Tournament Payment</h2>
+
+    <p id="paymentTournamentName">
+      Tournament
+    </p>
+
+    <div class="payment-box">
+
+      <h3>💰 Entry Fee</h3>
+
+      <p id="paymentAmount">
+        ₹0
+      </p>
+
+      <p>
+        Pay to UPI:
+      </p>
+
+      <strong>
+        elightffarena@ptaxis
+      </strong>
+
+      <br><br>
+
+      <a
+        id="upiPayButton"
+        href="#"
+        class="menu-button"
+        style="display:inline-block;text-decoration:none;"
+      >
+        📲 Pay Now with UPI
+      </a>
+
+    </div>
+
+    <br>
+
+    <label>
+      UTR / Transaction ID
+    </label>
+
+    <input
+      type="text"
+      id="paymentUTR"
+      placeholder="Enter UTR / Transaction ID"
+    >
+
+    <button
+      id="submitPaymentButton"
+      class="menu-button"
+    >
+      ✅ Submit Payment
+    </button>
+
+    <button
+      id="backPaymentButton"
+      class="danger"
+    >
+      ← Back
+    </button>
+
+    <p
+      id="paymentMessage"
+      class="message"
+    ></p>
+
+  </div>
+
+</section>
 </body>
 </html>
