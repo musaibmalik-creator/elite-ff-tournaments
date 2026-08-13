@@ -1,56 +1,474 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elite FF Tournaments</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      padding: 18px;
+    }
+
+    .card {
+      background: #1e293b;
+      border-radius: 18px;
+      padding: 22px;
+      margin-top: 35px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-top: 7px;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #0f172a;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    .message {
+      text-align: center;
+      min-height: 24px;
+      color: #fbbf24;
+      margin-top: 15px;
+    }
+
+    #dashboard {
+      display: none;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .logout {
+      width: auto;
+      margin: 0;
+      padding: 9px 14px;
+      background: #dc2626;
+      font-size: 14px;
+    }
+
+    .welcome {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .welcome h2 {
+      margin: 0 0 8px;
+    }
+
+    .welcome p {
+      margin: 0;
+      color: #e2e8f0;
+      word-break: break-word;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .stat-icon {
+      font-size: 28px;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .stat-label {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .menu-card {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+
+    .menu-card h3 {
+      margin: 0 0 7px;
+    }
+
+    .menu-card p {
+      margin: 0;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .menu-button {
+      background: #334155;
+      margin-top: 14px;
+    }
+
+    .section-title {
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
 
-  <h2>Elite FF Tournaments</h2>
+  <div class="container">
 
-  <input id="email" type="email" placeholder="Email">
-  <br><br>
+    <!-- LOGIN -->
+    <div class="card" id="loginCard">
 
-  <input id="password" type="password" placeholder="Password">
-  <br><br>
+      <h1>🎮 Elite FF</h1>
 
-  <button onclick="login()">Login</button>
+      <div class="subtitle">
+        Tournament Manager
+      </div>
 
-  <p id="message"></p>
+      <input
+        id="email"
+        type="email"
+        placeholder="Enter email"
+        autocomplete="email"
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Enter password"
+        autocomplete="current-password"
+      >
+
+      <button onclick="login()">Login</button>
+
+      <p class="message" id="message"></p>
+
+    </div>
+
+
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+
+      <div class="topbar">
+        <h2>Elite FF 🎮</h2>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+
+
+      <div class="welcome">
+        <h2>Welcome back! 👋</h2>
+        <p id="userEmail"></p>
+      </div>
+
+
+      <!-- STATS -->
+      <div class="stats">
+
+        <div class="stat">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-number">0</div>
+          <div class="stat-label">Tournaments</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">👥</div>
+          <div class="stat-number">0</div>
+          <div class="stat-label">Players</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">💰</div>
+          <div class="stat-number">₹0</div>
+          <div class="stat-label">Payments</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-number">0</div>
+          <div class="stat-label">Matches</div>
+        </div>
+
+      </div>
+
+
+      <h3 class="section-title">Management</h3>
+
+
+      <div class="menu-card">
+        <h3>🏆 Tournaments</h3>
+        <p>Create tournaments, set entry fees, dates and prize pools.</p>
+        <button class="menu-button" onclick="comingSoon('Tournaments')">
+          Open Tournaments
+        </button>
+      </div>
+
+
+      <div class="menu-card">
+        <h3>👥 Players</h3>
+        <p>View and manage registered Free Fire players and teams.</p>
+        <button class="menu-button" onclick="comingSoon('Players')">
+          Open Players
+        </button>
+      </div>
+
+
+      <div class="menu-card">
+        <h3>💰 Payments</h3>
+        <p>Manage tournament entry payments and payment records.</p>
+        <button class="menu-button" onclick="comingSoon('Payments')">
+          Open Payments
+        </button>
+      </div>
+
+
+      <div class="menu-card">
+        <h3>📊 Results</h3>
+        <p>Manage match results, rankings and tournament winners.</p>
+        <button class="menu-button" onclick="comingSoon('Results')">
+          Open Results
+        </button>
+      </div>
+
+
+      <p class="message" id="dashboardMessage"></p>
+
+    </div>
+
+  </div>
+
 
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    import { createClient }
+      from "https://esm.sh/@supabase/supabase-js@2";
+
+
+    /*
+      IMPORTANT:
+      Keep your existing Supabase values here.
+    */
 
     const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
     const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const supabase = createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+    const loginCard =
+      document.getElementById("loginCard");
+
+    const dashboard =
+      document.getElementById("dashboard");
+
+    const message =
+      document.getElementById("message");
+
+    const userEmail =
+      document.getElementById("userEmail");
+
 
     window.login = async function () {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const message = document.getElementById("message");
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
 
       if (!email || !password) {
-        message.textContent = "Email aur password enter karo.";
+
+        message.textContent =
+          "Please enter email and password.";
+
         return;
       }
 
-      message.textContent = "Logging in...";
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      message.textContent =
+        "Logging in...";
 
-      if (error) {
-        message.textContent = error.message;
-        return;
+
+      try {
+
+        const { data, error } =
+          await supabase.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+          });
+
+
+        if (error) {
+
+          message.textContent =
+            error.message;
+
+          return;
+        }
+
+
+        message.textContent = "";
+
+        showDashboard(data.user);
+
+      } catch (error) {
+
+        message.textContent =
+          "Login error: " + error.message;
+
       }
 
-      message.textContent = "Login successful! 🎉";
     };
+
+
+    function showDashboard(user) {
+
+      loginCard.style.display =
+        "none";
+
+      dashboard.style.display =
+        "block";
+
+
+      if (user && user.email) {
+
+        userEmail.textContent =
+          "Logged in as: " + user.email;
+
+      }
+
+    }
+
+
+    window.logout = async function () {
+
+      await supabase.auth.signOut();
+
+      dashboard.style.display =
+        "none";
+
+      loginCard.style.display =
+        "block";
+
+      document.getElementById("password").value =
+        "";
+
+      message.textContent =
+        "Logged out.";
+
+    };
+
+
+    window.comingSoon = function(name) {
+
+      document.getElementById(
+        "dashboardMessage"
+      ).textContent =
+        name + " section coming next 🚀";
+
+    };
+
+
+    async function checkUser() {
+
+      const { data } =
+        await supabase.auth.getSession();
+
+
+      if (
+        data.session &&
+        data.session.user
+      ) {
+
+        showDashboard(
+          data.session.user
+        );
+
+      }
+
+    }
+
+
+    checkUser();
+
   </script>
 
 </body>
