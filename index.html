@@ -2483,7 +2483,254 @@ console.log(
   "Elite FF Tournaments app started successfully."
 );
 
-</script>
+<script type="module">
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
+const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const loginCard = document.getElementById("loginCard");
+const dashboard = document.getElementById("dashboard");
+const tournamentsSection = document.getElementById("tournamentsSection");
+const playersSection = document.getElementById("playersSection");
+
+const message = document.getElementById("message");
+const tournamentMessage = document.getElementById("tournamentMessage");
+const playerMessage = document.getElementById("playerMessage");
+
+const loginButton = document.getElementById("loginButton");
+const logoutButton = document.getElementById("logoutButton");
+const logoutButton2 = document.getElementById("logoutButton2");
+const logoutButton3 = document.getElementById("logoutButton3");
+
+const openTournamentsButton = document.getElementById("openTournamentsButton");
+const openPlayersButton = document.getElementById("openPlayersButton");
+
+const backButton = document.getElementById("backButton");
+const backPlayersButton = document.getElementById("backPlayersButton");
+
+const saveTournamentButton = document.getElementById("saveTournamentButton");
+const cancelEditButton = document.getElementById("cancelEditButton");
+
+const savePlayerButton = document.getElementById("savePlayerButton");
+const cancelPlayerEditButton = document.getElementById("cancelPlayerEditButton");
+
+const playerTournament = document.getElementById("playerTournament");
+const playerList = document.getElementById("playerList");
+
+let editingTournamentId = null;
+let editingPlayerId = null;
+
+function showMessage(element, text, success = false) {
+
+  if (!element) return;
+
+  element.textContent = text;
+
+  element.classList.remove("success", "error");
+
+  if (success) {
+    element.classList.add("success");
+  }
+
+  if (
+    !success &&
+    (
+      text.toLowerCase().includes("error") ||
+      text.toLowerCase().includes("failed") ||
+      text.toLowerCase().includes("invalid")
+    )
+  ) {
+    element.classList.add("error");
+  }
+}
+
+async function login() {
+
+  const emailElement = document.getElementById("email");
+  const passwordElement = document.getElementById("password");
+
+  if (!emailElement || !passwordElement) {
+    console.error("Login fields not found.");
+    return;
+  }
+
+  const email = emailElement.value.trim();
+  const password = passwordElement.value;
+
+  if (!email || !password) {
+    showMessage(
+      message,
+      "Please enter email and password."
+    );
+    return;
+  }
+
+  if (loginButton) {
+    loginButton.disabled = true;
+    loginButton.textContent = "Logging in...";
+  }
+
+  showMessage(message, "Logging in...");
+
+  try {
+
+    const result = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (result.error) {
+
+      showMessage(
+        message,
+        "Login Error: " + result.error.message
+      );
+
+      return;
+    }
+
+    if (result.data && result.data.user) {
+
+      showDashboard(result.data.user);
+
+      if (message) {
+        message.textContent = "";
+      }
+
+    } else {
+
+      showMessage(
+        message,
+        "Login failed. Please try again."
+      );
+
+    }
+
+  } catch (error) {
+
+    showMessage(
+      message,
+      "Login Error: " + error.message
+    );
+
+  } finally {
+
+    if (loginButton) {
+      loginButton.disabled = false;
+      loginButton.textContent = "Login";
+    }
+
+  }
+}
+
+function showDashboard(user) {
+
+  if (loginCard) {
+    loginCard.style.display = "none";
+  }
+
+  if (dashboard) {
+    dashboard.style.display = "block";
+  }
+
+  if (tournamentsSection) {
+    tournamentsSection.style.display = "none";
+  }
+
+  if (playersSection) {
+    playersSection.style.display = "none";
+  }
+
+  const userEmail = document.getElementById("userEmail");
+
+  if (userEmail) {
+
+    userEmail.textContent =
+      "Logged in as: " +
+      (user && user.email ? user.email : "User");
+
+  }
+
+}
+
+async function logout() {
+
+  try {
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+
+  if (loginCard) {
+    loginCard.style.display = "block";
+  }
+
+  if (dashboard) {
+    dashboard.style.display = "none";
+  }
+
+  if (tournamentsSection) {
+    tournamentsSection.style.display = "none";
+  }
+
+  if (playersSection) {
+    playersSection.style.display = "none";
+  }
+
+  const passwordElement = document.getElementById("password");
+
+  if (passwordElement) {
+    passwordElement.value = "";
+  }
+
+  showMessage(
+    message,
+    "Logged out.",
+    true
+  );
+}
+
+if (loginButton) {
+  loginButton.addEventListener("click", login);
+}
+
+const passwordElement = document.getElementById("password");
+
+if (passwordElement) {
+
+  passwordElement.addEventListener(
+    "keydown",
+    function(event) {
+
+      if (event.key === "Enter") {
+        login();
+      }
+
+    }
+  );
+
+}
+
+if (logoutButton) {
+  logoutButton.addEventListener("click", logout);
+}
+
+if (logoutButton2) {
+  logoutButton2.addEventListener("click", logout);
+}
+
+if (logoutButton3) {
+  logoutButton3.addEventListener("click", logout);
+}
+
+console.log("Elite FF login system loaded.");
     );
 
   }
