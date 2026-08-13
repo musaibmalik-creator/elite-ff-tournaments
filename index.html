@@ -508,7 +508,66 @@ const backPaymentsButton =
 document.getElementById("backPaymentsButton");
 const saveTournamentButton =
 document.getElementById("saveTournamentButton");
+async function loadPayments() {
 
+  const paymentsList =
+    document.getElementById("paymentsList");
+
+  if (!paymentsList) return;
+
+  paymentsList.textContent =
+    "Loading payments...";
+
+  const { data, error } =
+    await supabase
+      .from("payments")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+
+    paymentsList.textContent =
+      "Payment Error: " + error.message;
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    paymentsList.textContent =
+      "No payments found.";
+
+    return;
+  }
+
+  paymentsList.innerHTML =
+    data.map(payment => `
+      <div class="card">
+
+        <p>
+          <strong>UTR:</strong>
+          ${payment.utr || "-"}
+
+        </p>
+
+        <p>
+          <strong>Amount:</strong>
+          ₹${payment.amount || 0}
+
+        </p>
+
+        <p>
+          <strong>Status:</strong>
+          ${payment.status || "pending"}
+
+        </p>
+
+      </div>
+    `).join("");
+
+}
 const cancelEditButton =
 document.getElementById("cancelEditButton");
 
