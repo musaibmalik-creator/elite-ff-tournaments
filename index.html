@@ -1840,18 +1840,15 @@ console.log(
   </div>
 
 </section>
-<script type="module">
-
-window.openPaymentPage = async function(id) {
+<script type="module">window.openPaymentPage = async function(id) {
 
   try {
 
-    const { data, error } =
-      await supabase
-        .from("tournaments")
-        .select("*")
-        .eq("id", id)
-        .single();
+    const { data, error } = await supabase
+      .from("tournaments")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (error) {
       alert("Payment Error: " + error.message);
@@ -1870,44 +1867,32 @@ window.openPaymentPage = async function(id) {
     const upiPayButton =
       document.getElementById("upiPayButton");
 
-    const paymentUTR =
-      document.getElementById("paymentUTR");
-
-    const paymentMessage =
-      document.getElementById("paymentMessage");
-
-    const amount =
-      Number(data.entry_fee || 0);
-
-    if (paymentTournamentName)
-      paymentTournamentName.textContent =
-        data.name || "Tournament";
-
-    if (paymentAmount)
-      paymentAmount.textContent =
-        "₹" + amount;
-
-    if (upiPayButton) {
-
-      upiPayButton.href =
-        "upi://pay?pa=" +
-        encodeURIComponent("elightffarena@ptaxis") +
-        "&pn=Elite%20FF%20Tournaments" +
-        "&am=" +
-        encodeURIComponent(amount) +
-        "&cu=INR";
-
+    if (!paymentSection) {
+      alert("Payment section not found");
+      return;
     }
 
-    if (paymentUTR)
-      paymentUTR.value = "";
+    const amount = Number(data.entry_fee || 0);
 
-    if (paymentMessage)
-      paymentMessage.textContent = "";
+    if (paymentTournamentName) {
+      paymentTournamentName.textContent =
+        data.name || "Tournament";
+    }
 
-    if (paymentSection)
-      paymentSection.style.display = "block";
+    if (paymentAmount) {
+      paymentAmount.textContent =
+        "₹" + amount;
+    }
 
+    if (upiPayButton) {
+      upiPayButton.href =
+        "upi://pay?pa=elightffarena@ptaxis" +
+        "&pn=Elite%20FF%20Tournaments" +
+        "&am=" + encodeURIComponent(amount) +
+        "&cu=INR";
+    }
+
+    /* Hide other sections */
     document.getElementById("dashboard")
       ?.classList.add("hidden");
 
@@ -1917,6 +1902,10 @@ window.openPaymentPage = async function(id) {
     document.getElementById("playersSection")
       ?.classList.add("hidden");
 
+    /* Show payment section */
+    paymentSection.classList.remove("hidden");
+    paymentSection.style.display = "block";
+
   } catch (error) {
 
     alert("Payment Error: " + error.message);
@@ -1924,6 +1913,8 @@ window.openPaymentPage = async function(id) {
   }
 
 };
+
+
 const UPI_ID = "elightffarena@ptaxis";
 
 const paymentSection =
