@@ -1846,7 +1846,88 @@ const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+window.openPaymentPage = async function(id) {
 
+  try {
+
+    const { data, error } =
+      await supabase
+        .from("tournaments")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) {
+      alert("Payment Error: " + error.message);
+      return;
+    }
+
+    const paymentSection =
+      document.getElementById("paymentSection");
+
+    const paymentTournamentName =
+      document.getElementById("paymentTournamentName");
+
+    const paymentAmount =
+      document.getElementById("paymentAmount");
+
+    const upiPayButton =
+      document.getElementById("upiPayButton");
+
+    const paymentUTR =
+      document.getElementById("paymentUTR");
+
+    const paymentMessage =
+      document.getElementById("paymentMessage");
+
+    const amount =
+      Number(data.entry_fee || 0);
+
+    if (paymentTournamentName)
+      paymentTournamentName.textContent =
+        data.name || "Tournament";
+
+    if (paymentAmount)
+      paymentAmount.textContent =
+        "₹" + amount;
+
+    if (upiPayButton) {
+
+      upiPayButton.href =
+        "upi://pay?pa=" +
+        encodeURIComponent("elightffarena@ptaxis") +
+        "&pn=Elite%20FF%20Tournaments" +
+        "&am=" +
+        encodeURIComponent(amount) +
+        "&cu=INR";
+
+    }
+
+    if (paymentUTR)
+      paymentUTR.value = "";
+
+    if (paymentMessage)
+      paymentMessage.textContent = "";
+
+    if (paymentSection)
+      paymentSection.style.display = "block";
+
+    document.getElementById("dashboard")
+      ?.classList.add("hidden");
+
+    document.getElementById("tournamentsSection")
+      ?.classList.add("hidden");
+
+    document.getElementById("playersSection")
+      ?.classList.add("hidden");
+
+  } catch (error) {
+
+    alert("Payment Error: " + error.message);
+
+  }
+
+};
 const UPI_ID = "elightffarena@ptaxis";
 
 const paymentSection =
