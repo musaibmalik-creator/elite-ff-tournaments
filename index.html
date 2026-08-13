@@ -22,15 +22,22 @@
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co
-    const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD
+    const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     window.login = async function () {
-      const email = document.getElementById("email").value;
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const message = document.getElementById("message");
+
+      if (!email || !password) {
+        message.textContent = "Email aur password enter karo.";
+        return;
+      }
+
+      message.textContent = "Logging in...";
 
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -42,7 +49,7 @@
         return;
       }
 
-      message.textContent = "Login successful!";
+      message.textContent = "Login successful! 🎉";
     };
   </script>
 
