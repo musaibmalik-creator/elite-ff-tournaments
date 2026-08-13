@@ -1956,21 +1956,7 @@ const upiPayButton =
 
 let selectedPaymentTournament = null;
 
-window.openPaymentPage = async function(id) {
 
-  try {
-
-    const { data, error } =
-      await supabase
-        .from("tournaments")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-    if (error) {
-      alert("Payment Error: " + error.message);
-      return;
-    }
 
     selectedPaymentTournament = data;
 
