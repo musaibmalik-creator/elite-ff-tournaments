@@ -1,982 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elite FF Tournaments</title>
+    .textContent =
+      "Update Tournament";
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    document
+      .getElementById(
+        "cancelEditButton"
+      )
+      .classList
+      .remove("hidden");
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-    }
+    tournamentMessage.textContent =
+      "Edit mode enabled. Changes karo aur Update Tournament dabao.";
 
-    .container {
-      width: 100%;
-      max-width: 500px;
-      margin: auto;
-      padding: 18px;
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
 
-    .card,
-    .menu-card,
-    .stat,
-    .tournament-card,
-    .form-card {
-      background: #1e293b;
-      border-radius: 16px;
-    }
+  };
 
-    .card {
-      padding: 22px;
-      margin-top: 35px;
-    }
 
-    h1 {
-      margin: 0;
-      text-align: center;
-      font-size: 28px;
-    }
+  /* UPDATE */
 
-    .subtitle {
-      text-align: center;
-      color: #94a3b8;
-      margin-top: 7px;
-      margin-bottom: 25px;
-    }
+  async function updateTournament() {
 
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border: 1px solid #334155;
-      border-radius: 10px;
-      background: #0f172a;
-      color: white;
-      font-size: 16px;
-    }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 14px;
-      border: none;
-      border-radius: 10px;
-      background: #2563eb;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:active {
-      transform: scale(.98);
-    }
-
-    .message {
-      text-align: center;
-      min-height: 24px;
-      color: #fbbf24;
-      margin-top: 15px;
-    }
-
-    #dashboard,
-    #tournamentsSection {
-      display: none;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .topbar h2 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .logout,
-    .back-button {
-      width: auto;
-      margin: 0;
-      padding: 9px 14px;
-      font-size: 14px;
-    }
-
-    .logout {
-      background: #dc2626;
-    }
-
-    .back-button {
-      background: #475569;
-      margin-bottom: 15px;
-    }
-
-    .welcome {
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 18px;
-    }
-
-    .welcome h2 {
-      margin: 0 0 8px;
-    }
-
-    .welcome p {
-      margin: 0;
-      color: #e2e8f0;
-      word-break: break-word;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .stat {
-      padding: 18px;
-      text-align: center;
-    }
-
-    .stat-icon {
-      font-size: 28px;
-    }
-
-    .stat-number {
-      font-size: 24px;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-
-    .stat-label {
-      color: #94a3b8;
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .section-title {
-      margin-top: 25px;
-      margin-bottom: 10px;
-    }
-
-    .menu-card {
-      padding: 18px;
-      margin-top: 12px;
-    }
-
-    .menu-card h3 {
-      margin: 0 0 7px;
-    }
-
-    .menu-card p {
-      margin: 0;
-      color: #94a3b8;
-      line-height: 1.5;
-    }
-
-    .menu-button {
-      background: #334155;
-    }
-
-    .tournament-card {
-      padding: 18px;
-      margin-top: 12px;
-      border: 1px solid #334155;
-    }
-
-    .tournament-card h3 {
-      margin: 0 0 8px;
-    }
-
-    .tournament-info {
-      color: #cbd5e1;
-      line-height: 1.7;
-      font-size: 14px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 5px 9px;
-      border-radius: 8px;
-      background: #16a34a;
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .danger {
-      background: #dc2626;
-    }
-
-    .secondary {
-      background: #475569;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .form-card {
-      padding: 18px;
-      margin-top: 15px;
-    }
-
-    .form-card h3 {
-      margin-top: 0;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="container">
-
-  <!-- LOGIN -->
-
-  <div class="card" id="loginCard">
-
-    <h1>🎮 Elite FF</h1>
-
-    <div class="subtitle">
-      Tournament Manager
-    </div>
-
-    <input
-      id="email"
-      type="email"
-      placeholder="Enter email"
-      autocomplete="email"
-    >
-
-    <input
-      id="password"
-      type="password"
-      placeholder="Enter password"
-      autocomplete="current-password"
-    >
-
-    <button id="loginButton">
-      Login
-    </button>
-
-    <p class="message" id="message"></p>
-
-  </div>
-
-
-  <!-- DASHBOARD -->
-
-  <div id="dashboard">
-
-    <div class="topbar">
-
-      <h2>Elite FF 🎮</h2>
-
-      <button
-        class="logout"
-        id="logoutButton">
-        Logout
-      </button>
-
-    </div>
-
-
-    <div class="welcome">
-
-      <h2>Welcome back! 👋</h2>
-
-      <p id="userEmail"></p>
-
-    </div>
-
-
-    <div class="stats">
-
-      <div class="stat">
-        <div class="stat-icon">🏆</div>
-
-        <div
-          class="stat-number"
-          id="tournamentCount">
-          0
-        </div>
-
-        <div class="stat-label">
-          Tournaments
-        </div>
-      </div>
-
-
-      <div class="stat">
-        <div class="stat-icon">👥</div>
-        <div class="stat-number">0</div>
-
-        <div class="stat-label">
-          Players
-        </div>
-      </div>
-
-
-      <div class="stat">
-        <div class="stat-icon">💰</div>
-
-        <div class="stat-number">
-          ₹0
-        </div>
-
-        <div class="stat-label">
-          Payments
-        </div>
-      </div>
-
-
-      <div class="stat">
-        <div class="stat-icon">🎯</div>
-
-        <div class="stat-number">
-          0
-        </div>
-
-        <div class="stat-label">
-          Matches
-        </div>
-      </div>
-
-    </div>
-
-
-    <h3 class="section-title">
-      Management
-    </h3>
-
-
-    <div class="menu-card">
-
-      <h3>🏆 Tournaments</h3>
-
-      <p>
-        Create tournaments, set entry fees,
-        dates and prize pools.
-      </p>
-
-      <button
-        class="menu-button"
-        id="openTournamentsButton">
-        Open Tournaments
-      </button>
-
-    </div>
-
-
-    <div class="menu-card">
-
-      <h3>👥 Players</h3>
-
-      <p>
-        View and manage registered Free Fire
-        players and teams.
-      </p>
-
-      <button
-        class="menu-button"
-        data-coming-soon="Players">
-        Open Players
-      </button>
-
-    </div>
-
-
-    <div class="menu-card">
-
-      <h3>💰 Payments</h3>
-
-      <p>
-        Manage tournament entry payments
-        and payment records.
-      </p>
-
-      <button
-        class="menu-button"
-        data-coming-soon="Payments">
-        Open Payments
-      </button>
-
-    </div>
-
-
-    <div class="menu-card">
-
-      <h3>📊 Results</h3>
-
-      <p>
-        Manage match results, rankings
-        and tournament winners.
-      </p>
-
-      <button
-        class="menu-button"
-        data-coming-soon="Results">
-        Open Results
-      </button>
-
-    </div>
-
-
-    <p
-      class="message"
-      id="dashboardMessage">
-    </p>
-
-  </div>
-
-
-  <!-- TOURNAMENTS -->
-
-  <div id="tournamentsSection">
-
-    <div class="topbar">
-
-      <h2>🏆 Tournaments</h2>
-
-      <button
-        class="logout"
-        id="logoutButton2">
-        Logout
-      </button>
-
-    </div>
-
-
-    <button
-      class="back-button"
-      id="backButton">
-
-      ← Back to Dashboard
-
-    </button>
-
-
-    <!-- CREATE / EDIT FORM -->
-
-    <div class="form-card">
-
-      <h3 id="formTitle">
-        ➕ Create Tournament
-      </h3>
-
-
-      <input
-        id="tournamentName"
-        type="text"
-        placeholder="Tournament name"
-      >
-
-
-      <input
-        id="tournamentSport"
-        type="text"
-        value="Free Fire"
-        placeholder="Sport"
-      >
-
-
-      <textarea
-        id="tournamentDescription"
-        placeholder="Tournament description"></textarea>
-
-
-      <input
-        id="entryFee"
-        type="number"
-        min="0"
-        value="0"
-        placeholder="Entry fee"
-      >
-
-
-      <input
-        id="prizePool"
-        type="number"
-        min="0"
-        value="0"
-        placeholder="Prize pool"
-      >
-
-
-      <input
-        id="maxTeams"
-        type="number"
-        min="1"
-        value="8"
-        placeholder="Maximum teams"
-      >
-
-
-      <select id="tournamentStatus">
-
-        <option value="registration_open">
-          Registration Open
-        </option>
-
-        <option value="upcoming">
-          Upcoming
-        </option>
-
-        <option value="live">
-          Live
-        </option>
-
-        <option value="completed">
-          Completed
-        </option>
-
-        <option value="cancelled">
-          Cancelled
-        </option>
-
-      </select>
-
-
-      <input
-        id="startsAt"
-        type="datetime-local"
-      >
-
-
-      <button id="saveTournamentButton">
-        Create Tournament
-      </button>
-
-
-      <button
-        id="cancelEditButton"
-        class="secondary hidden">
-
-        Cancel Edit
-
-      </button>
-
-
-      <p
-        class="message"
-        id="tournamentMessage">
-      </p>
-
-    </div>
-
-
-    <h3 class="section-title">
-      Existing Tournaments
-    </h3>
-
-
-    <div id="tournamentList">
-      Loading tournaments...
-    </div>
-
-  </div>
-
-</div>
-
-
-<script type="module">
-
-  import {
-    createClient
-  } from
-  "https://esm.sh/@supabase/supabase-js@2";
-
-
-  const SUPABASE_URL =
-    "https://yenhkcditizmcekjeswy.supabase.co";
-
-
-  const SUPABASE_KEY =
-    "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
-
-
-  const supabase =
-    createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-
-  let editingTournamentId = null;
-
-
-  const $ = (id) =>
-    document.getElementById(id);
-
-
-  /* ---------------- LOGIN ---------------- */
-
-  $("loginButton").addEventListener(
-    "click",
-    login
-  );
-
-
-  $("password").addEventListener(
-    "keydown",
-    function(event) {
-
-      if (
-        event.key === "Enter"
-      ) {
-        login();
-      }
-
-    }
-  );
-
-
-  async function login() {
-
-    const email =
-      $("email")
-        .value
-        .trim();
-
-
-    const password =
-      $("password")
-        .value;
-
-
-    const message =
-      $("message");
-
-
-    if (
-      !email ||
-      !password
-    ) {
-
-      message.textContent =
-        "Please enter email and password.";
-
-      return;
-
-    }
-
-
-    message.textContent =
-      "Logging in...";
-
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-      await supabase.auth
-        .signInWithPassword({
-
-          email,
-          password
-
-        });
-
-
-      if (error) {
-
-        message.textContent =
-          "Login error: " +
-          error.message;
-
-        return;
-
-      }
-
-
-      message.textContent =
-        "";
-
-
-      showDashboard(
-        data.user
+    const tournamentMessage =
+      document.getElementById(
+        "tournamentMessage"
       );
 
-
-    } catch (error) {
-
-      message.textContent =
-        "Login error: " +
-        error.message;
-
-    }
-
-  }
-
-
-  /* ---------------- DASHBOARD ---------------- */
-
-  function showDashboard(user) {
-
-    $("loginCard")
-      .style
-      .display =
-      "none";
-
-
-    $("tournamentsSection")
-      .style
-      .display =
-      "none";
-
-
-    $("dashboard")
-      .style
-      .display =
-      "block";
-
-
-    if (
-      user &&
-      user.email
-    ) {
-
-      $("userEmail")
-        .textContent =
-        "Logged in as: " +
-        user.email;
-
-    }
-
-
-    loadTournamentCount();
-
-  }
-
-
-  /* ---------------- LOGOUT ---------------- */
-
-  $("logoutButton")
-    .addEventListener(
-      "click",
-      logout
-    );
-
-
-  $("logoutButton2")
-    .addEventListener(
-      "click",
-      logout
-    );
-
-
-  async function logout() {
-
-    await supabase.auth
-      .signOut();
-
-
-    $("dashboard")
-      .style
-      .display =
-      "none";
-
-
-    $("tournamentsSection")
-      .style
-      .display =
-      "none";
-
-
-    $("loginCard")
-      .style
-      .display =
-      "block";
-
-
-    $("password")
-      .value =
-      "";
-
-
-    $("message")
-      .textContent =
-      "Logged out.";
-
-  }
-
-
-  /* ---------------- OPEN TOURNAMENTS ---------------- */
-
-  $("openTournamentsButton")
-    .addEventListener(
-      "click",
-      openTournaments
-    );
-
-
-  async function openTournaments() {
-
-    $("dashboard")
-      .style
-      .display =
-      "none";
-
-
-    $("tournamentsSection")
-      .style
-      .display =
-      "block";
-
-
-    $("tournamentMessage")
-      .textContent =
-      "";
-
-
-    await loadTournaments();
-
-  }
-
-
-  /* ---------------- BACK ---------------- */
-
-  $("backButton")
-    .addEventListener(
-      "click",
-      function() {
-
-        $("tournamentsSection")
-          .style
-          .display =
-          "none";
-
-
-        $("dashboard")
-          .style
-          .display =
-          "block";
-
-      }
-    );
-
-
-  /* ---------------- SAVE ---------------- */
-
-  $("saveTournamentButton")
-    .addEventListener(
-      "click",
-      saveTournament
-    );
-
-
-  async function saveTournament() {
-
-    if (
-      editingTournamentId
-    ) {
-
-      await updateTournament();
-
-    } else {
-
-      await createTournament();
-
-    }
-
-  }
-
-
-  /* ---------------- CREATE ---------------- */
-
-  async function createTournament() {
-
     const name =
-      $("tournamentName")
-        .value
-        .trim();
-
+      document.getElementById(
+        "tournamentName"
+      ).value.trim();
 
     const sport =
-      $("tournamentSport")
-        .value
-        .trim();
-
+      document.getElementById(
+        "tournamentSport"
+      ).value.trim();
 
     const description =
-      $("tournamentDescription")
-        .value
-        .trim();
-
+      document.getElementById(
+        "tournamentDescription"
+      ).value.trim();
 
     const entryFee =
       Number(
-        $("entryFee")
-          .value || 0
+        document.getElementById(
+          "entryFee"
+        ).value || 0
       );
-
 
     const prizePool =
       Number(
-        $("prizePool")
-          .value || 0
+        document.getElementById(
+          "prizePool"
+        ).value || 0
       );
-
 
     const maxTeams =
       Number(
-        $("maxTeams")
-          .value || 8
+        document.getElementById(
+          "maxTeams"
+        ).value || 8
       );
 
-
     const status =
-      $("tournamentStatus")
-        .value;
-
+      document.getElementById(
+        "tournamentStatus"
+      ).value;
 
     const startsAt =
-      $("startsAt")
-        .value;
-
-
-    const msg =
-      $("tournamentMessage");
-
+      document.getElementById(
+        "startsAt"
+      ).value;
 
     if (!name) {
 
-      msg.textContent =
+      tournamentMessage.textContent =
         "Please enter tournament name.";
 
       return;
-
     }
 
-
-    msg.textContent =
-      "Creating tournament...";
-
+    tournamentMessage.textContent =
+      "Updating tournament...";
 
     try {
 
-      let startDate =
-        null;
-
+      let startDate = null;
 
       if (startsAt) {
 
@@ -987,20 +98,18 @@
 
       }
 
-
       const {
         error
       } =
       await supabase
         .from("tournaments")
-        .insert({
+        .update({
 
           name:
             name,
 
           sport:
-            sport ||
-            "Free Fire",
+            sport || "Free Fire",
 
           description:
             description,
@@ -1020,34 +129,32 @@
           starts_at:
             startDate
 
-        });
-
+        })
+        .eq(
+          "id",
+          editingTournamentId
+        );
 
       if (error) {
 
-        msg.textContent =
-          "Error: " +
+        tournamentMessage.textContent =
+          "Update Error: " +
           error.message;
 
         return;
-
       }
 
-
-      msg.textContent =
-        "Tournament created successfully! ✅";
-
+      tournamentMessage.textContent =
+        "Tournament updated successfully! ✅";
 
       resetForm();
 
-
       await loadTournaments();
-
 
     } catch (error) {
 
-      msg.textContent =
-        "Error: " +
+      tournamentMessage.textContent =
+        "Update Error: " +
         error.message;
 
     }
@@ -1055,331 +162,285 @@
   }
 
 
-  /* ---------------- LOAD ---------------- */
+  /* DELETE */
 
-  async function loadTournaments() {
+  window.deleteTournament =
+  async function (id) {
 
-    const list =
-      $("tournamentList");
+    const confirmDelete =
+      confirm(
+        "Are you sure you want to delete this tournament?"
+      );
 
+    if (!confirmDelete) {
+      return;
+    }
 
-    list.innerHTML =
-      "Loading tournaments...";
+    const tournamentMessage =
+      document.getElementById(
+        "tournamentMessage"
+      );
 
+    tournamentMessage.textContent =
+      "Deleting tournament...";
 
     try {
 
       const {
-        data,
         error
       } =
       await supabase
         .from("tournaments")
-        .select("*")
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
+        .delete()
+        .eq(
+          "id",
+          id
         );
-
 
       if (error) {
 
-        list.innerHTML =
-          "<p class='message'>" +
-          "Error loading tournaments: " +
-          escapeHtml(
-            error.message
-          ) +
-          "</p>";
+        tournamentMessage.textContent =
+          "Delete Error: " +
+          error.message;
 
         return;
-
       }
 
-
-      $("tournamentCount")
-        .textContent =
-        data.length;
-
+      tournamentMessage.textContent =
+        "Tournament deleted successfully! 🗑️";
 
       if (
-        !data.length
+        editingTournamentId === id
       ) {
 
-        list.innerHTML =
-          "<p class='message'>" +
-          "No tournaments yet." +
-          "</p>";
-
-        return;
+        resetForm();
 
       }
 
-
-      list.innerHTML =
-        "";
-
-
-      data.forEach(
-        function(tournament) {
-
-          const card =
-            document.createElement(
-              "div"
-            );
-
-
-          card.className =
-            "tournament-card";
-
-
-          const badgeClass =
-            tournament.status ===
-            "cancelled"
-              ? "badge danger"
-              : "badge";
-
-
-          let startText =
-            "Not scheduled";
-
-
-          if (
-            tournament.starts_at
-          ) {
-
-            startText =
-              new Date(
-                tournament.starts_at
-              )
-              .toLocaleString();
-
-          }
-
-
-          card.innerHTML = `
-
-            <span class="${badgeClass}">
-              ${escapeHtml(
-                tournament.status ||
-                "unknown"
-              )}
-            </span>
-
-            <h3>
-              🏆
-              ${escapeHtml(
-                tournament.name
-              )}
-            </h3>
-
-            <div class="tournament-info">
-
-              🎮 Sport:
-              ${escapeHtml(
-                tournament.sport ||
-                "Free Fire"
-              )}
-
-              <br>
-
-              💵 Entry Fee:
-              ₹${Number(
-                tournament.entry_fee || 0
-              )}
-
-              <br>
-
-              🏆 Prize Pool:
-              ₹${Number(
-                tournament.prize_pool || 0
-              )}
-
-              <br>
-
-              👥 Max Teams:
-              ${Number(
-                tournament.max_teams || 0
-              )}
-
-              <br>
-
-              🕐 Starts:
-              ${escapeHtml(
-                startText
-              )}
-
-              ${
-                tournament.description
-                  ? "<br>📝 " +
-                    escapeHtml(
-                      tournament.description
-                    )
-                  : ""
-              }
-
-            </div>
-
-            <button
-              class="secondary edit-button"
-              data-id="${escapeHtml(
-                tournament.id
-              )}">
-
-              ✏️ Edit Tournament
-
-            </button>
-
-            <button
-              class="danger delete-button"
-              data-id="${escapeHtml(
-                tournament.id
-              )}">
-
-              🗑️ Delete Tournament
-
-            </button>
-
-          `;
-
-
-          list.appendChild(
-            card
-          );
-
-        }
-      );
-
-
-      document
-        .querySelectorAll(
-          ".edit-button"
-        )
-        .forEach(
-          function(button) {
-
-            button.addEventListener(
-              "click",
-              function() {
-
-                editTournament(
-                  button.dataset.id
-                );
-
-              }
-            );
-
-          }
-        );
-
-
-      document
-        .querySelectorAll(
-          ".delete-button"
-        )
-        .forEach(
-          function(button) {
-
-            button.addEventListener(
-              "click",
-              function() {
-
-                deleteTournament(
-                  button.dataset.id
-                );
-
-              }
-            );
-
-          }
-        );
-
+      await loadTournaments();
 
     } catch (error) {
 
-      list.innerHTML =
-        "<p class='message'>" +
-        "Error: " +
-        escapeHtml(
-          error.message
-        ) +
-        "</p>";
+      tournamentMessage.textContent =
+        "Delete Error: " +
+        error.message;
+
+    }
+
+  };
+
+
+  /* CANCEL EDIT */
+
+  window.cancelEdit =
+  function () {
+
+    resetForm();
+
+    document
+      .getElementById(
+        "tournamentMessage"
+      )
+      .textContent =
+      "Edit cancelled.";
+
+  };
+
+
+  /* RESET FORM */
+
+  function resetForm() {
+
+    editingTournamentId = null;
+
+    document
+      .getElementById(
+        "formTitle"
+      )
+      .textContent =
+      "➕ Create Tournament";
+
+    document
+      .getElementById(
+        "tournamentName"
+      )
+      .value =
+      "";
+
+    document
+      .getElementById(
+        "tournamentSport"
+      )
+      .value =
+      "Free Fire";
+
+    document
+      .getElementById(
+        "tournamentDescription"
+      )
+      .value =
+      "";
+
+    document
+      .getElementById(
+        "entryFee"
+      )
+      .value =
+      "0";
+
+    document
+      .getElementById(
+        "prizePool"
+      )
+      .value =
+      "0";
+
+    document
+      .getElementById(
+        "maxTeams"
+      )
+      .value =
+      "8";
+
+    document
+      .getElementById(
+        "tournamentStatus"
+      )
+      .value =
+      "registration_open";
+
+    document
+      .getElementById(
+        "startsAt"
+      )
+      .value =
+      "";
+
+    document
+      .getElementById(
+        "saveTournamentButton"
+      )
+      .textContent =
+      "Create Tournament";
+
+    document
+      .getElementById(
+        "cancelEditButton"
+      )
+      .classList
+      .add("hidden");
+
+  }
+
+
+  /* ESCAPE HTML */
+
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
+
+  }
+
+
+  /* COMING SOON */
+
+  window.comingSoon =
+  function (name) {
+
+    document
+      .getElementById(
+        "dashboardMessage"
+      )
+      .textContent =
+      name +
+      " section coming soon 🚀";
+
+  };
+
+
+  /* CHECK EXISTING LOGIN */
+
+  async function checkSession() {
+
+    try {
+
+      const {
+        data
+      } =
+      await supabase.auth
+        .getSession();
+
+      if (
+        data &&
+        data.session &&
+        data.session.user
+      ) {
+
+        showDashboard(
+          data.session.user
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Session error:",
+        error
+      );
 
     }
 
   }
 
 
-  /* ---------------- EDIT ---------------- */
+  /* AUTH STATE */
 
-  async function editTournament(id) {
+  supabase.auth
+    .onAuthStateChange(
+      function (
+        event,
+        session
+      ) {
 
-    const msg =
-      $("tournamentMessage");
+        if (
+          session &&
+          session.user
+        ) {
 
+          showDashboard(
+            session.user
+          );
 
-    msg.textContent =
-      "Loading tournament...";
-
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-      await supabase
-        .from("tournaments")
-        .select("*")
-        .eq(
-          "id",
-          id
-        )
-        .single();
-
-
-      if (error) {
-
-        msg.textContent =
-          "Error: " +
-          error.message;
-
-        return;
+        }
 
       }
+    );
 
 
-      if (!data) {
+  checkSession();
 
-        msg.textContent =
-          "Tournament not found.";
+</script>
 
-        return;
-
-      }
-
-
-      editingTournamentId =
-        id;
-
-
-      $("formTitle")
-        .textContent =
-        "✏️ Edit Tournament";
-
-
-      $("tournamentName")
-        .value =
-        data.name || "";
-
-
-      $("tournamentSport")
-        .value =
-        data.sport ||
-        "Free Fire";
-
-
-      $("tournamentDescription")
-        .
+</body>
+</html>
