@@ -974,9 +974,7 @@ function tournamentCard(tournament) {
       <button
   class="menu-button"
   type="button"
-  onclick="openPaymentPage('${escapeHtml(
-  tournament.id
-)}')"
+  onclick="window.openPaymentPage('${escapeHtml(tournament.id)}')"
 >
   💳 Pay Entry Fee
 </button>
