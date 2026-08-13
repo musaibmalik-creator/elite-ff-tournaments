@@ -1799,7 +1799,214 @@ console.log(
 </section>
   <script type="module">
 
-// PAYMENT JAVASCRIPT YAHAN AAYEGA
+const UPI_ID = "elightffarena@ptaxis";
+
+const paymentSection =
+  document.getElementById("paymentSection");
+
+const paymentTournamentName =
+  document.getElementById("paymentTournamentName");
+
+const paymentAmount =
+  document.getElementById("paymentAmount");
+
+const paymentUTR =
+  document.getElementById("paymentUTR");
+
+const submitPaymentButton =
+  document.getElementById("submitPaymentButton");
+
+const backPaymentButton =
+  document.getElementById("backPaymentButton");
+
+const paymentMessage =
+  document.getElementById("paymentMessage");
+
+const upiPayButton =
+  document.getElementById("upiPayButton");
+
+let selectedPaymentTournament = null;
+
+window.openPaymentPage = async function(id) {
+
+  try {
+
+    const { data, error } =
+      await supabase
+        .from("tournaments")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) {
+      alert("Payment Error: " + error.message);
+      return;
+    }
+
+    selectedPaymentTournament = data;
+
+    if (dashboard)
+      dashboard.style.display = "none";
+
+    if (tournamentsSection)
+      tournamentsSection.style.display = "none";
+
+    if (playersSection)
+      playersSection.style.display = "none";
+
+    if (paymentSection)
+      paymentSection.style.display = "block";
+
+    const amount =
+      Number(data.entry_fee || 0);
+
+    if (paymentTournamentName)
+      paymentTournamentName.textContent =
+        data.name || "Tournament";
+
+    if (paymentAmount)
+      paymentAmount.textContent =
+        "₹" + amount;
+
+    if (upiPayButton) {
+
+      upiPayButton.href =
+        "upi://pay?pa=" +
+        encodeURIComponent(UPI_ID) +
+        "&pn=Elite%20FF%20Tournaments" +
+        "&am=" +
+        encodeURIComponent(amount) +
+        "&cu=INR";
+
+    }
+
+    if (paymentUTR)
+      paymentUTR.value = "";
+
+    if (paymentMessage)
+      paymentMessage.textContent = "";
+
+  } catch (error) {
+
+    alert("Payment Error: " + error.message);
+
+  }
+
+};
+
+
+if (submitPaymentButton) {
+
+  submitPaymentButton.addEventListener(
+    "click",
+    async function() {
+
+      if (!selectedPaymentTournament) {
+
+        showMessage(
+          paymentMessage,
+          "Please select a tournament."
+        );
+
+        return;
+      }
+
+      const utr =
+        paymentUTR
+          ? paymentUTR.value.trim()
+          : "";
+
+      if (!utr) {
+
+        showMessage(
+          paymentMessage,
+          "Please enter UTR / Transaction ID."
+        );
+
+        return;
+      }
+
+      submitPaymentButton.disabled = true;
+      submitPaymentButton.textContent = "Submitting...";
+
+      try {
+
+        const { error } =
+          await supabase
+            .from("payments")
+            .insert({
+
+              tournament_id:
+                selectedPaymentTournament.id,
+
+              amount:
+                Number(
+                  selectedPaymentTournament.entry_fee || 0
+                ),
+
+              utr: utr,
+
+              status: "pending"
+
+            });
+
+        if (error) {
+
+          showMessage(
+            paymentMessage,
+            "Payment Error: " +
+            error.message
+          );
+
+          return;
+        }
+
+        showMessage(
+          paymentMessage,
+          "Payment submitted! Waiting for admin approval. ✅",
+          true
+        );
+
+        paymentUTR.value = "";
+
+      } catch (error) {
+
+        showMessage(
+          paymentMessage,
+          "Payment Error: " +
+          error.message
+        );
+
+      } finally {
+
+        submitPaymentButton.disabled = false;
+        submitPaymentButton.textContent =
+          "✅ Submit Payment";
+
+      }
+
+    }
+  );
+
+}
+
+
+if (backPaymentButton) {
+
+  backPaymentButton.addEventListener(
+    "click",
+    function() {
+
+      if (paymentSection)
+        paymentSection.style.display = "none";
+
+      if (dashboard)
+        dashboard.style.display = "block";
+
+    }
+  );
+
+}
 
   </script>
 </body>
