@@ -24,12 +24,17 @@
       padding: 18px;
     }
 
-    .card {
+    .card,
+    .menu-card,
+    .stat,
+    .tournament-card {
       background: #1e293b;
-      border-radius: 18px;
+      border-radius: 16px;
+    }
+
+    .card {
       padding: 22px;
       margin-top: 35px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.3);
     }
 
     h1 {
@@ -45,7 +50,9 @@
       margin-bottom: 25px;
     }
 
-    input {
+    input,
+    select,
+    textarea {
       width: 100%;
       padding: 14px;
       margin-top: 10px;
@@ -54,6 +61,11 @@
       background: #0f172a;
       color: white;
       font-size: 16px;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
     }
 
     button {
@@ -66,6 +78,7 @@
       color: white;
       font-size: 16px;
       font-weight: bold;
+      cursor: pointer;
     }
 
     button:active {
@@ -79,7 +92,8 @@
       margin-top: 15px;
     }
 
-    #dashboard {
+    #dashboard,
+    #tournamentsSection {
       display: none;
     }
 
@@ -95,12 +109,21 @@
       font-size: 22px;
     }
 
-    .logout {
+    .logout,
+    .back-button {
       width: auto;
       margin: 0;
       padding: 9px 14px;
-      background: #dc2626;
       font-size: 14px;
+    }
+
+    .logout {
+      background: #dc2626;
+    }
+
+    .back-button {
+      background: #475569;
+      margin-bottom: 15px;
     }
 
     .welcome {
@@ -128,8 +151,6 @@
     }
 
     .stat {
-      background: #1e293b;
-      border-radius: 14px;
       padding: 18px;
       text-align: center;
     }
@@ -150,9 +171,12 @@
       margin-top: 4px;
     }
 
+    .section-title {
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
     .menu-card {
-      background: #1e293b;
-      border-radius: 14px;
       padding: 18px;
       margin-top: 12px;
     }
@@ -172,304 +196,728 @@
       margin-top: 14px;
     }
 
-    .section-title {
-      margin-top: 25px;
-      margin-bottom: 10px;
+    .tournament-card {
+      padding: 18px;
+      margin-top: 12px;
+      border: 1px solid #334155;
+    }
+
+    .tournament-card h3 {
+      margin: 0 0 8px;
+    }
+
+    .tournament-info {
+      color: #cbd5e1;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 8px;
+      background: #16a34a;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .danger {
+      background: #dc2626;
+    }
+
+    .secondary {
+      background: #475569;
     }
 
     .hidden {
-      display: none;
+      display: none !important;
+    }
+
+    .form-card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 15px;
+    }
+
+    .form-card h3 {
+      margin-top: 0;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <!-- LOGIN -->
-    <div class="card" id="loginCard">
+  <!-- LOGIN -->
+  <div class="card" id="loginCard">
 
-      <h1>🎮 Elite FF</h1>
+    <h1>🎮 Elite FF</h1>
 
-      <div class="subtitle">
-        Tournament Manager
-      </div>
-
-      <input
-        id="email"
-        type="email"
-        placeholder="Enter email"
-        autocomplete="email"
-      >
-
-      <input
-        id="password"
-        type="password"
-        placeholder="Enter password"
-        autocomplete="current-password"
-      >
-
-      <button onclick="login()">Login</button>
-
-      <p class="message" id="message"></p>
-
+    <div class="subtitle">
+      Tournament Manager
     </div>
 
+    <input
+      id="email"
+      type="email"
+      placeholder="Enter email"
+      autocomplete="email"
+    >
 
-    <!-- DASHBOARD -->
-    <div id="dashboard">
+    <input
+      id="password"
+      type="password"
+      placeholder="Enter password"
+      autocomplete="current-password"
+    >
 
-      <div class="topbar">
-        <h2>Elite FF 🎮</h2>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
+    <button onclick="login()">Login</button>
 
-
-      <div class="welcome">
-        <h2>Welcome back! 👋</h2>
-        <p id="userEmail"></p>
-      </div>
-
-
-      <!-- STATS -->
-      <div class="stats">
-
-        <div class="stat">
-          <div class="stat-icon">🏆</div>
-          <div class="stat-number">0</div>
-          <div class="stat-label">Tournaments</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-icon">👥</div>
-          <div class="stat-number">0</div>
-          <div class="stat-label">Players</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-icon">💰</div>
-          <div class="stat-number">₹0</div>
-          <div class="stat-label">Payments</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-icon">🎯</div>
-          <div class="stat-number">0</div>
-          <div class="stat-label">Matches</div>
-        </div>
-
-      </div>
-
-
-      <h3 class="section-title">Management</h3>
-
-
-      <div class="menu-card">
-        <h3>🏆 Tournaments</h3>
-        <p>Create tournaments, set entry fees, dates and prize pools.</p>
-        <button class="menu-button" onclick="comingSoon('Tournaments')">
-          Open Tournaments
-        </button>
-      </div>
-
-
-      <div class="menu-card">
-        <h3>👥 Players</h3>
-        <p>View and manage registered Free Fire players and teams.</p>
-        <button class="menu-button" onclick="comingSoon('Players')">
-          Open Players
-        </button>
-      </div>
-
-
-      <div class="menu-card">
-        <h3>💰 Payments</h3>
-        <p>Manage tournament entry payments and payment records.</p>
-        <button class="menu-button" onclick="comingSoon('Payments')">
-          Open Payments
-        </button>
-      </div>
-
-
-      <div class="menu-card">
-        <h3>📊 Results</h3>
-        <p>Manage match results, rankings and tournament winners.</p>
-        <button class="menu-button" onclick="comingSoon('Results')">
-          Open Results
-        </button>
-      </div>
-
-
-      <p class="message" id="dashboardMessage"></p>
-
-    </div>
+    <p class="message" id="message"></p>
 
   </div>
 
 
-  <script type="module">
+  <!-- DASHBOARD -->
+  <div id="dashboard">
 
-    import { createClient }
-      from "https://esm.sh/@supabase/supabase-js@2";
+    <div class="topbar">
+      <h2>Elite FF 🎮</h2>
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="welcome">
+      <h2>Welcome back! 👋</h2>
+      <p id="userEmail"></p>
+    </div>
+
+    <div class="stats">
+
+      <div class="stat">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-number" id="tournamentCount">0</div>
+        <div class="stat-label">Tournaments</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-icon">👥</div>
+        <div class="stat-number">0</div>
+        <div class="stat-label">Players</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-icon">💰</div>
+        <div class="stat-number">₹0</div>
+        <div class="stat-label">Payments</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-number">0</div>
+        <div class="stat-label">Matches</div>
+      </div>
+
+    </div>
+
+    <h3 class="section-title">Management</h3>
+
+    <div class="menu-card">
+      <h3>🏆 Tournaments</h3>
+      <p>Create tournaments, set entry fees, dates and prize pools.</p>
+      <button class="menu-button" onclick="openTournaments()">
+        Open Tournaments
+      </button>
+    </div>
+
+    <div class="menu-card">
+      <h3>👥 Players</h3>
+      <p>View and manage registered Free Fire players and teams.</p>
+      <button class="menu-button" onclick="comingSoon('Players')">
+        Open Players
+      </button>
+    </div>
+
+    <div class="menu-card">
+      <h3>💰 Payments</h3>
+      <p>Manage tournament entry payments and payment records.</p>
+      <button class="menu-button" onclick="comingSoon('Payments')">
+        Open Payments
+      </button>
+    </div>
+
+    <div class="menu-card">
+      <h3>📊 Results</h3>
+      <p>Manage match results, rankings and tournament winners.</p>
+      <button class="menu-button" onclick="comingSoon('Results')">
+        Open Results
+      </button>
+    </div>
+
+    <p class="message" id="dashboardMessage"></p>
+
+  </div>
 
 
-    /*
-      IMPORTANT:
-      Keep your existing Supabase values here.
-    */
+  <!-- TOURNAMENTS -->
+  <div id="tournamentsSection">
 
-    const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+    <div class="topbar">
+      <h2>🏆 Tournaments</h2>
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <button class="back-button" onclick="backToDashboard()">
+      ← Back to Dashboard
+    </button>
+
+    <!-- CREATE FORM -->
+    <div class="form-card">
+
+      <h3>➕ Create Tournament</h3>
+
+      <input
+        id="tournamentName"
+        type="text"
+        placeholder="Tournament name"
+      >
+
+      <input
+        id="tournamentSport"
+        type="text"
+        value="Free Fire"
+        placeholder="Sport"
+      >
+
+      <textarea
+        id="tournamentDescription"
+        placeholder="Tournament description"
+      ></textarea>
+
+      <input
+        id="entryFee"
+        type="number"
+        min="0"
+        value="0"
+        placeholder="Entry fee"
+      >
+
+      <input
+        id="prizePool"
+        type="number"
+        min="0"
+        value="0"
+        placeholder="Prize pool"
+      >
+
+      <input
+        id="maxTeams"
+        type="number"
+        min="1"
+        value="8"
+        placeholder="Maximum teams"
+      >
+
+      <select id="tournamentStatus">
+        <option value="registration_open">Registration Open</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="live">Live</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+
+      <input
+        id="startsAt"
+        type="datetime-local"
+      >
+
+      <button onclick="createTournament()">
+        Create Tournament
+      </button>
+
+      <p class="message" id="tournamentMessage"></p>
+
+    </div>
 
 
-    const supabase = createClient(
+    <!-- LIST -->
+    <h3 class="section-title">Existing Tournaments</h3>
+
+    <div id="tournamentList">
+      Loading tournaments...
+    </div>
+
+  </div>
+
+</div>
+
+
+<script type="module">
+
+  import { createClient }
+    from "https://esm.sh/@supabase/supabase-js@2";
+
+
+  const SUPABASE_URL =
+    "https://yenhkcditizmcekjeswy.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
+
+  const supabase =
+    createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
 
 
-    const loginCard =
-      document.getElementById("loginCard");
+  const loginCard =
+    document.getElementById("loginCard");
 
-    const dashboard =
-      document.getElementById("dashboard");
+  const dashboard =
+    document.getElementById("dashboard");
 
-    const message =
-      document.getElementById("message");
+  const tournamentsSection =
+    document.getElementById("tournamentsSection");
 
-    const userEmail =
-      document.getElementById("userEmail");
+  const message =
+    document.getElementById("message");
 
-
-    window.login = async function () {
-
-      const email =
-        document.getElementById("email").value.trim();
-
-      const password =
-        document.getElementById("password").value;
+  const userEmail =
+    document.getElementById("userEmail");
 
 
-      if (!email || !password) {
+  /* LOGIN */
+
+  window.login = async function () {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+
+    if (!email || !password) {
+
+      message.textContent =
+        "Please enter email and password.";
+
+      return;
+    }
+
+
+    message.textContent =
+      "Logging in...";
+
+
+    try {
+
+      const { data, error } =
+        await supabase.auth.signInWithPassword({
+
+          email: email,
+          password: password
+
+        });
+
+
+      if (error) {
 
         message.textContent =
-          "Please enter email and password.";
+          error.message;
 
         return;
       }
 
 
+      message.textContent = "";
+
+      showDashboard(data.user);
+
+    } catch (error) {
+
       message.textContent =
-        "Logging in...";
+        "Login error: " + error.message;
+
+    }
+
+  };
 
 
-      try {
+  /* SHOW DASHBOARD */
 
-        const { data, error } =
-          await supabase.auth.signInWithPassword({
+  function showDashboard(user) {
 
-            email: email,
+    loginCard.style.display = "none";
 
-            password: password
+    tournamentsSection.style.display = "none";
+
+    dashboard.style.display = "block";
+
+
+    if (user && user.email) {
+
+      userEmail.textContent =
+        "Logged in as: " + user.email;
+
+    }
+
+  }
+
+
+  /* LOGOUT */
+
+  window.logout = async function () {
+
+    await supabase.auth.signOut();
+
+    dashboard.style.display = "none";
+
+    tournamentsSection.style.display = "none";
+
+    loginCard.style.display = "block";
+
+    document.getElementById("password").value = "";
+
+    message.textContent =
+      "Logged out.";
+
+  };
+
+
+  /* OPEN TOURNAMENTS */
+
+  window.openTournaments = async function () {
+
+    dashboard.style.display = "none";
+
+    tournamentsSection.style.display = "block";
+
+    document.getElementById("tournamentMessage").textContent = "";
+
+    await loadTournaments();
+
+  };
+
+
+  /* BACK */
+
+  window.backToDashboard = function () {
+
+    tournamentsSection.style.display = "none";
+
+    dashboard.style.display = "block";
+
+  };
+
+
+  /* CREATE TOURNAMENT */
+
+  window.createTournament = async function () {
+
+    const name =
+      document.getElementById("tournamentName").value.trim();
+
+    const sport =
+      document.getElementById("tournamentSport").value.trim();
+
+    const description =
+      document.getElementById("tournamentDescription").value.trim();
+
+    const entryFee =
+      Number(document.getElementById("entryFee").value || 0);
+
+    const prizePool =
+      Number(document.getElementById("prizePool").value || 0);
+
+    const maxTeams =
+      Number(document.getElementById("maxTeams").value || 8);
+
+    const status =
+      document.getElementById("tournamentStatus").value;
+
+    const startsAt =
+      document.getElementById("startsAt").value;
+
+
+    const tournamentMessage =
+      document.getElementById("tournamentMessage");
+
+
+    if (!name) {
+
+      tournamentMessage.textContent =
+        "Please enter tournament name.";
+
+      return;
+    }
+
+
+    tournamentMessage.textContent =
+      "Creating tournament...";
+
+
+    try {
+
+      let startDate = null;
+
+
+      if (startsAt) {
+
+        startDate =
+          new Date(startsAt).toISOString();
+
+      }
+
+
+      const { error } =
+        await supabase
+          .from("tournaments")
+          .insert({
+
+            name: name,
+
+            sport: sport || "Free Fire",
+
+            description: description,
+
+            entry_fee: entryFee,
+
+            prize_pool: prizePool,
+
+            max_teams: maxTeams,
+
+            status: status,
+
+            starts_at: startDate
 
           });
 
 
-        if (error) {
+      if (error) {
 
-          message.textContent =
-            error.message;
+        tournamentMessage.textContent =
+          "Error: " + error.message;
 
-          return;
-        }
-
-
-        message.textContent = "";
-
-        showDashboard(data.user);
-
-      } catch (error) {
-
-        message.textContent =
-          "Login error: " + error.message;
-
+        return;
       }
 
-    };
+
+      tournamentMessage.textContent =
+        "Tournament created successfully! ✅";
 
 
-    function showDashboard(user) {
+      document.getElementById("tournamentName").value = "";
 
-      loginCard.style.display =
-        "none";
+      document.getElementById("tournamentDescription").value = "";
 
-      dashboard.style.display =
-        "block";
+      document.getElementById("entryFee").value = "0";
+
+      document.getElementById("prizePool").value = "0";
+
+      document.getElementById("maxTeams").value = "8";
+
+      document.getElementById("startsAt").value = "";
 
 
-      if (user && user.email) {
+      await loadTournaments();
 
-        userEmail.textContent =
-          "Logged in as: " + user.email;
+    } catch (error) {
 
-      }
+      tournamentMessage.textContent =
+        "Error: " + error.message;
 
     }
 
-
-    window.logout = async function () {
-
-      await supabase.auth.signOut();
-
-      dashboard.style.display =
-        "none";
-
-      loginCard.style.display =
-        "block";
-
-      document.getElementById("password").value =
-        "";
-
-      message.textContent =
-        "Logged out.";
-
-    };
+  };
 
 
-    window.comingSoon = function(name) {
+  /* LOAD TOURNAMENTS */
 
-      document.getElementById(
-        "dashboardMessage"
-      ).textContent =
-        name + " section coming next 🚀";
+  async function loadTournaments() {
 
-    };
+    const list =
+      document.getElementById("tournamentList");
 
 
-    async function checkUser() {
-
-      const { data } =
-        await supabase.auth.getSession();
+    list.innerHTML =
+      "Loading tournaments...";
 
 
-      if (
-        data.session &&
+    const { data, error } =
+      await supabase
+        .from("tournaments")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        });
+
+
+    if (error) {
+
+      list.innerHTML =
+        "<p class='message'>Error loading tournaments: "
+        + error.message +
+        "</p>";
+
+      return;
+    }
+
+
+    document.getElementById("tournamentCount")
+      .textContent = data.length;
+
+
+    if (!data.length) {
+
+      list.innerHTML =
+        "<p class='message'>No tournaments yet.</p>";
+
+      return;
+    }
+
+
+    list.innerHTML = "";
+
+
+    data.forEach(function (tournament) {
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "tournament-card";
+
+
+      const badgeClass =
+        tournament.status === "cancelled"
+          ? "badge danger"
+          : "badge";
+
+
+      let startText =
+        "Not scheduled";
+
+
+      if (tournament.starts_at) {
+
+        startText =
+          new Date(
+            tournament.starts_at
+          ).toLocaleString();
+
+      }
+
+
+      card.innerHTML = `
+
+        <span class="${badgeClass}">
+          ${escapeHtml(tournament.status || "unknown")}
+        </span>
+
+        <h3>
+          🏆 ${escapeHtml(tournament.name)}
+        </h3>
+
+        <div class="tournament-info">
+
+          🎮 Sport:
+          ${escapeHtml(tournament.sport || "Free Fire")}
+          <br>
+
+          💵 Entry Fee:
+          ₹${Number(tournament.entry_fee || 0)}
+          <br>
+
+          🏆 Prize Pool:
+          ₹${Number(tournament.prize_pool || 0)}
+          <br>
+
+          👥 Max Teams:
+          ${Number(tournament.max_teams || 0)}
+          <br>
+
+          🕐 Starts:
+          ${escapeHtml(startText)}
+
+          ${
+            tournament.description
+              ? "<br>📝 " +
+                escapeHtml(tournament.description)
+              : ""
+          }
+
+        </div>
+
+      `;
+
+
+      list.appendChild(card);
+
+    });
+
+  }
+
+
+  /* SECURITY */
+
+  function escapeHtml(value) {
+
+    return String(value)
+
+      .replaceAll("&", "&amp;")
+
+      .replaceAll("<", "&lt;")
+
+      .replaceAll(">", "&gt;")
+
+      .replaceAll('"', "&quot;")
+
+      .replaceAll("'", "&#039;");
+
+  }
+
+
+  /* COMING SOON */
+
+  window.comingSoon = function(name) {
+
+    document.getElementById(
+      "dashboardMessage"
+    ).textContent =
+      name + " section coming next 🚀";
+
+  };
+
+
+  /* CHECK SESSION */
+
+  async function checkUser() {
+
+    const { data } =
+      await supabase.auth.getSession();
+
+
+    if (
+      data.session &&
+      data.session.user
+    ) {
+
+      showDashboard(
         data.session.user
-      ) {
-
-        showDashboard(
-          data.session.user
-        );
-
-      }
+      );
 
     }
 
+  }
 
-    checkUser();
 
-  </script>
+  checkUser();
+
+</script>
 
 </body>
 </html>
