@@ -324,37 +324,52 @@
 
       <div class="stat">
         <div class="stat-icon">🏆</div>
+
         <div
           class="stat-number"
           id="tournamentCount">
           0
         </div>
+
         <div class="stat-label">
           Tournaments
         </div>
       </div>
 
+
       <div class="stat">
         <div class="stat-icon">👥</div>
-        <div class="stat-number">0</div>
+
+        <div class="stat-number">
+          0
+        </div>
+
         <div class="stat-label">
           Players
         </div>
       </div>
 
+
       <div class="stat">
         <div class="stat-icon">💰</div>
+
         <div class="stat-number">
           ₹0
         </div>
+
         <div class="stat-label">
           Payments
         </div>
       </div>
 
+
       <div class="stat">
         <div class="stat-icon">🎯</div>
-        <div class="stat-number">0</div>
+
+        <div class="stat-number">
+          0
+        </div>
+
         <div class="stat-label">
           Matches
         </div>
@@ -1293,6 +1308,48 @@
     };
 
   }
+    /* =========================
+     LOAD TOURNAMENT COUNT
+  ========================= */
+
+  async function loadTournamentCount() {
+
+    try {
+
+      const {
+        count,
+        error
+      } = await supabase
+        .from("tournaments")
+        .select("*", {
+          count: "exact",
+          head: true
+        });
+
+      if (error) {
+
+        console.error(
+          "Count error:",
+          error
+        );
+
+        return;
+      }
+
+      document.getElementById(
+        "tournamentCount"
+      ).textContent = count || 0;
+
+    } catch (error) {
+
+      console.error(
+        "Count exception:",
+        error
+      );
+
+    }
+
+  }
 
 
   /* =========================
@@ -1306,129 +1363,79 @@
         "tournamentList"
       );
 
-
     list.innerHTML =
       "Loading tournaments...";
-
 
     try {
 
       const {
         data,
         error
-      } =
-      await supabase
+      } = await supabase
         .from("tournaments")
         .select("*")
         .order(
           "created_at",
           {
-            ascending:
-              false
+            ascending: false
           }
         );
 
-
       if (error) {
 
+        console.error(
+          "Load error:",
+          error
+        );
+
         list.innerHTML =
-          "<p class='message error'>" +
-          escapeHtml(
-            error.message
-          ) +
-          "</p>";
+          `<p class="message error">
+            Error: ${escapeHtml(
+              error.message
+            )}
+          </p>`;
 
         return;
-
       }
-
-
-      const tournaments =
-        data || [];
-
-
-      document
-        .getElementById(
-          "tournamentCount"
-        )
-        .textContent =
-        tournaments.length;
 
 
       if (
-        tournaments.length === 0
+        !data ||
+        data.length === 0
       ) {
 
         list.innerHTML =
-          "<p class='message'>" +
-          "No tournaments yet." +
-          "</p>";
+          `<p class="message">
+            No tournaments found.
+          </p>`;
 
         return;
-
       }
 
 
       list.innerHTML =
-        "";
-
-
-      tournaments.forEach(
-        function(tournament) {
-
-          renderTournament(
-            tournament
-          );
-
-        }
-      );
+        data
+          .map(
+            tournament =>
+              tournamentCard(
+                tournament
+              )
+          )
+          .join("");
 
     } catch (error) {
 
-      list.innerHTML =
-        "<
-        <p class='message error'>
-  ${escapeHtml(error.message)}
-</p>
-`;
-
-        return;
-
-      }
-
-      const tournaments = data || [];
-
-      document
-        .getElementById("tournamentCount")
-        .textContent = tournaments.length;
-
-      if (tournaments.length === 0) {
-
-        list.innerHTML =
-          "<p class='message'>" +
-          "No tournaments yet." +
-          "</p>";
-
-        return;
-
-      }
-
-      list.innerHTML = "";
-
-      tournaments.forEach(
-        function(tournament) {
-
-          renderTournament(tournament);
-
-        }
+      console.error(
+        "Load exception:",
+        error
       );
 
-    } catch (error) {
-
       list.innerHTML =
-        "<p class='message error'>" +
-        escapeHtml(error.message) +
-        "</p>";
+        `<p class="message error">
+          Error: ${escapeHtml(
+            error.message
+          )}
+        </p>`;
 
     }
 
@@ -1436,149 +1443,134 @@
 
 
   /* =========================
-     RENDER TOURNAMENT
+     TOURNAMENT CARD
   ========================= */
 
-  function renderTournament(tournament) {
-
-    const list =
-      document.getElementById(
-        "tournamentList"
-      );
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "tournament-card";
+  function tournamentCard(
+    tournament
+  ) {
 
     const status =
       tournament.status ||
-      "unknown";
+      "upcoming";
+
+
+    const statusText =
+      status
+        .replaceAll("_", " ")
+        .replace(
+          /\b\w/g,
+          letter =>
+            letter.toUpperCase()
+        );
+
 
     const badgeClass =
-      status === "cancelled"
+      status === "cancelled" ||
+      status === "completed"
         ? "badge danger"
         : "badge";
 
-    let startText =
-      "Not scheduled";
 
-    if (tournament.starts_at) {
+    const startsAt =
+      tournament.starts_at
+        ? new Date(
+            tournament.starts_at
+          ).toLocaleString()
+        : "Not set";
 
-      const date =
-        new Date(
-          tournament.starts_at
-        );
 
-      if (!isNaN(date.getTime())) {
+    return `
+      <div
+        class="tournament-card"
+        data-id="${escapeHtml(
+          tournament.id
+        )}"
+      >
 
-        startText =
-          date.toLocaleString();
+        <span class="${badgeClass}">
+          ${escapeHtml(statusText)}
+        </span>
 
-      }
+        <h3>
+          🏆 ${escapeHtml(
+            tournament.name ||
+            "Untitled Tournament"
+          )}
+        </h3>
 
-    }
+        <div class="tournament-info">
 
-    card.innerHTML = `
+          <div>
+            🎮 Sport:
+            ${escapeHtml(
+              tournament.sport ||
+              "Free Fire"
+            )}
+          </div>
 
-      <span class="${badgeClass}">
-        ${escapeHtml(status)}
-      </span>
+          <div>
+            💰 Entry Fee:
+            ₹${Number(
+              tournament.entry_fee || 0
+            )}
+          </div>
 
-      <h3>
-        🏆 ${escapeHtml(
-          tournament.name || "Untitled"
-        )}
-      </h3>
+          <div>
+            🏆 Prize Pool:
+            ₹${Number(
+              tournament.prize_pool || 0
+            )}
+          </div>
 
-      <div class="tournament-info">
+          <div>
+            👥 Max Teams:
+            ${Number(
+              tournament.max_teams || 0
+            )}
+          </div>
 
-        🎮 Sport:
-        ${escapeHtml(
-          tournament.sport || "Free Fire"
-        )}
+          <div>
+            📅 Start:
+            ${escapeHtml(
+              startsAt
+            )}
+          </div>
 
-        <br>
+          ${
+            tournament.description
+              ? `
+                <div>
+                  📝 ${escapeHtml(
+                    tournament.description
+                  )}
+                </div>
+              `
+              : ""
+          }
 
-        💵 Entry Fee:
-        ₹${Number(
-          tournament.entry_fee || 0
-        )}
+        </div>
 
-        <br>
+        <button
+          class="menu-button"
+          onclick="editTournament('${escapeHtml(
+            tournament.id
+          )}')"
+        >
+          ✏️ Edit
+        </button>
 
-        🏆 Prize Pool:
-        ₹${Number(
-          tournament.prize_pool || 0
-        )}
-
-        <br>
-
-        👥 Max Teams:
-        ${Number(
-          tournament.max_teams || 0
-        )}
-
-        <br>
-
-        🕒 Start:
-        ${escapeHtml(startText)}
-
-        <br>
-
-        📝 Description:
-        ${escapeHtml(
-          tournament.description || "No description"
-        )}
+        <button
+          class="danger"
+          onclick="deleteTournament('${escapeHtml(
+            tournament.id
+          )}')"
+        >
+          🗑️ Delete
+        </button>
 
       </div>
-
-      <button
-        class="secondary edit-button">
-        ✏️ Edit
-      </button>
-
-      <button
-        class="danger delete-button">
-        🗑️ Delete
-      </button>
-
     `;
-
-    const editButton =
-      card.querySelector(
-        ".edit-button"
-      );
-
-    const deleteButton =
-      card.querySelector(
-        ".delete-button"
-      );
-
-    editButton.addEventListener(
-      "click",
-      function() {
-
-        editTournament(
-          tournament
-        );
-
-      }
-    );
-
-    deleteButton.addEventListener(
-      "click",
-      function() {
-
-        deleteTournament(
-          tournament.id
-        );
-
-      }
-    );
-
-    list.appendChild(card);
 
   }
 
@@ -1587,141 +1579,136 @@
      EDIT TOURNAMENT
   ========================= */
 
-  function editTournament(
-    tournament
-  ) {
+  window.editTournament =
+    async function(id) {
 
-    editingTournamentId =
-      tournament.id;
+      const {
+        data,
+        error
+      } = await supabase
+        .from("tournaments")
+        .select("*")
+        .eq(
+          "id",
+          id
+        )
+        .single();
 
-    document
-      .getElementById(
-        "formTitle"
-      )
-      .textContent =
-      "✏️ Edit Tournament";
 
-    document
-      .getElementById(
-        "tournamentName"
-      )
-      .value =
-      tournament.name || "";
+      if (error) {
 
-    document
-      .getElementById(
-        "tournamentSport"
-      )
-      .value =
-      tournament.sport || "Free Fire";
-
-    document
-      .getElementById(
-        "tournamentDescription"
-      )
-      .value =
-      tournament.description || "";
-
-    document
-      .getElementById(
-        "entryFee"
-      )
-      .value =
-      tournament.entry_fee || 0;
-
-    document
-      .getElementById(
-        "prizePool"
-      )
-      .value =
-      tournament.prize_pool || 0;
-
-    document
-      .getElementById(
-        "maxTeams"
-      )
-      .value =
-      tournament.max_teams || 8;
-
-    document
-      .getElementById(
-        "tournamentStatus"
-      )
-      .value =
-      tournament.status ||
-      "registration_open";
-
-    let localDate = "";
-
-    if (tournament.starts_at) {
-
-      const date =
-        new Date(
-          tournament.starts_at
+        showMessage(
+          tournamentMessage,
+          "Edit Error: " +
+          error.message
         );
 
-      if (!isNaN(date.getTime())) {
+        return;
+      }
 
-        const year =
-          date.getFullYear();
 
-        const month =
-          String(
-            date.getMonth() + 1
-          ).padStart(2, "0");
+      editingTournamentId =
+        id;
 
-        const day =
-          String(
-            date.getDate()
-          ).padStart(2, "0");
 
-        const hours =
-          String(
-            date.getHours()
-          ).padStart(2, "0");
+      document.getElementById(
+        "formTitle"
+      ).textContent =
+        "✏️ Edit Tournament";
 
-        const minutes =
-          String(
-            date.getMinutes()
-          ).padStart(2, "0");
 
-        localDate =
-          `${year}-${month}-${day}T${hours}:${minutes}`;
+      saveTournamentButton
+        .textContent =
+        "Update Tournament";
+
+
+      cancelEditButton
+        .classList
+        .remove("hidden");
+
+
+      document.getElementById(
+        "tournamentName"
+      ).value =
+        data.name || "";
+
+
+      document.getElementById(
+        "tournamentSport"
+      ).value =
+        data.sport || "Free Fire";
+
+
+      document.getElementById(
+        "tournamentDescription"
+      ).value =
+        data.description || "";
+
+
+      document.getElementById(
+        "entryFee"
+      ).value =
+        data.entry_fee || 0;
+
+
+      document.getElementById(
+        "prizePool"
+      ).value =
+        data.prize_pool || 0;
+
+
+      document.getElementById(
+        "maxTeams"
+      ).value =
+        data.max_teams || 8;
+
+
+      document.getElementById(
+        "tournamentStatus"
+      ).value =
+        data.status ||
+        "registration_open";
+
+
+      if (data.starts_at) {
+
+        const date =
+          new Date(
+            data.starts_at
+          );
+
+
+        const localDate =
+          new Date(
+            date.getTime() -
+            date.getTimezoneOffset() *
+            60000
+          )
+            .toISOString()
+            .slice(0, 16);
+
+
+        document.getElementById(
+          "startsAt"
+        ).value =
+          localDate;
+
+      } else {
+
+        document.getElementById(
+          "startsAt"
+        ).value =
+          "";
 
       }
 
-    }
 
-    document
-      .getElementById(
-        "startsAt"
-      )
-      .value =
-      localDate;
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
 
-    document
-      .getElementById(
-        "saveTournamentButton"
-      )
-      .textContent =
-      "Update Tournament";
-
-    document
-      .getElementById(
-        "cancelEditButton"
-      )
-      .classList
-      .remove("hidden");
-
-    tournamentMessage.textContent =
-      "Edit mode enabled. Changes karo aur Update Tournament dabao.";
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
-  }
+    };
 
 
   /* =========================
@@ -1733,16 +1720,6 @@
     const values =
       getTournamentForm();
 
-    if (!editingTournamentId) {
-
-      showMessage(
-        tournamentMessage,
-        "No tournament selected for editing."
-      );
-
-      return;
-
-    }
 
     if (!values.name) {
 
@@ -1752,20 +1729,20 @@
       );
 
       return;
-
     }
+
 
     showMessage(
       tournamentMessage,
       "Updating tournament..."
     );
 
+
     try {
 
       const {
         error
-      } =
-      await supabase
+      } = await supabase
         .from("tournaments")
         .update({
 
@@ -1799,6 +1776,7 @@
           editingTournamentId
         );
 
+
       if (error) {
 
         showMessage(
@@ -1808,8 +1786,8 @@
         );
 
         return;
-
       }
+
 
       showMessage(
         tournamentMessage,
@@ -1817,9 +1795,12 @@
         true
       );
 
+
       resetForm();
 
       await loadTournaments();
+
+      await loadTournamentCount();
 
     } catch (error) {
 
@@ -1838,40 +1819,64 @@
      DELETE TOURNAMENT
   ========================= */
 
-  async function deleteTournament(
-    id
-  ) {
+  window.deleteTournament =
+    async function(id) {
 
-    const confirmDelete =
-      confirm(
-        "Are you sure you want to delete this tournament?"
-      );
-
-    if (!confirmDelete) {
-
-      return;
-
-    }
-
-    showMessage(
-      tournamentMessage,
-      "Deleting tournament..."
-    );
-
-    try {
-
-      const {
-        error
-      } =
-      await supabase
-        .from("tournaments")
-        .delete()
-        .eq(
-          "id",
-          id
+      const confirmDelete =
+        confirm(
+          "Are you sure you want to delete this tournament?"
         );
 
-      if (error) {
+
+      if (!confirmDelete) {
+
+        return;
+      }
+
+
+      showMessage(
+        tournamentMessage,
+        "Deleting tournament..."
+      );
+
+
+      try {
+
+        const {
+          error
+        } = await supabase
+          .from("tournaments")
+          .delete()
+          .eq(
+            "id",
+            id
+          );
+
+
+        if (error) {
+
+          showMessage(
+            tournamentMessage,
+            "Delete Error: " +
+            error.message
+          );
+
+          return;
+        }
+
+
+        showMessage(
+          tournamentMessage,
+          "Tournament deleted successfully! ✅",
+          true
+        );
+
+
+        await loadTournaments();
+
+        await loadTournamentCount();
+
+      } catch (error) {
 
         showMessage(
           tournamentMessage,
@@ -1879,35 +1884,87 @@
           error.message
         );
 
-        return;
-
       }
 
-      showMessage(
-        tournamentMessage,
-        "Tournament deleted successfully! 🗑️",
-        true
-      );
+    };
 
-      if (
-        editingTournamentId === id
-      ) {
 
-        resetForm();
+  /* =========================
+     RESET FORM
+  ========================= */
 
-      }
+  function resetForm() {
 
-      await loadTournaments();
+    editingTournamentId =
+      null;
 
-    } catch (error) {
 
-      showMessage(
-        tournamentMessage,
-        "Delete Error: " +
-        error.message
-      );
+    document.getElementById(
+      "formTitle"
+    ).textContent =
+      "➕ Create Tournament";
 
-    }
+
+    saveTournamentButton
+      .textContent =
+      "Create Tournament";
+
+
+    cancelEditButton
+      .classList
+      .add("hidden");
+
+
+    document.getElementById(
+      "tournamentName"
+    ).value =
+      "";
+
+
+    document.getElementById(
+      "tournamentSport"
+    ).value =
+      "Free Fire";
+
+
+    document.getElementById(
+      "tournamentDescription"
+    ).value =
+      "";
+
+
+    document.getElementById(
+      "entryFee"
+    ).value =
+      0;
+
+
+    document.getElementById(
+      "prizePool"
+    ).value =
+      0;
+
+
+    document.getElementById(
+      "maxTeams"
+    ).value =
+      8;
+
+
+    document.getElementById(
+      "tournamentStatus"
+    ).value =
+      "registration_open";
+
+
+    document.getElementById(
+      "startsAt"
+    ).value =
+      "";
+
+
+    tournamentMessage.textContent =
+      "";
 
   }
 
@@ -1923,171 +1980,6 @@
 
         resetForm();
 
-        showMessage(
-          tournamentMessage,
-          "Edit cancelled."
-        );
-
-      }
-    );
-
-
-  /* =========================
-     RESET FORM
-  ========================= */
-
-  function resetForm() {
-
-    editingTournamentId =
-      null;
-
-    document
-      .getElementById(
-        "formTitle"
-      )
-      .textContent =
-      "➕ Create Tournament";
-
-    document
-      .getElementById(
-        "tournamentName"
-      )
-      .value =
-      "";
-
-    document
-      .getElementById(
-        "tournamentSport"
-      )
-      .value =
-      "Free Fire";
-
-    document
-      .getElementById(
-        "tournamentDescription"
-      )
-      .value =
-      "";
-
-    document
-      .getElementById(
-        "entryFee"
-      )
-      .value =
-      "0";
-
-    document
-      .getElementById(
-        "prizePool"
-      )
-      .value =
-      "0";
-
-    document
-      .getElementById(
-        "maxTeams"
-      )
-      .value =
-      "8";
-
-    document
-      .getElementById(
-        "tournamentStatus"
-      )
-      .value =
-      "registration_open";
-
-    document
-      .getElementById(
-        "startsAt"
-      )
-      .value =
-      "";
-
-    document
-      .getElementById(
-        "saveTournamentButton"
-      )
-      .textContent =
-      "Create Tournament";
-
-    document
-      .getElementById(
-        "cancelEditButton"
-      )
-      .classList
-      .add("hidden");
-
-  }
-
-
-  /* =========================
-     LOAD COUNT
-  ========================= */
-
-  async function loadTournamentCount() {
-
-    try {
-
-      const {
-        count,
-        error
-      } =
-      await supabase
-        .from("tournaments")
-        .select(
-          "*",
-          {
-            count: "exact",
-            head: true
-          }
-        );
-
-      if (!error) {
-
-        document
-          .getElementById(
-            "tournamentCount"
-          )
-          .textContent =
-          count || 0;
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Count error:",
-        error
-      );
-
-    }
-
-  }
-
-
-  /* =========================
-     COMING SOON
-  ========================= */
-
-  document
-    .querySelectorAll(
-      "[data-coming]"
-    )
-    .forEach(
-      function(button) {
-
-        button.addEventListener(
-          "click",
-          function() {
-
-            dashboardMessage.textContent =
-              button.dataset.coming +
-              " section coming soon 🚀";
-
-          }
-        );
-
       }
     );
 
@@ -2096,33 +1988,75 @@
      ESCAPE HTML
   ========================= */
 
-  function escapeHtml(value) {
+  function escapeHtml(
+    value
+  ) {
 
-    return String(
-      value ?? ""
-    )
-      .replace(
-        /&/g,
+    if (
+      value === null ||
+      value === undefined
+    ) {
+
+      return "";
+
+    }
+
+
+    return String(value)
+      .replaceAll(
+        "&",
         "&amp;"
       )
-      .replace(
-        /</g,
+      .replaceAll(
+        "<",
         "&lt;"
       )
-      .replace(
-        />/g,
+      .replaceAll(
+        ">",
         "&gt;"
       )
-      .replace(
-        /"/g,
+      .replaceAll(
+        '"',
         "&quot;"
       )
-      .replace(
-        /'/g,
+      .replaceAll(
+        "'",
         "&#039;"
       );
 
   }
+
+
+  /* =========================
+     COMING SOON BUTTONS
+  ========================= */
+
+  document
+    .querySelectorAll(
+      "[data-coming]"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          function() {
+
+            const name =
+              this.dataset.coming;
+
+
+            showMessage(
+              dashboardMessage,
+              name +
+              " section is coming soon. 🚀"
+            );
+
+          }
+        );
+
+      }
+    );
 
 
   /* =========================
@@ -2136,9 +2070,9 @@
       const {
         data,
         error
-      } =
-      await supabase.auth
+      } = await supabase.auth
         .getSession();
+
 
       if (error) {
 
@@ -2148,8 +2082,8 @@
         );
 
         return;
-
       }
+
 
       if (
         data &&
@@ -2187,15 +2121,6 @@
       ) {
 
         if (
-          session &&
-          session.user
-        ) {
-
-          showDashboard(
-            session.user
-          );
-
-        } else if (
           event === "SIGNED_OUT"
         ) {
 
