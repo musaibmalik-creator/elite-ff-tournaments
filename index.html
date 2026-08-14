@@ -761,117 +761,104 @@ element.className=
 }
 
 
-
 /* LOGIN */
-
-console.log("LOGIN SECTION LOADED");
 
 loginButton.addEventListener(
   "click",
-  function () {
-    alert("LOGIN CLICK WORKING");
-    login();
-  }
+  login
 );
 
 document
-.getElementById("password")
-.addEventListener(
-"keydown",
-e=>{
-if(e.key==="Enter"){
-login();
-}
-}
-);
+  .getElementById("password")
+  .addEventListener(
+    "keydown",
+    e => {
+      if (e.key === "Enter") {
+        login();
+      }
+    }
+  );
 
 
 async function login(){
 
-const email=
-document
-.getElementById("email")
-.value
-.trim();
+  const email =
+    document
+      .getElementById("email")
+      .value
+      .trim();
 
-const password=
-document
-.getElementById("password")
-.value;
+  const password =
+    document
+      .getElementById("password")
+      .value;
 
-if(!email||!password){
+  if(!email || !password){
 
-showMessage(
-message,
-"Please enter email and password."
-);
+    showMessage(
+      message,
+      "Please enter email and password."
+    );
 
-return;
+    return;
+  }
 
-}
+  loginButton.disabled = true;
 
-loginButton.disabled=true;
+  loginButton.textContent =
+    "Logging in...";
 
-loginButton.textContent=
-"Logging in...";
+  showMessage(
+    message,
+    "Logging in..."
+  );
 
-showMessage(
-message,
-"Logging in..."
-);
+  try{
 
-try{
+    const { data, error } =
+      await supabase.auth
+        .signInWithPassword({
+          email: email,
+          password: password
+        });
 
-const {data,error}=
-await supabase.auth
-.signInWithPassword({
-email,
-password
-});
+    if(error){
 
-if(error){
+      showMessage(
+        message,
+        "Login Error: " +
+        error.message
+      );
 
-showMessage(
-message,
-"Login Error: "+
-error.message
-);
+      return;
+    }
 
-return;
+    if(data && data.user){
 
-}
+      showDashboard(data.user);
 
-if(data&&data.user){
+      showMessage(
+        message,
+        "Login successful!",
+        true
+      );
+    }
 
-showDashboard(
-data.user
-);
+  }catch(error){
 
-showMessage(
-message,
-"Login successful!",
-true
-);
+    showMessage(
+      message,
+      "Login Error: " +
+      error.message
+    );
 
-}
+  }finally{
 
-}catch(error){
+    loginButton.disabled = false;
 
-showMessage(
-message,
-"Login Error: "+
-error.message
-);
-
-}finally{
-
-loginButton.disabled=false;
-
-loginButton.textContent=
-"Login";
-
-}
-
+    loginButton.textContent =
+      "Login";
+  }
 }
 
 
