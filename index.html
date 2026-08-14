@@ -762,11 +762,17 @@ element.className=
 }
 
 
+
 /* LOGIN */
-alert("LOGIN SCRIPT LOADED");
+
+console.log("LOGIN SECTION LOADED");
+
 loginButton.addEventListener(
-"click",
-login
+  "click",
+  function () {
+    alert("LOGIN CLICK WORKING");
+    login();
+  }
 );
 
 document
