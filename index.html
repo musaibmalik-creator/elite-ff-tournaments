@@ -563,23 +563,33 @@ async function loadPayments() {
           ${payment.status || "pending"}
 
         </p>
-<div>
 
-  <button
-    type="button"
-    onclick="approvePayment('${payment.id}')"
-  >
-    ✅ Approve
-  </button>
+${payment.status === "pending" ? `
+  <div>
 
-  <button
-    type="button"
-    onclick="rejectPayment('${payment.id}')"
-  >
-    ❌ Reject
-  </button>
+    <button
+      type="button"
+      onclick="approvePayment('${payment.id}')"
+    >
+      ✅ Approve
+    </button>
 
-</div>
+    <button
+      type="button"
+      onclick="rejectPayment('${payment.id}')"
+    >
+      ❌ Reject
+    </button>
+
+  </div>
+` : `
+  <p>
+    <strong>Final Status:</strong>
+    ${payment.status === "approved"
+      ? "🟢 Approved"
+      : "🔴 Rejected"}
+  </p>
+`}
       </div>
     `).join("");
 
