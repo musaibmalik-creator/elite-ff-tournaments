@@ -1610,6 +1610,9 @@ p.tournaments.name
 ?p.tournaments.name
 :"No tournament";
 
+const status=
+p.status || "pending";
+
 return`
 
 <div class="tournament-card">
@@ -1638,8 +1641,25 @@ p.team_name||"No team"
 
 🏆 Tournament:
 ${escapeHtml(tournament)}
+<br>
+
+📌 Status:
+${escapeHtml(status)}
 
 </div>
+
+<button
+onclick="approvePlayer('${p.id}')"
+>
+✅ Approve
+</button>
+
+<button
+class="danger"
+onclick="rejectPlayer('${p.id}')"
+>
+❌ Reject
+</button>
 
 <button
 onclick="editPlayer('${p.id}')"
@@ -1661,6 +1681,34 @@ onclick="deletePlayer('${p.id}')"
 }
 
 
+/* APPROVE PLAYER */
+
+window.approvePlayer =
+async function(id){
+
+const {error} =
+await supabase
+.from("players")
+.update({
+status:"approved"
+})
+.eq("id",id);
+
+if(error){
+
+showMessage(
+tournamentMessage,
+"Approve Error: "+
+error.message
+);
+
+return;
+
+}
+
+await loadPlayers();
+
+};
 /* EDIT PLAYER */
 
 window.editPlayer=
