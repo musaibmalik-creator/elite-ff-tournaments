@@ -1709,6 +1709,34 @@ return;
 await loadPlayers();
 
 };
+  /* REJECT PLAYER */
+
+window.rejectPlayer =
+async function(id){
+
+const {error} =
+await supabase
+.from("players")
+.update({
+status:"rejected"
+})
+.eq("id",id);
+
+if(error){
+
+showMessage(
+tournamentMessage,
+"Reject Error: "+
+error.message
+);
+
+return;
+
+}
+
+await loadPlayers();
+
+};
 /* EDIT PLAYER */
 
 window.editPlayer=
