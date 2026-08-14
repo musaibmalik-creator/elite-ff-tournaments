@@ -556,6 +556,10 @@ document.getElementById("playerMessage");
 const loginButton =
 document.getElementById("loginButton");
 
+if (!loginButton) {
+  console.error("loginButton not found");
+}
+
 const logoutButton =
 document.getElementById("logoutButton");
 
