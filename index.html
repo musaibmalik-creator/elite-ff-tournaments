@@ -1657,8 +1657,125 @@ await loadPlayers();
 loadCounts();
 
 }
+/* CREATE TEAM */
+
+async function createTeam(){
+
+const name =
+document.getElementById("teamName").value.trim();
+
+const captainName =
+document.getElementById("captainName").value.trim();
+
+const captainUid =
+document.getElementById("captainUid").value.trim();
+
+const tournamentId =
+document.getElementById("teamTournament").value;
+
+if(!name || !tournamentId){
+
+showMessage(
+teamMessage,
+"Team name and tournament are required."
+);
+
+return;
+
+}
+
+const {error} =
+await supabase
+.from("teams")
+.insert({
+name:name,
+captain_name:captainName,
+captain_uid:captainUid,
+tournament_id:tournamentId
+});
+
+if(error){
+
+showMessage(
+teamMessage,
+"Team Error: "+
+error.message
+);
+
+return;
+
+}
+
+showMessage(
+teamMessage,
+"Team added successfully! ✅"
+);
+
+document.getElementById("teamName").value="";
+document.getElementById("captainName").value="";
+document.getElementById("captainUid").value="";
+document.getElementById("teamTournament").value="";
+
+await loadTeams();
+
+}
 
 
+/* SAVE TEAM BUTTON */
+
+document.getElementById(
+"saveTeamButton"
+).addEventListener(
+"click",
+createTeam
+);
+/* LOAD TEAMS */
+
+async function loadTeams(){
+
+const list =
+document.getElementById("teamList");
+
+list.innerHTML =
+"Loading teams...";
+
+const {data,error} =
+await supabase
+.from("teams")
+.select(`
+*,
+tournaments(name)
+`)
+.order(
+"created_at",
+{ascending:false}
+);
+
+if(error){
+
+list.innerHTML =
+"Error: "+
+escapeHtml(error.message);
+
+return;
+
+}
+
+if(!data || data.length===0){
+
+list.innerHTML =
+"No teams created yet.";
+
+return;
+
+}
+
+list.innerHTML =
+data
+.map(teamCard)
+.join("");
+
+}
 /* LOAD PLAYERS */
 
 async function loadPlayers(){
@@ -1703,7 +1820,60 @@ data
 .join("");
 
 }
+/* TEAM CARD */
 
+function teamCard(t){
+
+const tournament =
+t.tournaments &&
+t.tournaments.name
+? t.tournaments.name
+: "No tournament";
+
+return `
+
+<div class="tournament-card">
+
+<span class="badge">
+👥 Team
+</span>
+
+<h3>
+🏆 ${escapeHtml(
+t.name || "Unnamed Team"
+)}
+</h3>
+
+<div class="info">
+
+👤 Captain:
+${escapeHtml(
+t.captain_name || "No captain"
+)}
+<br>
+
+🆔 Captain UID:
+${escapeHtml(
+t.captain_uid || ""
+)}
+<br>
+
+🏆 Tournament:
+${escapeHtml(tournament)}
+<br>
+
+📌 Status:
+${escapeHtml(
+t.status || "pending"
+)}
+
+</div>
+
+</div>
+
+`;
+
+}
 
 /* PLAYER CARD */
 
