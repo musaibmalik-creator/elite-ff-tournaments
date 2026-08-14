@@ -529,7 +529,6 @@ createClient(
 
 
 
-
 /* ELEMENTS */
 
 const loginCard =
@@ -556,10 +555,6 @@ document.getElementById("playerMessage");
 const loginButton =
 document.getElementById("loginButton");
 
-if (!loginButton) {
-  console.error("loginButton not found");
-}
-
 const logoutButton =
 document.getElementById("logoutButton");
 
@@ -568,11 +563,14 @@ document.getElementById("openTournamentsButton");
 
 const openPlayersButton =
 document.getElementById("openPlayersButton");
-  const openTeamsButton =
+
+const openTeamsButton =
 document.getElementById("openTeamsButton");
+
 const openPaymentsButton =
 document.getElementById("openPaymentsButton");
-  const teamsSection =
+
+const teamsSection =
 document.getElementById("teamsSection");
 
 const backTeamsButton =
@@ -580,23 +578,28 @@ document.getElementById("backTeamsButton");
 
 const teamMessage =
 document.getElementById("teamMessage");
+
 const backButton =
 document.getElementById("backButton");
 
 const backPlayersButton =
 document.getElementById("backPlayersButton");
+
 const paymentsSection =
 document.getElementById("paymentsSection");
 
 const backPaymentsButton =
 document.getElementById("backPaymentsButton");
+
 const saveTournamentButton =
 document.getElementById("saveTournamentButton");
-  const playerTournament =
+
+const playerTournament =
 document.getElementById("playerTournament");
 
 const teamTournament =
 document.getElementById("teamTournament");
+
 async function loadPayments() {
 
   const paymentsList =
