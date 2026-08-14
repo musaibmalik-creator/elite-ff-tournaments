@@ -1715,63 +1715,58 @@ loadCounts();
 
 async function createTeam(){
 
-const name =
-document.getElementById("teamName").value.trim();
+  const name =
+    document
+      .getElementById("teamName")
+      .value
+      .trim();
 
-const captainName =
-document.getElementById("captainName").value.trim();
+  const tournamentId =
+    document
+      .getElementById("teamTournament")
+      .value;
 
-const captainUid =
-document.getElementById("captainUid").value.trim();
+  if(!name || !tournamentId){
 
-const tournamentId =
-document.getElementById("teamTournament").value;
+    showMessage(
+      teamMessage,
+      "Team name and tournament are required."
+    );
 
-if(!name || !tournamentId){
+    return;
+  }
 
-showMessage(
-teamMessage,
-"Team name and tournament are required."
-);
+  const { error } =
+    await supabase
+      .from("teams")
+      .insert({
+        name: name,
+        tournament_id: tournamentId
+      });
 
-return;
+  if(error){
 
-}
+    showMessage(
+      teamMessage,
+      "Team Error: " +
+      error.message
+    );
 
-const {error} =
-await supabase
-.from("teams")
-.insert({
-name:name,
-captain_name:captainName,
-captain_uid:captainUid,
-tournament_id:tournamentId
-});
+    return;
+  }
 
-if(error){
+  showMessage(
+    teamMessage,
+    "Team added successfully! ✅",
+    true
+  );
 
-showMessage(
-teamMessage,
-"Team Error: "+
-error.message
-);
+  document.getElementById("teamName").value = "";
+  document.getElementById("captainName").value = "";
+  document.getElementById("captainUid").value = "";
+  document.getElementById("teamTournament").value = "";
 
-return;
-
-}
-
-showMessage(
-teamMessage,
-"Team added successfully! ✅"
-);
-
-document.getElementById("teamName").value="";
-document.getElementById("captainName").value="";
-document.getElementById("captainUid").value="";
-document.getElementById("teamTournament").value="";
-
-await loadTeams();
-
+  await loadTeams();
 }
 
 
