@@ -2203,10 +2203,10 @@ if (submitPaymentButton) {
 
       try {
 
-        const { error } =
-          await supabase
-            .from("payments")
-            .insert({
+        const { data, error } =
+  await supabase
+    .from("payments")
+    .insert({
 
               tournament_id:
                 selectedPaymentTournament.id,
@@ -2217,8 +2217,9 @@ if (submitPaymentButton) {
               utr: utr,
 
               status: "pending"
-
-            });
+})
+.select()
+.single();
 
         if (error) {
           throw error;
