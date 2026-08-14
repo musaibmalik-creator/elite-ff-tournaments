@@ -1533,7 +1533,7 @@ dashboard.classList.remove("hidden");
 
 async function loadTournamentOptions(){
 
-const {data,error}=
+const {data,error} =
 await supabase
 .from("tournaments")
 .select("id,name")
@@ -1542,49 +1542,71 @@ await supabase
 {ascending:false}
 );
 
-if(error)return;
+if(error){
+console.error(
+"Tournament Options Error:",
+error.message
+);
+return;
+}
 
 
 /* PLAYER TOURNAMENT */
 
-playerTournament.innerHTML=
+if(playerTournament){
+
+playerTournament.innerHTML =
 '<option value="">Select Tournament</option>';
+
+}
 
 
 /* TEAM TOURNAMENT */
 
-teamTournament.innerHTML=
+if(teamTournament){
+
+teamTournament.innerHTML =
 '<option value="">Select Tournament</option>';
 
+}
 
-(data||[]).forEach(t=>{
+
+(data || []).forEach(t => {
 
 /* PLAYER OPTION */
 
-const playerOption=
+if(playerTournament){
+
+const playerOption =
 document.createElement("option");
 
-playerOption.value=t.id;
+playerOption.value = t.id;
 
-playerOption.textContent=t.name;
+playerOption.textContent = t.name;
 
 playerTournament.appendChild(
 playerOption
 );
 
+}
+
 
 /* TEAM OPTION */
 
-const teamOption=
+if(teamTournament){
+
+const teamOption =
 document.createElement("option");
 
-teamOption.value=t.id;
+teamOption.value = t.id;
 
-teamOption.textContent=t.name;
+teamOption.textContent = t.name;
 
 teamTournament.appendChild(
 teamOption
 );
+
+}
 
 });
 
