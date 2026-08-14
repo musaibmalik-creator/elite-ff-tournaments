@@ -1539,20 +1539,46 @@ await supabase
 
 if(error)return;
 
+
+/* PLAYER TOURNAMENT */
+
 playerTournament.innerHTML=
 '<option value="">Select Tournament</option>';
 
+
+/* TEAM TOURNAMENT */
+
+teamTournament.innerHTML=
+'<option value="">Select Tournament</option>';
+
+
 (data||[]).forEach(t=>{
 
-const option=
+/* PLAYER OPTION */
+
+const playerOption=
 document.createElement("option");
 
-option.value=t.id;
+playerOption.value=t.id;
 
-option.textContent=t.name;
+playerOption.textContent=t.name;
 
 playerTournament.appendChild(
-option
+playerOption
+);
+
+
+/* TEAM OPTION */
+
+const teamOption=
+document.createElement("option");
+
+teamOption.value=t.id;
+
+teamOption.textContent=t.name;
+
+teamTournament.appendChild(
+teamOption
 );
 
 });
