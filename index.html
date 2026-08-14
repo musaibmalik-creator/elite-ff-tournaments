@@ -937,7 +937,36 @@ dashboard.classList.remove("hidden");
 
 }
 );
+/* TEAMS SECTION */
 
+openTeamsButton.addEventListener(
+"click",
+async()=>{
+
+dashboard.classList.add("hidden");
+
+tournamentsSection.classList.add("hidden");
+
+playersSection.classList.add("hidden");
+
+paymentsSection.classList.add("hidden");
+
+teamsSection.classList.remove("hidden");
+
+}
+);
+
+
+backTeamsButton.addEventListener(
+"click",
+()=>{
+
+teamsSection.classList.add("hidden");
+
+dashboard.classList.remove("hidden");
+
+}
+);
 
 /* TOURNAMENT FORM */
 
