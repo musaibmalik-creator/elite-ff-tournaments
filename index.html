@@ -1121,15 +1121,22 @@ function tournamentCard(tournament) {
 
       </div>
 
-      <button
+<button
   class="menu-button"
-  type="button"
-  onclick="
-    document.getElementById('paymentSection').style.display='block';
-    window.openPaymentPage('${escapeHtml(tournament.id)}');
-  "
+  onclick="editTournament('${escapeHtml(
+    tournament.id
+  )}')"
 >
-  💳 Pay Entry Fee
+  ✏️ Edit
+</button>
+
+<button
+  class="danger"
+  onclick="deleteTournament('${escapeHtml(
+    tournament.id
+  )}')"
+>
+  🗑️ Delete
 </button>
 
       <button
