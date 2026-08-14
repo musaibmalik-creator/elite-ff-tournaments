@@ -1776,51 +1776,198 @@ document.getElementById(
 "click",
 createTeam
 );
+/* GENERATE CS TEAMS */
+
+document.getElementById(
+  "generateTeamsButton"
+).addEventListener(
+  "click",
+  generateCSTeams
+);
+
+
 /* LOAD TEAMS */
 
 async function loadTeams(){
 
-const list =
-document.getElementById("teamList");
+  const teamA =
+    document.getElementById("teamAList");
 
-list.innerHTML =
-"Loading teams...";
+  const teamB =
+    document.getElementById("teamBList");
 
-const {data,error} =
-await supabase
-.from("teams")
-.select(`
-*,
-tournaments(name)
-`)
-.order(
-"created_at",
-{ascending:false}
-);
+  teamA.innerHTML =
+    "Loading...";
 
-if(error){
+  teamB.innerHTML =
+    "Loading...";
 
-list.innerHTML =
-"Error: "+
-escapeHtml(error.message);
 
-return;
+  const tournamentId =
+    document.getElementById(
+      "teamTournament"
+    ).value;
+
+
+  if(!tournamentId){
+
+    teamA.innerHTML =
+      "Select a tournament first.";
+
+    teamB.innerHTML =
+      "Select a tournament first.";
+
+    return;
+
+  }
+
+
+  const {data,error} =
+    await supabase
+    .from("registrations")
+    .select("*")
+    .eq(
+      "tournament_id",
+      tournamentId
+    )
+    .eq(
+      "status",
+      "approved"
+    );
+
+
+  if(error){
+
+    teamA.innerHTML =
+      "Error: "+
+      escapeHtml(error.message);
+
+    teamB.innerHTML =
+      "";
+
+    return;
+
+  }
+
+
+  if(!data || data.length === 0){
+
+    teamA.innerHTML =
+      "No approved players yet.";
+
+    teamB.innerHTML =
+      "";
+
+    return;
+
+  }
+
+
+  const half =
+    Math.ceil(data.length / 2);
+
+
+  const playersA =
+    data.slice(0, half);
+
+  const playersB =
+    data.slice(half);
+
+
+  teamA.innerHTML =
+    playersA
+    .map((player,index)=>`
+
+      <div class="player-card">
+
+        <b>${index + 1}. ${
+          escapeHtml(
+            player.player_name ||
+            player.name ||
+            "Player"
+          )
+        }</b>
+
+        <br>
+
+        UID:
+        ${escapeHtml(
+          player.uid ||
+          player.player_uid ||
+          "N/A"
+        )}
+
+      </div>
+
+    `)
+    .join("");
+
+
+  teamB.innerHTML =
+    playersB
+    .map((player,index)=>`
+
+      <div class="player-card">
+
+        <b>${index + 1}. ${
+          escapeHtml(
+            player.player_name ||
+            player.name ||
+            "Player"
+          )
+        }</b>
+
+        <br>
+
+        UID:
+        ${escapeHtml(
+          player.uid ||
+          player.player_uid ||
+          "N/A"
+        )}
+
+      </div>
+
+    `)
+    .join("");
 
 }
 
-if(!data || data.length===0){
 
-list.innerHTML =
-"No teams created yet.";
+/* GENERATE CS TEAMS */
 
-return;
+async function generateCSTeams(){
 
-}
+  const tournamentId =
+    document.getElementById(
+      "teamTournament"
+    ).value;
 
-list.innerHTML =
-data
-.map(teamCard)
-.join("");
+  const message =
+    document.getElementById(
+      "teamMessage"
+    );
+
+
+  if(!tournamentId){
+
+    message.innerHTML =
+      "Please select a tournament.";
+
+    return;
+
+  }
+
+
+  message.innerHTML =
+    "Generating teams...";
+
+
+  await loadTeams();
+
+
+  message.innerHTML =
+    "✅ CS Teams generated successfully.";
 
 }
 /* LOAD PLAYERS */
