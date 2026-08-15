@@ -1924,144 +1924,184 @@ document.getElementById(
   generateCSTeams
 );
 
-/* LOAD TEAMS */
+  /* LOAD CS TEAMS */
 
 async function loadTeams(){
 
-const teamA =
-document.getElementById("teamAList");
+  const teamA =
+    document.getElementById("teamAList");
 
-const teamB =
-document.getElementById("teamBList");
+  const teamB =
+    document.getElementById("teamBList");
 
-teamA.innerHTML =
-"Loading...";
+  teamA.innerHTML = "Loading...";
+  teamB.innerHTML = "Loading...";
 
-teamB.innerHTML =
-"Loading...";
+  const tournamentId =
+    document.getElementById("teamTournament").value;
 
-const tournamentId =
-document.getElementById(
-"teamTournament"
-).value;
+  if(!tournamentId){
 
-if(!tournamentId){
+    teamA.innerHTML =
+      "Select a tournament first.";
 
-teamA.innerHTML =  
-  "Select a tournament first.";  
+    teamB.innerHTML =
+      "Select a tournament first.";
 
-teamB.innerHTML =  
-  "Select a tournament first.";  
+    return;
+  }
 
-return;
+  /* GET TOURNAMENT MODE */
 
-}
+  const { data: tournament, error: tournamentError } =
+    await supabase
+      .from("tournaments")
+      .select("cs_mode")
+      .eq("id", tournamentId)
+      .single();
 
-const {data,error} =
-await supabase
-.from("players")
-.select("*")
-.eq(
-"tournament_id",
-tournamentId
-)
-.eq(
-"status",
-"approved"
-);
+  if(tournamentError){
 
-if(error){
+    teamA.innerHTML =
+      "Error: " +
+      escapeHtml(tournamentError.message);
 
-teamA.innerHTML =  
-  "Error: "+  
-  escapeHtml(error.message);  
+    teamB.innerHTML = "";
 
-teamB.innerHTML =  
-  "";  
+    return;
+  }
 
-return;
+  const mode =
+    tournament?.cs_mode || "1v1";
 
-}
+  let playersPerTeam = 1;
 
-if(!data || data.length === 0){
+  if(mode === "2v2"){
+    playersPerTeam = 2;
+  }
 
-teamA.innerHTML =  
-  "No approved players yet.";  
+  if(mode === "4v4"){
+    playersPerTeam = 4;
+  }
 
-teamB.innerHTML =  
-  "";  
+  /* GET APPROVED PLAYERS */
 
-return;
+  const { data, error } =
+    await supabase
+      .from("players")
+      .select("*")
+      .eq("tournament_id", tournamentId)
+      .eq("status", "approved");
 
-}
+  if(error){
 
-const half =
-Math.ceil(data.length / 2);
+    teamA.innerHTML =
+      "Error: " +
+      escapeHtml(error.message);
 
-const playersA =
-data.slice(0, half);
+    teamB.innerHTML = "";
 
-const playersB =
-data.slice(half);
+    return;
+  }
 
-teamA.innerHTML =
-playersA
-.map((player,index)=>`
+  if(!data || data.length === 0){
 
-<div class="player-card">  
+    teamA.innerHTML =
+      "No approved players yet.";
 
-    <b>${index + 1}. ${  
-      escapeHtml(  
-        player.player_name ||  
-        player.name ||  
-        "Player"  
-      )  
-    }</b>  
+    teamB.innerHTML = "";
 
-    <br>  
+    return;
+  }
 
-    UID:  
-    ${escapeHtml(  
-      player.uid ||  
-      player.player_uid ||  
-      "N/A"  
-    )}  
+  const requiredPlayers =
+    playersPerTeam * 2;
 
-  </div>  
+  if(data.length < requiredPlayers){
 
-`)  
-.join("");
+    teamA.innerHTML =
+      `Need ${requiredPlayers} approved players for ${mode}.<br>` +
+      `Currently available: ${data.length}`;
 
-teamB.innerHTML =
-playersB
-.map((player,index)=>`
+    teamB.innerHTML = "";
 
-<div class="player-card">  
+    return;
+  }
 
-    <b>${index + 1}. ${  
-      escapeHtml(  
-        player.player_name ||  
-        player.name ||  
-        "Player"  
-      )  
-    }</b>  
+  /* SPLIT PLAYERS */
 
-    <br>  
+  const playersA =
+    data.slice(0, playersPerTeam);
 
-    UID:  
-    ${escapeHtml(  
-      player.uid ||  
-      player.player_uid ||  
-      "N/A"  
-    )}  
+  const playersB =
+    data.slice(
+      playersPerTeam,
+      requiredPlayers
+    );
 
-  </div>  
+  /* TEAM A */
 
-`)  
-.join("");
+  teamA.innerHTML =
+    `<p><b>CS ${escapeHtml(mode)}</b></p>` +
 
-}
+    playersA.map((player,index)=>`
 
+      <div class="player-card">
+
+        <b>
+          ${index + 1}.
+          ${escapeHtml(
+            player.player_name ||
+            player.name ||
+            "Player"
+          )}
+        </b>
+
+        <br>
+
+        UID:
+        ${escapeHtml(
+          player.uid ||
+          player.player_uid ||
+          "N/A"
+        )}
+
+      </div>
+
+    `).join("");
+
+  /* TEAM B */
+
+  teamB.innerHTML =
+    `<p><b>CS ${escapeHtml(mode)}</b></p>` +
+
+    playersB.map((player,index)=>`
+
+      <div class="player-card">
+
+        <b>
+          ${index + 1}.
+          ${escapeHtml(
+            player.player_name ||
+            player.name ||
+            "Player"
+          )}
+        </b>
+
+        <br>
+
+        UID:
+        ${escapeHtml(
+          player.uid ||
+          player.player_uid ||
+          "N/A"
+        )}
+
+      </div>
+
+    `).join("");
+
+}    
 
   
 
