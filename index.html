@@ -1816,6 +1816,10 @@ await supabase
 .from("players")
 .select("*")
 .eq(
+"tournament_id",
+tournamentId
+)
+.eq(
 "status",
 "approved"
 );
