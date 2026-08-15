@@ -1928,8 +1928,31 @@ async function generateCSTeams(){
       "teamMessage"
     );
 
+  const tournamentId =
+    document.getElementById(
+      "teamTournament"
+    ).value;
+
+
+  if(!tournamentId){
+
+    message.innerHTML =
+      "❌ Please select a tournament.";
+
+    return;
+
+  }
+
+
   message.innerHTML =
-    "✅ Generate button is working!";
+    "⏳ Loading approved players...";
+
+
+  await loadTeams();
+
+
+  message.innerHTML =
+    "✅ CS Teams generated.";
 
 }
 
