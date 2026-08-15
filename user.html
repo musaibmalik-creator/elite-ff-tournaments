@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Elite FF Tournaments</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: #fff;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    .card {
+      background: #151c31;
+      border: 1px solid #27304b;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #34405f;
+      font-size: 15px;
+    }
+
+    input,
+    select {
+      background: #0e1528;
+      color: #fff;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #27304b;
+    }
+
+    button.danger {
+      background: #dc2626;
+    }
+
+    button.success {
+      background: #16a34a;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top button {
+      width: auto;
+      margin-top: 0;
+    }
+
+    .balance {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .muted {
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .tournament {
+      background: #10172b;
+      border: 1px solid #2d3857;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 7px 0;
+    }
+
+    .row span:last-child {
+      font-weight: bold;
+    }
+
+    .slot {
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 8px;
+      background: #172033;
+      border: 1px solid #34405f;
+    }
+
+    .slot.available {
+      border-color: #16a34a;
+    }
+
+    .slot.taken {
+      border-color: #dc2626;
+      opacity: .7;
+    }
+
+    .message {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #111827;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- LOGIN -->
+
+  <div id="loginSection">
+
+    <div class="card">
+
+      <h1>🎮 Elite FF Tournaments</h1>
+
+      <p class="muted">
+        Login to continue
+      </p>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+      >
+
+      <button id="loginButton">
+        Login
+      </button>
+
+      <button
+        id="signupButton"
+        class="secondary"
+      >
+        Create Account
+      </button>
+
+      <div
+        id="authMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- HOME -->
+
+  <div
+    id="homeSection"
+    class="hidden"
+  >
+
+    <div class="card">
+
+      <div class="top">
+
+        <div>
+          <h2>👤 My Account</h2>
+          <div
+            id="userEmail"
+            class="muted"
+          ></div>
+        </div>
+
+        <button
+          id="logoutButton"
+          class="secondary"
+        >
+          Logout
+        </button>
+
+      </div>
+
+      <p>Wallet Balance</p>
+
+      <div
+        id="walletBalance"
+        class="balance"
+      >
+        ₹0.00
+      </div>
+
+    </div>
+
+
+    <!-- MENU -->
+
+    <div class="card">
+
+      <button id="openTournamentsButton">
+        🏆 Tournaments
+      </button>
+
+      <button id="openDepositButton">
+        💰 Deposit
+      </button>
+
+      <button id="openWithdrawButton">
+        💸 Withdraw
+      </button>
+
+      <button id="openMyTournamentsButton">
+        🎮 My Tournaments
+      </button>
+
+    </div>
+
+
+    <!-- TOURNAMENTS -->
+
+    <div
+      id="tournamentsSection"
+      class="card hidden"
+    >
+
+      <div class="top">
+
+        <h2>🏆 Tournaments</h2>
+
+        <button
+          id="backTournamentButton"
+          class="secondary"
+        >
+          Back
+        </button>
+
+      </div>
+
+      <div id="tournamentList">
+        Loading tournaments...
+      </div>
+
+    </div>
+
+
+    <!-- JOIN -->
+
+    <div
+      id="joinSection"
+      class="card hidden"
+    >
+
+      <div class="top">
+
+        <h2>🎮 Join Tournament</h2>
+
+        <button
+          id="backJoinButton"
+          class="secondary"
+        >
+          Back
+        </button>
+
+      </div>
+
+      <div id="joinTournamentInfo"></div>
+
+      <h3>Select Slot</h3>
+
+      <div id="slotList">
+        Loading slots...
+      </div>
+
+      <button id="joinButton">
+        Select Slot & Join
+      </button>
+
+      <div
+        id="joinMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <!-- DEPOSIT -->
+
+    <div
+      id="depositSection"
+      class="card hidden"
+    >
+
+      <div class="top">
+
+        <h2>💰 Deposit</h2>
+
+        <button
+          id="backDepositButton"
+          class="secondary"
+        >
+          Back
+        </button>
+
+      </div>
+
+      <p class="muted">
+        Enter the amount you paid and your UTR number.
+      </p>
+
+      <input
+        id="depositAmount"
+        type="number"
+        placeholder="Amount"
+      >
+
+      <input
+        id="depositUTR"
+        placeholder="UTR / Transaction ID"
+      >
+
+      <button id="submitDepositButton">
+        Submit Deposit
+      </button>
+
+      <div
+        id="depositMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <!-- WITHDRAW -->
+
+    <div
+      id="withdrawSection"
+      class="card hidden"
+    >
+
+      <div class="top">
+
+        <h2>💸 Withdraw</h2>
+
+        <button
+          id="backWithdrawButton"
+          class="secondary"
+        >
+          Back
+        </button>
+
+      </div>
+
+      <input
+        id="withdrawAmount"
+        type="number"
+        placeholder="Amount"
+      >
+
+      <input
+        id="withdrawUPI"
+        placeholder="UPI ID / Bank Details"
+      >
+
+      <button id="submitWithdrawButton">
+        Submit Withdrawal
+      </button>
+
+      <div
+        id="withdrawMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <!-- MY TOURNAMENTS -->
+
+    <div
+      id="myTournamentsSection"
+      class="card hidden"
+    >
+
+      <div class="top">
+
+        <h2>🎮 My Tournaments</h2>
+
+        <button
+          id="backMyTournamentButton"
+          class="secondary"
+        >
+          Back
+        </button>
+
+      </div>
+
+      <div id="myTournamentList">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script type="module">
+
+  const SUPABASE_URL =
+    "https://yenhkcditizmcekjeswy.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  let currentUser = null;
+  let selectedTournament = null;
+  let selectedSlot = null;
+
+
+  const $ = id =>
+    document.getElementById(id);
+
+
+  function money(value){
+
+    return "₹" +
+      Number(value || 0)
+        .toFixed(2);
+
+  }
+
+
+  function showOnly(section){
+
+    [
+      "tournamentsSection",
+      "joinSection",
+      "depositSection",
+      "withdrawSection",
+      "myTournamentsSection"
+    ].forEach(id => {
+
+      $(id).classList.add("hidden");
+
+    });
+
+    if(section){
+
+      $(section).classList.remove("hidden");
+
+    }
+
+  }
+
+
+  async function loadWallet(){
+
+    if(!currentUser) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("wallets")
+        .select("balance")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .maybeSingle();
+
+
+    if(error){
+
+      console.error(error);
+
+      $("walletBalance").textContent =
+        "₹0.00";
+
+      return;
+
+    }
+
+
+    $("walletBalance").textContent =
+      money(data?.balance || 0);
+
+  }
+
+
+  async function ensureWallet(){
+
+    if(!currentUser) return;
+
+    const { data } =
+      await supabaseClient
+        .from("wallets")
+        .select("user_id")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .maybeSingle();
+
+
+    if(!data){
+
+      await supabaseClient
+        .from("wallets")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          balance: 0
+
+        });
+
+    }
+
+  }
+
+
+  async function loadTournaments(){
+
+    $("tournamentList").innerHTML =
+      "Loading tournaments...";
+
+
+    const { data, error } =
+      await supabaseClient
+        .from("tournaments")
+        .select("*")
+        .in(
+          "status",
+          [
+            "registration_open",
+            "upcoming",
+            "live"
+          ]
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
+
+
+    if(error){
+
+      $("tournamentList").innerHTML =
+        "Error: " +
+        error.message;
+
+      return;
+
+    }
+
+
+    if(!data || data.length === 0){
+
+      $("tournamentList").innerHTML =
+        "No tournaments available.";
+
+      return;
+
+    }
+
+
+    $("tournamentList").innerHTML =
+      data.map(t => `
+
+        <div class="tournament">
+
+          <h3>
+            🏆 ${escapeHtml(
+              t.name || "Tournament"
+            )}
+          </h3>
+
+          <div class="row">
+            <span>Sport</span>
+            <span>
+              ${escapeHtml(
+                t.sport || "Free Fire"
+              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>CS Mode</span>
+            <span>
+              ${escapeHtml(
+                t.cs_mode || "-"
+              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Entry Fee</span>
+            <span>
+              ${money(t.entry_fee)}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Prize Pool</span>
+            <span>
+              ${money(t.prize_pool)}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Status</span>
+            <span>
+              ${escapeHtml(
+                t.status || ""
+              )}
+            </span>
+          </div>
+
+          <button
+            onclick="openJoin('${t.id}')"
+          >
+            Join Tournament
+          </button>
+
+        </div>
+
+      `).join("");
+
+  }
+
+
+  window.openJoin =
+    async function(tournamentId){
+
+      const { data, error } =
+        await supabaseClient
+          .from("tournaments")
+          .select("*")
+          .eq("id", tournamentId)
+          .single();
+
+
+      if(error){
+
+        alert(error.message);
+
+        return;
+
+      }
+
+
+      selectedTournament = data;
+
+      selectedSlot = null;
+
+      $("joinTournamentInfo").innerHTML = `
+
+        <h3>
+          ${escapeHtml(
+            data.name
+          )}
+        </h3>
+
+        <div class="row">
+          <span>Mode</span>
+          <span>
+            ${escapeHtml(
+              data.cs_mode || "-"
+            )}
+          </span>
+        </div>
+
+        <div class="row">
+          <span>Entry Fee</span>
+          <span>
+            ${money(data.entry_fee)}
+          </span>
+        </div>
+
+      `;
+
+
+      showOnly("joinSection");
+
+      await loadSlots();
+
+  };
+
+
+  async function loadSlots(){
+
+    $("slotList").innerHTML =
+      "Loading slots...";
+
+
+    if(!selectedTournament){
+
+      return;
+
+    }
+
+
+    const { data, error } =
+      await supabaseClient
+        .from("players")
+        .select("*")
+        .eq(
+          "tournament_id",
+          selectedTournament.id
+        );
+
+
+    if(error){
+
+      $("slotList").innerHTML =
+        "Error: " +
+        error.message;
+
+      return;
+
+    }
+
+
+    const occupied =
+      data || [];
+
+
+    const maxSlots =
+      Number(
+        selectedTournament.max_teams || 8
+      );
+
+
+    let html = "";
+
+
+    for(
+      let i = 1;
+      i <= maxSlots;
+      i++
+    ){
+
+      const player =
+        occupied.find(
+          p =>
+            Number(
+              p.slot || p.slot_number
+            ) === i
+        );
+
+
+      if(player){
+
+        html += `
+
+          <div class="slot taken">
+            🔴 Slot ${i}
+            <br>
+            <span class="muted">
+              Already Taken
+            </span>
+          </div>
+
+        `;
+
+      }else{
+
+        html += `
+
+          <div
+            class="slot available"
+          >
+
+            🟢 Slot ${i}
+
+            <button
+              type="button"
+              onclick="selectSlot(${i})"
+            >
+              Select Slot
+            </button>
+
+          </div>
+
+        `;
+
+      }
+
+    }
+
+
+    $("slotList").innerHTML =
+      html;
+
+  }
+
+
+  window.selectSlot =
+    function(slot){
+
+      selectedSlot = slot;
+
+      document
+        .querySelectorAll(".slot")
+        .forEach(el => {
+
+          el.style.opacity =
+            "0.5";
+
+        });
+
+
+      const selected =
+        document.querySelectorAll(
+          ".slot"
+        )[slot - 1];
+
+
+      if(selected){
+
+        selected.style.opacity =
+          "1";
+
+      }
+
+      $("joinMessage").textContent =
+        "Selected Slot " +
+        slot;
+
+  };
+
+
+  $("joinButton")
+    .addEventListener(
+      "click",
+      joinTournament
+    );
+
+
+  async function joinTournament(){
+
+    if(!currentUser){
+
+      $("joinMessage").textContent =
+        "Please login first.";
+
+      return;
+
+    }
+
+
+    if(!selectedTournament){
+
+      $("joinMessage").textContent =
+        "Tournament not selected.";
+
+      return;
+
+    }
+
+
+    if(!selectedSlot){
+
+      $("joinMessage").textContent =
+        "Please select a slot.";
+
+      return;
+
+    }
+
+
+    const entryFee =
+      Number(
+        selectedTournament.entry_fee || 0
+      );
+
+
+    const { data: wallet } =
+      await supabaseClient
+        .from("wallets")
+        .select("balance")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .single();
+
+
+    const balance =
+      Number(
+        wallet?.balance || 0
+      );
+
+
+    if(balance < entryFee){
+
+      $("joinMessage").textContent =
+        "❌ Insufficient wallet balance.";
+
+      return;
+
+    }
+
+
+    $("joinMessage").textContent =
+      "⏳ Joining tournament...";
+
+
+    const { data: existing } =
+      await supabaseClient
+        .from("players")
+        .select("id")
+        .eq(
+          "tournament_id",
+          selectedTournament.id
+        )
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .maybeSingle();
+
+
+    if(existing){
+
+      $("joinMessage").textContent =
+        "You already joined this tournament.";
+
+      return;
+
+    }
+
+
+    const { error: playerError } =
+      await supabaseClient
+        .from("players")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          tournament_id:
+            selectedTournament.id,
+
+          status:
+            "approved",
+
+          slot:
+            selectedSlot
+
+        });
+
+
+    if(playerError){
+
+      $("joinMessage").textContent =
+        "Join Error: " +
+        playerError.message;
+
+      return;
+
+    }
+
+
+    const newBalance =
+      balance - entryFee;
+
+
+    const { error: walletError } =
+      await supabaseClient
+        .from("wallets")
+        .update({
+
+          balance:
+            newBalance,
+
+          updated_at:
+            new Date().toISOString()
+
+        })
+        .eq(
+          "user_id",
+          currentUser.id
+        );
+
+
+    if(walletError){
+
+      $("joinMessage").textContent =
+        "Wallet update error: " +
+        walletError.message;
+
+      return;
+
+    }
+
+
+    $("joinMessage").textContent =
+      "✅ Tournament joined successfully!";
+
+
+    await loadWallet();
+
+    await loadSlots();
+
+  }
+
+
+  async function submitDeposit(){
+
+    const amount =
+      Number(
+        $("depositAmount").value
+      );
+
+    const utr =
+      $("depositUTR")
+        .value
+        .trim();
+
+
+    if(!amount || amount <= 0){
+
+      $("depositMessage").textContent =
+        "Enter a valid amount.";
+
+      return;
+
+    }
+
+
+    if(!utr){
+
+      $("depositMessage").textContent =
+        "Enter UTR / Transaction ID.";
+
+      return;
+
+    }
+
+
+    const { error } =
+      await supabaseClient
+        .from("deposits")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          amount:
+            amount,
+
+          transaction_id:
+            utr,
+
+          status:
+            "pending"
+
+        });
+
+
+    if(error){
+
+      $("depositMessage").textContent =
+        "Deposit Error: " +
+        error.message;
+
+      return;
+
+    }
+
+
+    $("depositMessage").textContent =
+      "✅ Deposit submitted. Admin will verify your UTR.";
+
+    $("depositAmount").value = "";
+    $("depositUTR").value = "";
+
+  }
+
+
+  async function submitWithdraw(){
+
+    const amount =
+      Number(
+        $("withdrawAmount").value
+      );
+
+    const details =
+      $("withdrawUPI")
+        .value
+        .trim();
+
+
+    if(!amount || amount <= 0){
+
+      $("withdrawMessage").textContent =
+        "Enter a valid amount.";
+
+      return;
+
+    }
+
+
+    if(!details){
+
+      $("withdrawMessage").textContent =
+        "Enter UPI / bank details.";
+
+      return;
+
+    }
+
+
+    const { data: wallet } =
+      await supabaseClient
+        .from("wallets")
+        .select("balance")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .single();
+
+
+    const balance =
+      Number(
+        wallet?.balance || 0
+      );
+
+
+    if(balance < amount){
+
+      $("withdrawMessage").textContent =
+        "❌ Insufficient wallet balance.";
+
+      return;
+
+    }
+
+
+    const { error } =
+      await supabaseClient
+        .from("withdrawals")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          amount:
+            amount,
+
+          payment_details:
+            details,
+
+          status:
+            "pending"
+
+        });
+
+
+    if(error){
+
+      $("withdrawMessage").textContent =
+        "Withdrawal Error: " +
+        error.message;
+
+      return;
+
+    }
+
+
+    $("withdrawMessage").textContent =
+      "✅ Withdrawal request submitted.";
+
+    $("withdrawAmount").value = "";
+    $("withdrawUPI").value = "";
+
+  }
+
+
+  async function loadMyTournaments(){
+
+    $("myTournamentList").innerHTML =
+      "Loading...";
+
+
+    const { data, error } =
+      await supabaseClient
+        .from("players")
+        .select(`
+          *,
+          tournaments (
+            name,
+            sport,
+            cs_mode,
+            entry_fee
+          )
+        `)
+        .eq(
+          "user_id",
+          currentUser.id
+        );
+
+
+    if(error){
+
+      $("myTournamentList").innerHTML =
+        "Error: " +
+        error.message;
+
+      return;
+
+    }
+
+
+    if(!data || data.length === 0){
+
+      $("myTournamentList").innerHTML =
+        "You haven't joined any tournaments.";
+
+      return;
+
+    }
+
+
+    $("myTournamentList").innerHTML =
+      data.map(p => `
+
+        <div class="tournament">
+
+          <h3>
+            ${escapeHtml(
+              p.tournaments?.name ||
+              "Tournament"
+            )}
+          </h3>
+
+          <div>
+            Sport:
+            ${escapeHtml(
+              p.tournaments?.sport ||
+              ""
+            )}
+          </div>
+
+          <div>
+            Mode:
+            ${escapeHtml(
+              p.tournaments?.cs_mode ||
+              "-"
+            )}
+          </div>
+
+          <div>
+            Slot:
+            ${escapeHtml(
+              String(
+                p.slot ||
+                p.slot_number ||
+                "-"
+              )
+            )}
+          </div>
+
+          <div>
+            Status:
+            ${escapeHtml(
+              p.status ||
+              ""
+            )}
+          </div>
+
+        </div>
+
+      `).join("");
+
+  }
+
+
+  /* LOGIN */
+
+  $("loginButton")
+    .addEventListener(
+      "click",
+      async()=>{
+
+        const email =
+          $("email").value.trim();
+
+        const password =
+            $("password").value;
+
+
+        const { error } =
+          await supabaseClient.auth
+            .signInWithPassword({
+
+              email,
+              password
+
+            });
+
+
+        if(error){
+
+          $("authMessage").textContent =
+            error.message;
+
+          return;
+
+        }
+
+
+        await startApp();
+
+      }
+    );
+
+
+  /* SIGNUP */
+
+  $("signupButton")
+    .addEventListener(
+      "click",
+      async()=>{
+
+        const email =
+          $("email").value.trim();
+
+        const password =
+          $("password").value;
+
+
+        if(!email || !password){
+
+          $("authMessage").textContent =
+            "Enter email and password.";
+
+          return;
+
+        }
+
+
+        const { error } =
+          await supabaseClient.auth
+            .signUp({
+
+              email,
+              password
+
+            });
+
+
+        if(error){
+
+          $("authMessage").textContent =
+            error.message;
+
+          return;
+
+        }
+
+
+        $("authMessage").textContent =
+          "Account created. Check your email if confirmation is required.";
+
+      }
+    );
+
+
+  async function startApp(){
+
+    const { data } =
+      await supabaseClient.auth
+        .getUser();
+
+
+    currentUser =
+      data.user;
+
+
+    if(!currentUser){
+
+      return;
+
+    }
+
+
+    $("loginSection")
+      .classList
+      .add("hidden");
+
+
+    $("homeSection")
+      .classList
+      .remove("hidden");
+
+
+    $("userEmail").textContent =
+      currentUser.email || "";
+
+
+    await ensureWallet();
+
+    await loadWallet();
+
+  }
+
+
+  $("logoutButton")
+    .addEventListener(
+      "click",
+      async()=>{
+
+        await supabaseClient.auth
+          .signOut();
+
+        location.reload();
+
+      }
+    );
+
+
+  $("openTournamentsButton")
+    .addEventListener(
+      "click",
+      async()=>{
+
+        showOnly(
+          "tournamentsSection"
+        );
+
+        await loadTournaments();
+
+      }
+    );
+
+
+  $("backTournamentButton")
+    .addEventListener(
+      "click",
+      ()=>{
+
+        showOnly(null);
+
+      }
+    );
+
+
+  $("backJoinButton")
+    .addEventListener(
+      "click",
+      ()=>{
+
+        showOnly(
+          "tournamentsSection"
+        );
+
+      }
+    );
+
+
+  $("openDepositButton")
+    .addEventListener(
+      "click",
+      ()=>{
+
+        showOnly(
+          "depositSection"
+        );
+
+      }
+    );
+
+
+  $("backDepositButton")
+    .addEventListener(
+      "click",
+      ()=>{
+
+        showOnly(null);
+
+      }
+    );
+
+
+  $("submitDepositButton")
+    .addEventListener(
+      "click",
+      submitDeposit
+    );
+
+
+  $("openWithdrawButton")
+    .addEventListener(
+      "click",
+      ()=>{
+
+        showOnly(
+          "withdrawSection"
+        );
+
+      }
+    );
+
+
+  $("backWithdrawButton")
+    .addEventListener(
+      "click",
+      ()=>{
+
+        showOnly(null);
+
+      }
+    );
+
+
+  $("submitWithdrawButton")
+    .addEventListener(
+      "click",
+      submitWithdraw
+    );
+
+
+  $("openMyTournamentsButton")
+    .addEventListener(
+      "click",
+      async()=>{
+
+        showOnly(
+          "myTournamentsSection"
+        );
+
+        await loadMyTournaments();
+
+      }
+    );
+
+
+  $("backMyTournamentButton")
+    .addEventListener(
+      "click",
+      ()=>{
+
+        showOnly(null);
+
+      }
+    );
+
+
+  function escapeHtml(value){
+
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+
+  }
+
+
+  /* CHECK SESSION */
+
+  const {
+    data: sessionData
+  } =
+          await supabaseClient.auth
+        .getSession();
+
+
+  if(
+    sessionData?.session
+  ){
+
+    await startApp();
+
+  }
+
+</script>
+
+</body>
+</html>
