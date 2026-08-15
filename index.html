@@ -1562,7 +1562,108 @@ dashboard.classList.remove("hidden");
 
 }
 );
+/* DEPOSITS */
 
+openDepositsButton.addEventListener(
+  "click",
+  async () => {
+
+    dashboard.classList.add("hidden");
+
+    tournamentsSection.classList.add("hidden");
+
+    playersSection.classList.add("hidden");
+
+    paymentsSection.classList.add("hidden");
+
+    depositsSection.classList.remove("hidden");
+
+    await loadDeposits();
+
+  }
+);
+async function loadDeposits() {
+
+  const depositsList =
+    document.getElementById("depositsList");
+
+  if (!depositsList) return;
+
+  depositsList.innerHTML =
+    "Loading deposits...";
+
+  const { data, error } =
+    await supabase
+      .from("deposits")
+      .select("*")
+      .order(
+        "created_at",
+        { ascending: false }
+      );
+
+  if (error) {
+
+    depositsList.innerHTML =
+      "Error: " +
+      escapeHtml(error.message);
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    depositsList.innerHTML =
+      "No deposits yet.";
+
+    return;
+  }
+
+  depositsList.innerHTML =
+    data.map(deposit => {
+
+      return `
+
+        <div class="card">
+
+          <h3>
+            💰 ₹${Number(deposit.amount).toFixed(2)}
+          </h3>
+
+          <p>
+            👤 User:
+            ${escapeHtml(deposit.user_id)}
+          </p>
+
+          <p>
+            🔢 UTR:
+            ${escapeHtml(
+              deposit.transaction_id || "-"
+            )}
+          </p>
+
+          <p>
+            📅 Date:
+            ${new Date(
+              deposit.created_at
+            ).toLocaleString()}
+          </p>
+
+          <p>
+            📌 Status:
+            <b>
+              ${escapeHtml(
+                deposit.status
+              )}
+            </b>
+          </p>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}  
 
 /* TOURNAMENT OPTIONS */
 
