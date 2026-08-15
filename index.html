@@ -1786,7 +1786,6 @@ document.getElementById(
 );
 
 
-/* LOAD TEAMS */
 
 /* LOAD TEAMS */
 
@@ -1929,43 +1928,20 @@ playersB
 
   
 
-
 /* GENERATE CS TEAMS */
 
 async function generateCSTeams(){
-
-  const tournamentId =
-    document.getElementById(
-      "teamTournament"
-    ).value;
 
   const message =
     document.getElementById(
       "teamMessage"
     );
 
-
-  if(!tournamentId){
-
-    message.innerHTML =
-      "Please select a tournament.";
-
-    return;
-
-  }
-
-
   message.innerHTML =
-    "Generating teams...";
-
-
-  await loadTeams();
-
-
-  message.innerHTML =
-    "✅ CS Teams generated successfully.";
+    "✅ Generate button is working!";
 
 }
+
 /* LOAD PLAYERS */
 
 async function loadPlayers(){
