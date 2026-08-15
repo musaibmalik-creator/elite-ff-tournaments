@@ -1874,27 +1874,141 @@ async function loadTeams(){
     data.slice(half);
 
 
+/* LOAD CS TEAMS */
+
+async function loadTeams(){
+
+  const teamA =
+    document.getElementById("teamAList");
+
+  const teamB =
+    document.getElementById("teamBList");
+
+  const message =
+    document.getElementById("teamMessage");
+
+
+  teamA.innerHTML =
+    "Loading...";
+
+  teamB.innerHTML =
+    "Loading...";
+
+
+  const tournamentId =
+    document.getElementById(
+      "teamTournament"
+    ).value;
+
+
+  if(!tournamentId){
+
+    teamA.innerHTML =
+      "Select a tournament first.";
+
+    teamB.innerHTML =
+      "Select a tournament first.";
+
+    return;
+
+  }
+
+
+  /* GET APPROVED PLAYERS */
+
+  const {data,error} =
+    await supabase
+    .from("players")
+    .select(
+      "id,name,uid,tournament_id,status"
+    )
+    .eq(
+      "tournament_id",
+      tournamentId
+    )
+    .eq(
+      "status",
+      "approved"
+    );
+
+
+  if(error){
+
+    teamA.innerHTML =
+      "Error: " +
+      escapeHtml(error.message);
+
+    teamB.innerHTML = "";
+
+    if(message){
+      message.innerHTML =
+        "❌ Could not load players.";
+    }
+
+    return;
+
+  }
+
+
+  if(!data || data.length === 0){
+
+    teamA.innerHTML =
+      "No approved players yet.";
+
+    teamB.innerHTML =
+      "No approved players yet.";
+
+    if(message){
+      message.innerHTML =
+        "No approved players found for this tournament.";
+    }
+
+    return;
+
+  }
+
+
+  /* SHUFFLE PLAYERS */
+
+  const players =
+    [...data].sort(
+      () => Math.random() - 0.5
+    );
+
+
+  /* 4 + 4 */
+
+  const half =
+    Math.ceil(players.length / 2);
+
+
+  const playersA =
+    players.slice(0, half);
+
+  const playersB =
+    players.slice(half);
+
+
+  /* TEAM A */
+
   teamA.innerHTML =
     playersA
     .map((player,index)=>`
 
       <div class="player-card">
 
-        <b>${index + 1}. ${
-          escapeHtml(
-            player.player_name ||
-            player.name ||
-            "Player"
-          )
-        }</b>
+        <b>
+          ${index + 1}.
+          ${escapeHtml(
+            player.name || "Player"
+          )}
+        </b>
 
         <br>
 
         UID:
         ${escapeHtml(
-          player.uid ||
-          player.player_uid ||
-          "N/A"
+          player.uid || "N/A"
         )}
 
       </div>
@@ -1902,6 +2016,8 @@ async function loadTeams(){
     `)
     .join("");
 
+
+  /* TEAM B */
 
   teamB.innerHTML =
     playersB
@@ -1909,21 +2025,18 @@ async function loadTeams(){
 
       <div class="player-card">
 
-        <b>${index + 1}. ${
-          escapeHtml(
-            player.player_name ||
-            player.name ||
-            "Player"
-          )
-        }</b>
+        <b>
+          ${index + 1}.
+          ${escapeHtml(
+            player.name || "Player"
+          )}
+        </b>
 
         <br>
 
         UID:
         ${escapeHtml(
-          player.uid ||
-          player.player_uid ||
-          "N/A"
+          player.uid || "N/A"
         )}
 
       </div>
@@ -1931,7 +2044,17 @@ async function loadTeams(){
     `)
     .join("");
 
+
+  if(message){
+
+    message.innerHTML =
+      `✅ ${players.length} approved players loaded.`;
+
+  }
+
 }
+
+  
 
 
 /* GENERATE CS TEAMS */
