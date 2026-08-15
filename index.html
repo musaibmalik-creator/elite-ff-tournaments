@@ -1788,271 +1788,144 @@ document.getElementById(
 
 /* LOAD TEAMS */
 
-async function loadTeams(){
-
-  const teamA =
-    document.getElementById("teamAList");
-
-  const teamB =
-    document.getElementById("teamBList");
-
-  teamA.innerHTML =
-    "Loading...";
-
-  teamB.innerHTML =
-    "Loading...";
-
-
-  const tournamentId =
-    document.getElementById(
-      "teamTournament"
-    ).value;
-
-
-  if(!tournamentId){
-
-    teamA.innerHTML =
-      "Select a tournament first.";
-
-    teamB.innerHTML =
-      "Select a tournament first.";
-
-    return;
-
-  }
-
-
-  const {data,error} =
-    await supabase
-    .from("registrations")
-    .select("*")
-    .eq(
-      "tournament_id",
-      tournamentId
-    )
-    .eq(
-      "status",
-      "approved"
-    );
-
-
-  if(error){
-
-    teamA.innerHTML =
-      "Error: "+
-      escapeHtml(error.message);
-
-    teamB.innerHTML =
-      "";
-
-    return;
-
-  }
-
-
-  if(!data || data.length === 0){
-
-    teamA.innerHTML =
-      "No approved players yet.";
-
-    teamB.innerHTML =
-      "";
-
-    return;
-
-  }
-
-
-  const half =
-    Math.ceil(data.length / 2);
-
-
-  const playersA =
-    data.slice(0, half);
-
-  const playersB =
-    data.slice(half);
-
-
-/* LOAD CS TEAMS */
+/* LOAD TEAMS */
 
 async function loadTeams(){
 
-  const teamA =
-    document.getElementById("teamAList");
+const teamA =
+document.getElementById("teamAList");
 
-  const teamB =
-    document.getElementById("teamBList");
+const teamB =
+document.getElementById("teamBList");
 
-  const message =
-    document.getElementById("teamMessage");
+teamA.innerHTML =
+"Loading...";
 
+teamB.innerHTML =
+"Loading...";
 
-  teamA.innerHTML =
-    "Loading...";
+const tournamentId =
+document.getElementById(
+"teamTournament"
+).value;
 
-  teamB.innerHTML =
-    "Loading...";
+if(!tournamentId){
 
+teamA.innerHTML =  
+  "Select a tournament first.";  
 
-  const tournamentId =
-    document.getElementById(
-      "teamTournament"
-    ).value;
+teamB.innerHTML =  
+  "Select a tournament first.";  
 
-
-  if(!tournamentId){
-
-    teamA.innerHTML =
-      "Select a tournament first.";
-
-    teamB.innerHTML =
-      "Select a tournament first.";
-
-    return;
-
-  }
-
-
-  /* GET APPROVED PLAYERS */
-
-  const {data,error} =
-    await supabase
-    .from("players")
-    .select(
-      "id,name,uid,tournament_id,status"
-    )
-    .eq(
-      "tournament_id",
-      tournamentId
-    )
-    .eq(
-      "status",
-      "approved"
-    );
-
-
-  if(error){
-
-    teamA.innerHTML =
-      "Error: " +
-      escapeHtml(error.message);
-
-    teamB.innerHTML = "";
-
-    if(message){
-      message.innerHTML =
-        "❌ Could not load players.";
-    }
-
-    return;
-
-  }
-
-
-  if(!data || data.length === 0){
-
-    teamA.innerHTML =
-      "No approved players yet.";
-
-    teamB.innerHTML =
-      "No approved players yet.";
-
-    if(message){
-      message.innerHTML =
-        "No approved players found for this tournament.";
-    }
-
-    return;
-
-  }
-
-
-  /* SHUFFLE PLAYERS */
-
-  const players =
-    [...data].sort(
-      () => Math.random() - 0.5
-    );
-
-
-  /* 4 + 4 */
-
-  const half =
-    Math.ceil(players.length / 2);
-
-
-  const playersA =
-    players.slice(0, half);
-
-  const playersB =
-    players.slice(half);
-
-
-  /* TEAM A */
-
-  teamA.innerHTML =
-    playersA
-    .map((player,index)=>`
-
-      <div class="player-card">
-
-        <b>
-          ${index + 1}.
-          ${escapeHtml(
-            player.name || "Player"
-          )}
-        </b>
-
-        <br>
-
-        UID:
-        ${escapeHtml(
-          player.uid || "N/A"
-        )}
-
-      </div>
-
-    `)
-    .join("");
-
-
-  /* TEAM B */
-
-  teamB.innerHTML =
-    playersB
-    .map((player,index)=>`
-
-      <div class="player-card">
-
-        <b>
-          ${index + 1}.
-          ${escapeHtml(
-            player.name || "Player"
-          )}
-        </b>
-
-        <br>
-
-        UID:
-        ${escapeHtml(
-          player.uid || "N/A"
-        )}
-
-      </div>
-
-    `)
-    .join("");
-
-
-  if(message){
-
-    message.innerHTML =
-      `✅ ${players.length} approved players loaded.`;
-
-  }
+return;
 
 }
+
+const {data,error} =
+await supabase
+.from("registrations")
+.select("*")
+.eq(
+"tournament_id",
+tournamentId
+)
+.eq(
+"status",
+"approved"
+);
+
+if(error){
+
+teamA.innerHTML =  
+  "Error: "+  
+  escapeHtml(error.message);  
+
+teamB.innerHTML =  
+  "";  
+
+return;
+
+}
+
+if(!data || data.length === 0){
+
+teamA.innerHTML =  
+  "No approved players yet.";  
+
+teamB.innerHTML =  
+  "";  
+
+return;
+
+}
+
+const half =
+Math.ceil(data.length / 2);
+
+const playersA =
+data.slice(0, half);
+
+const playersB =
+data.slice(half);
+
+teamA.innerHTML =
+playersA
+.map((player,index)=>`
+
+<div class="player-card">  
+
+    <b>${index + 1}. ${  
+      escapeHtml(  
+        player.player_name ||  
+        player.name ||  
+        "Player"  
+      )  
+    }</b>  
+
+    <br>  
+
+    UID:  
+    ${escapeHtml(  
+      player.uid ||  
+      player.player_uid ||  
+      "N/A"  
+    )}  
+
+  </div>  
+
+`)  
+.join("");
+
+teamB.innerHTML =
+playersB
+.map((player,index)=>`
+
+<div class="player-card">  
+
+    <b>${index + 1}. ${  
+      escapeHtml(  
+        player.player_name ||  
+        player.name ||  
+        "Player"  
+      )  
+    }</b>  
+
+    <br>  
+
+    UID:  
+    ${escapeHtml(  
+      player.uid ||  
+      player.player_uid ||  
+      "N/A"  
+    )}  
+
+  </div>  
+
+`)  
+.join("");
+
+}
+
 
   
 
