@@ -1107,11 +1107,38 @@ button:disabled {
     Minimum deposit: ₹10
   </p>
 
+  <div class="card">
+
+    <h3>💳 Payment Details</h3>
+
+    <p class="muted">
+      UPI se payment karein:
+    </p>
+
+    <p>
+      <strong>UPI ID:</strong>
+      <span>elightffarena@ptaxis</span>
+    </p>
+
+    <button
+      type="button"
+      class="success"
+      onclick="navigator.clipboard.writeText('elightffarena@ptaxis')"
+    >
+      📋 Copy UPI ID
+    </button>
+
+    <p class="muted">
+      Payment karne ke baad neeche amount aur UTR / Transaction ID enter karein.
+    </p>
+
+  </div>
+
   <input
     id="depositAmount"
     type="number"
     min="10"
-    placeholder="Minimum ₹10"
+    placeholder="Amount (Minimum ₹10)"
   >
 
   <input
