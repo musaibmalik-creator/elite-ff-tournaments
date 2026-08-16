@@ -146,54 +146,72 @@
 
 <div class="app">
 
-  <!-- LOGIN / REGISTER -->
+<!-- LOGIN / REGISTER -->
+  <div id="loginSection" class="login-screen">  <div class="login-glow glow-red"></div>
+  <div class="login-glow glow-blue"></div>  <div class="login-card"><div class="game-badge">
+  🎮
+</div>
 
-<div id="loginSection">
+<div class="brand-title">
+  <span>ELITE</span>
+  <strong>FF</strong>
+  <span>TOURNAMENTS</span>
+</div>
 
-  <div class="card">
+<p class="login-subtitle">
+  🔥 ENTER THE BATTLE • WIN BIG 🔥
+</p>
 
-    <h1>🎮 Elite FF Tournaments</h1>
+<div class="login-form">
 
-    <p class="muted">
-      Login or create your account
-    </p>
-
+  <div class="input-box">
+    <span>📧</span>
     <input
       id="email"
       type="email"
-      placeholder="Email"
+      placeholder="Enter your Email"
       autocomplete="email"
     >
+  </div>
 
+  <div class="input-box">
+    <span>🔐</span>
     <input
       id="password"
       type="password"
-      placeholder="Password"
+      placeholder="Enter your Password"
       autocomplete="current-password"
     >
-
-    <button
-      id="loginButton"
-      type="button"
-    >
-      Login
-    </button>
-
-    <button
-      id="signupButton"
-      class="secondary"
-      type="button"
-    >
-      Create Account
-    </button>
-
-    <div
-      id="authMessage"
-      class="message"
-    ></div>
-
   </div>
 
+  <button
+    id="loginButton"
+    type="button"
+    class="login-main-button"
+  >
+    ⚡ LOGIN
+  </button>
+
+  <button
+    id="signupButton"
+    type="button"
+    class="login-create-button"
+  >
+    🚀 CREATE ACCOUNT
+  </button>
+
+</div>
+
+<div
+  id="authMessage"
+  class="message login-message"
+></div>
+
+<div class="login-footer">
+  🏆 COMPETE &nbsp; • &nbsp; ⚔️ DOMINATE &nbsp; • &nbsp; 💰 WIN
+</div>
+
+  </div>
 </div>
 
 
