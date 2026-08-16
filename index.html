@@ -972,17 +972,34 @@ async function login(){
 
 function showDashboard(user){
 
+  /* Hide login page */
+
+  $("loginCard")
+    .classList.add("hidden");
+
+
+  /* Hide all sections */
+
   hideSections();
+
+
+  /* Show dashboard */
 
   $("dashboard")
     .classList.remove("hidden");
 
+
+  /* Show logged-in email */
+
   $("userEmail").textContent =
     "Logged in as: " +
     (
-      user.email ||
+      user?.email ||
       "User"
     );
+
+
+  /* Load counts */
 
   loadCounts();
 
