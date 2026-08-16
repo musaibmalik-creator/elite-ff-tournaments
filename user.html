@@ -419,7 +419,7 @@
       SUPABASE_URL,
       SUPABASE_KEY
     );
-
+ const $ = id => document.getElementById(id);
 
   /* =========================================
      GLOBAL VARIABLES
@@ -997,24 +997,7 @@
     }
 
 
-    /*
-      IMPORTANT:
-
-      Your current Players table columns,
-      as provided by you, are:
-
-      id
-      team_id
-      name
-      created_at
-      team_name
-      tournament_id
-      uid
-      status
-
-      Therefore we DO NOT insert user_id,
-      slot, or slot_number here.
-    */
+ 
 
 
     showMessage(
@@ -1422,8 +1405,8 @@ if (sessionData?.session) {
 
   await startApp();
 
-}
-  </script>
+} 
+</script>
 
 </body>
 </html>
