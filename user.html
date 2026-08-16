@@ -26,9 +26,7 @@
       padding: 16px;
     }
 
-    h1,
-    h2,
-    h3 {
+    h1, h2, h3 {
       margin-top: 0;
     }
 
@@ -68,12 +66,17 @@
       background: #27304b;
     }
 
+    button.danger {
+      background: #dc2626;
+    }
+
     button.success {
       background: #16a34a;
     }
 
-    button.danger {
-      background: #dc2626;
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .hidden {
@@ -93,7 +96,7 @@
     }
 
     .balance {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: bold;
       margin-top: 8px;
     }
@@ -115,7 +118,7 @@
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      margin: 8px 0;
+      margin: 7px 0;
     }
 
     .row span:last-child {
@@ -130,8 +133,25 @@
       line-height: 1.5;
     }
 
-    .menu button {
-      margin-top: 10px;
+    .team {
+      background: #10172b;
+      border: 1px solid #2d3857;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    .player {
+      padding: 10px;
+      margin-top: 8px;
+      background: #172033;
+      border-radius: 8px;
+      border: 1px solid #34405f;
+    }
+
+    .price {
+      font-size: 18px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -140,9 +160,7 @@
 
 <div class="app">
 
-  <!-- ========================= -->
   <!-- LOGIN -->
-  <!-- ========================= -->
 
   <div id="loginSection">
 
@@ -158,17 +176,15 @@
         id="email"
         type="email"
         placeholder="Email"
-        autocomplete="email"
       >
 
       <input
         id="password"
         type="password"
         placeholder="Password"
-        autocomplete="current-password"
       >
 
-      <button id="loginButton">
+      <button id="loginButton" type="button">
         Login
       </button>
 
@@ -182,7 +198,7 @@
 
       <div
         id="authMessage"
-        class="message hidden"
+        class="message"
       ></div>
 
     </div>
@@ -190,33 +206,32 @@
   </div>
 
 
-  <!-- ========================= -->
   <!-- HOME -->
-  <!-- ========================= -->
 
   <div
     id="homeSection"
     class="hidden"
   >
 
-    <!-- ACCOUNT -->
-
     <div class="card">
 
       <div class="top">
 
         <div>
+
           <h2>👤 My Account</h2>
 
           <div
             id="userEmail"
             class="muted"
           ></div>
+
         </div>
 
         <button
           id="logoutButton"
           class="secondary"
+          type="button"
         >
           Logout
         </button>
@@ -237,73 +252,40 @@
 
     <!-- MENU -->
 
-    <div class="card menu">
+    <div class="card">
 
-      <button id="openTournamentsButton">
+      <button
+        id="openTournamentsButton"
+        type="button"
+      >
         🏆 Tournaments
       </button>
 
-      <button id="openWalletButton">
-        💰 Wallet
+      <button
+        id="openDepositButton"
+        type="button"
+      >
+        💰 Deposit
       </button>
 
-      <button id="openMyTournamentsButton">
+      <button
+        id="openWithdrawButton"
+        type="button"
+      >
+        💸 Withdraw
+      </button>
+
+      <button
+        id="openMyTournamentsButton"
+        type="button"
+      >
         🎮 My Tournaments
       </button>
 
     </div>
 
 
-    <!-- ========================= -->
-    <!-- WALLET -->
-    <!-- ========================= -->
-
-    <div
-      id="walletSection"
-      class="card hidden"
-    >
-
-      <div class="top">
-
-        <h2>💰 Wallet</h2>
-
-        <button
-          id="backWalletButton"
-          class="secondary"
-        >
-          Back
-        </button>
-
-      </div>
-
-      <p class="muted">
-        Your current wallet balance.
-      </p>
-
-      <div
-        id="walletBalanceLarge"
-        class="balance"
-      >
-        ₹0.00
-      </div>
-
-      <div class="message">
-
-        <strong>Deposit system</strong>
-
-        <p class="muted">
-          Deposit requests will be added after the
-          Admin approval system is connected.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <!-- ========================= -->
     <!-- TOURNAMENTS -->
-    <!-- ========================= -->
 
     <div
       id="tournamentsSection"
@@ -317,6 +299,7 @@
         <button
           id="backTournamentButton"
           class="secondary"
+          type="button"
         >
           Back
         </button>
@@ -330,48 +313,208 @@
     </div>
 
 
-    <!-- ========================= -->
-    <!-- JOIN -->
-    <!-- ========================= -->
+    <!-- TEAM REGISTRATION -->
 
     <div
-      id="joinSection"
+      id="teamSection"
       class="card hidden"
     >
 
       <div class="top">
 
-        <h2>🎮 Join Tournament</h2>
+        <h2>👥 Register Team</h2>
 
         <button
-          id="backJoinButton"
+          id="backTeamButton"
           class="secondary"
+          type="button"
         >
           Back
         </button>
 
       </div>
 
-      <div id="joinTournamentInfo"></div>
+      <div id="teamTournamentInfo"></div>
+
+      <input
+        id="teamName"
+        type="text"
+        placeholder="Team Name"
+      >
+
+      <h3>Player 1</h3>
+
+      <input
+        id="player1Name"
+        type="text"
+        placeholder="Player Name"
+      >
+
+      <input
+        id="player1UID"
+        type="text"
+        placeholder="Free Fire UID"
+      >
+
+      <h3>Player 2</h3>
+
+      <input
+        id="player2Name"
+        type="text"
+        placeholder="Player Name"
+      >
+
+      <input
+        id="player2UID"
+        type="text"
+        placeholder="Free Fire UID"
+      >
+
+      <h3>Player 3</h3>
+
+      <input
+        id="player3Name"
+        type="text"
+        placeholder="Player Name"
+      >
+
+      <input
+        id="player3UID"
+        type="text"
+        placeholder="Free Fire UID"
+      >
+
+      <h3>Player 4</h3>
+
+      <input
+        id="player4Name"
+        type="text"
+        placeholder="Player Name"
+      >
+
+      <input
+        id="player4UID"
+        type="text"
+        placeholder="Free Fire UID"
+      >
 
       <button
-        id="joinButton"
+        id="registerTeamButton"
         class="success"
+        type="button"
       >
-        Join Tournament
+        Register Team & Join
       </button>
 
       <div
-        id="joinMessage"
-        class="message hidden"
+        id="teamMessage"
+        class="message"
       ></div>
 
     </div>
 
 
-    <!-- ========================= -->
+    <!-- DEPOSIT -->
+
+    <div
+      id="depositSection"
+      class="card hidden"
+    >
+
+      <div class="top">
+
+        <h2>💰 Deposit</h2>
+
+        <button
+          id="backDepositButton"
+          class="secondary"
+          type="button"
+        >
+          Back
+        </button>
+
+      </div>
+
+      <p class="muted">
+        Enter amount and UTR / Transaction ID.
+      </p>
+
+      <input
+        id="depositAmount"
+        type="number"
+        placeholder="Amount"
+      >
+
+      <input
+        id="depositUTR"
+        type="text"
+        placeholder="UTR / Transaction ID"
+      >
+
+      <button
+        id="submitDepositButton"
+        type="button"
+      >
+        Submit Deposit
+      </button>
+
+      <div
+        id="depositMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <!-- WITHDRAW -->
+
+    <div
+      id="withdrawSection"
+      class="card hidden"
+    >
+
+      <div class="top">
+
+        <h2>💸 Withdraw</h2>
+
+        <button
+          id="backWithdrawButton"
+          class="secondary"
+          type="button"
+        >
+          Back
+        </button>
+
+      </div>
+
+      <input
+        id="withdrawAmount"
+        type="number"
+        placeholder="Amount"
+      >
+
+      <input
+        id="withdrawUPI"
+        type="text"
+        placeholder="UPI ID / Bank Details"
+      >
+
+      <button
+        id="submitWithdrawButton"
+        type="button"
+      >
+        Submit Withdrawal
+      </button>
+
+      <div
+        id="withdrawMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
     <!-- MY TOURNAMENTS -->
-    <!-- ========================= -->
 
     <div
       id="myTournamentsSection"
@@ -385,6 +528,7 @@
         <button
           id="backMyTournamentButton"
           class="secondary"
+          type="button"
         >
           Back
         </button>
@@ -402,902 +546,763 @@
 </div>
 
 
-<script>
+<script type="module">
 
-  /* =========================================
-     SUPABASE
-  ========================================= */
+/* =========================================
+   SUPABASE
+========================================= */
 
-  const SUPABASE_URL =
-    "https://yenhkcditizmcekjeswy.supabase.co";
+const SUPABASE_URL =
+  "https://yenhkcditizmcekjeswy.supabase.co";
 
-  const SUPABASE_KEY =
-    "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+const SUPABASE_KEY =
+  "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
 
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
- const $ = id => document.getElementById(id);
-
-  /* =========================================
-     GLOBAL VARIABLES
-  ========================================= */
-
-  let currentUser = null;
-
-  let selectedTournament = null;
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
-  /* =========================================
-     SHORT SELECTOR
-  ========================================= */
+/* =========================================
+   HELPERS
+========================================= */
 
-  const $ = function(id) {
-    return document.getElementById(id);
-  };
+const $ =
+  id => document.getElementById(id);
 
-
-  /* =========================================
-     MONEY
-  ========================================= */
-
-  function money(value) {
-
-    return "₹" +
-      Number(value || 0).toFixed(2);
-
-  }
+let currentUser = null;
+let selectedTournament = null;
 
 
-  /* =========================================
-     HTML ESCAPE
-  ========================================= */
+function money(value) {
 
-  function escapeHtml(value) {
+  return "₹" +
+    Number(value || 0)
+      .toFixed(2);
 
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-
-  }
+}
 
 
-  /* =========================================
-     SHOW MESSAGE
-  ========================================= */
+function showMessage(id, text) {
 
-  function showMessage(elementId, text) {
+  const element = $(id);
 
-    const element = $(elementId);
-
+  if (element) {
     element.textContent = text;
+  }
 
-    element.classList.remove("hidden");
+}
+
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+function showOnly(section) {
+
+  const sections = [
+    "tournamentsSection",
+    "teamSection",
+    "depositSection",
+    "withdrawSection",
+    "myTournamentsSection"
+  ];
+
+  sections.forEach(id => {
+
+    $(id).classList.add("hidden");
+
+  });
+
+  if (section) {
+
+    $(section)
+      .classList
+      .remove("hidden");
 
   }
 
+}
 
-  /* =========================================
-     HIDE ALL HOME SECTIONS
-  ========================================= */
 
-  function hideHomeSections() {
+/* =========================================
+   WALLET
+========================================= */
 
-    [
-      "walletSection",
-      "tournamentsSection",
-      "joinSection",
-      "myTournamentsSection"
-    ].forEach(function(id) {
+async function ensureWallet() {
 
-      $(id).classList.add("hidden");
+  if (!currentUser) {
+    return;
+  }
 
-    });
+  const { data, error } =
+    await supabaseClient
+      .from("wallets")
+      .select("user_id")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+  if (error) {
+
+    console.error(
+      "Wallet check error:",
+      error
+    );
+
+    return;
 
   }
 
+  if (!data) {
 
-  /* =========================================
-     SHOW HOME SECTION
-  ========================================= */
-
-  function showSection(sectionId) {
-
-    hideHomeSections();
-
-    $(sectionId).classList.remove("hidden");
-
-  }
-
-
-  /* =========================================
-     LOAD WALLET
-  ========================================= */
-
-  async function loadWallet() {
-
-    if (!currentUser) {
-      return;
-    }
-
-    const result =
+    const { error: insertError } =
       await supabaseClient
         .from("wallets")
-        .select("balance")
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .maybeSingle();
+        .insert({
 
+          user_id:
+            currentUser.id,
 
-    if (result.error) {
+          balance: 0
 
-      console.error(
-        "Wallet error:",
-        result.error
-      );
+        });
 
-      $("walletBalance").textContent =
-        "₹0.00";
-
-      $("walletBalanceLarge").textContent =
-        "₹0.00";
-
-      return;
-
-    }
-
-
-    const balance =
-      Number(result.data?.balance || 0);
-
-
-    $("walletBalance").textContent =
-      money(balance);
-
-    $("walletBalanceLarge").textContent =
-      money(balance);
-
-  }
-
-
-  /* =========================================
-     ENSURE WALLET
-  ========================================= */
-
-  async function ensureWallet() {
-
-    if (!currentUser) {
-      return;
-    }
-
-
-    const result =
-      await supabaseClient
-        .from("wallets")
-        .select("id")
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .maybeSingle();
-
-
-    if (result.error) {
+    if (insertError) {
 
       console.error(
-        "Wallet check error:",
-        result.error
+        "Wallet creation error:",
+        insertError
       );
-
-      return;
-
-    }
-
-
-    if (!result.data) {
-
-      const insertResult =
-        await supabaseClient
-          .from("wallets")
-          .insert({
-            user_id:
-              currentUser.id,
-            balance: 0
-          });
-
-
-      if (insertResult.error) {
-
-        console.error(
-          "Wallet creation error:",
-          insertResult.error
-        );
-
-      }
 
     }
 
   }
 
+}
 
-  /* =========================================
-     LOAD TOURNAMENTS
-  ========================================= */
 
-  async function loadTournaments() {
+async function loadWallet() {
 
-    $("tournamentList").textContent =
+  if (!currentUser) {
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient
+      .from("wallets")
+      .select("balance")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+  if (error) {
+
+    console.error(error);
+
+    $("walletBalance")
+      .textContent = "₹0.00";
+
+    return;
+
+  }
+
+  $("walletBalance")
+    .textContent =
+      money(data?.balance || 0);
+
+}
+
+
+/* =========================================
+   TOURNAMENTS
+========================================= */
+
+async function loadTournaments() {
+
+  $("tournamentList")
+    .innerHTML =
       "Loading tournaments...";
 
-
-    const result =
-      await supabaseClient
-        .from("tournaments")
-        .select(
-          "id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at"
-        )
-        .order(
-          "starts_at",
-          {
-            ascending: true
-          }
-        );
-
-
-    if (result.error) {
-
-      showMessage(
-        "tournamentList",
-        "Error: " +
-        result.error.message
+  const { data, error } =
+    await supabaseClient
+      .from("tournaments")
+      .select("*")
+      .order(
+        "starts_at",
+        {
+          ascending: true
+        }
       );
 
-      return;
+  if (error) {
 
-    }
+    $("tournamentList")
+      .innerHTML =
+        "Error: " +
+        error.message;
 
+    return;
 
-    const tournaments =
-      result.data || [];
+  }
 
+  if (!data || data.length === 0) {
 
-    if (tournaments.length === 0) {
-
-      $("tournamentList").textContent =
+    $("tournamentList")
+      .innerHTML =
         "No tournaments available.";
 
-      return;
-
-    }
-
-
-    $("tournamentList").innerHTML =
-      tournaments.map(function(t) {
-
-        return `
-
-          <div class="tournament">
-
-            <h3>
-              🏆 ${escapeHtml(t.name)}
-            </h3>
-
-            <div class="row">
-              <span>Sport</span>
-              <span>
-                ${escapeHtml(t.sport)}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Entry Fee</span>
-              <span>
-                ${money(t.entry_fee)}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Prize Pool</span>
-              <span>
-                ${money(t.prize_pool)}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Max Teams</span>
-              <span>
-                ${escapeHtml(t.max_teams)}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Status</span>
-              <span>
-                ${escapeHtml(t.status)}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Starts</span>
-              <span>
-                ${formatDate(t.starts_at)}
-              </span>
-            </div>
-
-            <p class="muted">
-              ${escapeHtml(
-                t.description || ""
-              )}
-            </p>
-
-            <button
-              type="button"
-              onclick="openTournament('${t.id}')"
-            >
-              View Tournament
-            </button>
-
-          </div>
-
-        `;
-
-      }).join("");
+    return;
 
   }
 
-
-  /* =========================================
-     FORMAT DATE
-  ========================================= */
-
-  function formatDate(value) {
-
-    if (!value) {
-      return "-";
-    }
-
-    const date =
-      new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return "-";
-    }
-
-    return date.toLocaleString();
-
-  }
-
-
-  /* =========================================
-     OPEN TOURNAMENT
-  ========================================= */
-
-  window.openTournament =
-    async function(tournamentId) {
-
-      const result =
-        await supabaseClient
-          .from("tournaments")
-          .select(
-            "id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at"
-          )
-          .eq(
-            "id",
-            tournamentId
-          )
-          .single();
-
-
-      if (result.error) {
-
-        alert(
-          result.error.message
-        );
-
-        return;
-
-      }
-
-
-      selectedTournament =
-        result.data;
-
-
-      $("joinTournamentInfo").innerHTML = `
-
-        <h2>
-          🏆 ${escapeHtml(
-            selectedTournament.name
-          )}
-        </h2>
-
-        <div class="row">
-          <span>Sport</span>
-          <span>
-            ${escapeHtml(
-              selectedTournament.sport
-            )}
-          </span>
-        </div>
-
-        <div class="row">
-          <span>Entry Fee</span>
-          <span>
-            ${money(
-              selectedTournament.entry_fee
-            )}
-          </span>
-        </div>
-
-        <div class="row">
-          <span>Prize Pool</span>
-          <span>
-            ${money(
-              selectedTournament.prize_pool
-            )}
-          </span>
-        </div>
-
-        <div class="row">
-          <span>Max Teams</span>
-          <span>
-            ${escapeHtml(
-              selectedTournament.max_teams
-            )}
-          </span>
-        </div>
-
-        <div class="row">
-          <span>Status</span>
-          <span>
-            ${escapeHtml(
-              selectedTournament.status
-            )}
-          </span>
-        </div>
-
-        <div class="row">
-          <span>Starts</span>
-          <span>
-            ${formatDate(
-              selectedTournament.starts_at
-            )}
-          </span>
-        </div>
-
-        <p class="muted">
-          ${escapeHtml(
-            selectedTournament.description || ""
-          )}
-        </p>
-
-      `;
-
-
-      $("joinMessage")
-        .classList
-        .add("hidden");
-
-
-      showSection(
-        "joinSection"
-      );
-
-    };
-
-
-  /* =========================================
-     JOIN TOURNAMENT
-  ========================================= */
-
-  async function joinTournament() {
-
-    if (!currentUser) {
-
-      showMessage(
-        "joinMessage",
-        "Please login first."
-      );
-
-      return;
-
-    }
-
-
-    if (!selectedTournament) {
-
-      showMessage(
-        "joinMessage",
-        "Tournament not selected."
-      );
-
-      return;
-
-    }
-
-
-    const status =
-      String(
-        selectedTournament.status || ""
-      ).toLowerCase();
-
-
-    if (
-      status !== "registration_open" &&
-      status !== "open" &&
-      status !== "upcoming"
-    ) {
-
-      showMessage(
-        "joinMessage",
-        "Registration is not open for this tournament."
-      );
-
-      return;
-
-    }
-
-
-    const entryFee =
-      Number(
-        selectedTournament.entry_fee || 0
-      );
-
-
-    /* CHECK WALLET */
-
-    const walletResult =
-      await supabaseClient
-        .from("wallets")
-        .select("balance")
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .maybeSingle();
-
-
-    if (walletResult.error) {
-
-      showMessage(
-        "joinMessage",
-        "Wallet error: " +
-        walletResult.error.message
-      );
-
-      return;
-
-    }
-
-
-    const balance =
-      Number(
-        walletResult.data?.balance || 0
-      );
-
-
-    if (balance < entryFee) {
-
-      showMessage(
-        "joinMessage",
-        "❌ Insufficient wallet balance. Your balance is " +
-        money(balance) +
-        "."
-      );
-
-      return;
-
-    }
-
-
- 
-
-
-    showMessage(
-      "joinMessage",
-      "⚠️ Team registration is required before entry fee can be deducted."
-    );
-
-  }
-
-
-  /* =========================================
-     LOAD MY TOURNAMENTS
-  ========================================= */
-
-  async function loadMyTournaments() {
-
-    $("myTournamentList").textContent =
-      "Loading...";
-
-
-    /*
-      Your registrations table is:
-
-      id
-      tournament_id
-      team_id
-      user_id
-      status
-      created_at
-    */
-
-    const result =
-      await supabaseClient
-        .from("registrations")
-        .select(
-          "id,tournament_id,team_id,user_id,status,created_at"
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        );
-
-
-    if (result.error) {
-
-      $("myTournamentList").textContent =
-        "Error: " +
-        result.error.message;
-
-      return;
-
-    }
-
-
-    const registrations =
-      result.data || [];
-
-
-    if (registrations.length === 0) {
-
-      $("myTournamentList").textContent =
-        "You haven't registered for any tournaments yet.";
-
-      return;
-
-    }
-
-
-    let html = "";
-
-
-    for (
-      const registration of registrations
-    ) {
-
-      const tournamentResult =
-        await supabaseClient
-          .from("tournaments")
-          .select(
-            "name,sport,entry_fee,prize_pool,status,starts_at"
-          )
-          .eq(
-            "id",
-            registration.tournament_id
-          )
-          .maybeSingle();
-
-
-      const tournament =
-        tournamentResult.data;
-
-
-      html += `
+  $("tournamentList")
+    .innerHTML =
+      data.map(t => `
 
         <div class="tournament">
 
           <h3>
-            🏆 ${escapeHtml(
-              tournament?.name ||
-              "Tournament"
-            )}
+            🏆 ${escapeHtml(t.name)}
           </h3>
 
           <div class="row">
             <span>Sport</span>
             <span>
               ${escapeHtml(
-                tournament?.sport || "-"
+                t.sport || "Free Fire"
               )}
             </span>
           </div>
 
           <div class="row">
             <span>Entry Fee</span>
-            <span>
-              ${money(
-                tournament?.entry_fee
-              )}
+            <span class="price">
+              ${money(t.entry_fee)}
             </span>
           </div>
 
           <div class="row">
-            <span>Registration</span>
+            <span>Prize Pool</span>
+            <span>
+              ${money(t.prize_pool)}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Max Teams</span>
+            <span>
+              ${t.max_teams || "-"}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Status</span>
             <span>
               ${escapeHtml(
-                registration.status || "-"
+                t.status || "-"
+              )}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onclick="openTeamRegistration('${t.id}')"
+          >
+            Register Team
+          </button>
+
+        </div>
+
+      `).join("");
+
+}
+
+
+/* =========================================
+   OPEN TEAM REGISTRATION
+========================================= */
+
+window.openTeamRegistration =
+  async function(tournamentId) {
+
+    const { data, error } =
+      await supabaseClient
+        .from("tournaments")
+        .select("*")
+        .eq(
+          "id",
+          tournamentId
+        )
+        .single();
+
+    if (error) {
+
+      alert(error.message);
+
+      return;
+
+    }
+
+    selectedTournament = data;
+
+    $("teamTournamentInfo")
+      .innerHTML = `
+
+        <div class="tournament">
+
+          <h3>
+            🏆 ${escapeHtml(
+              data.name
+            )}
+          </h3>
+
+          <div class="row">
+            <span>Entry Fee</span>
+            <span>
+              ${money(
+                data.entry_fee
               )}
             </span>
           </div>
 
           <div class="row">
-            <span>Registered</span>
+            <span>Prize Pool</span>
             <span>
-              ${formatDate(
-                registration.created_at
+              ${money(
+                data.prize_pool
               )}
             </span>
           </div>
 
         </div>
-
       `;
 
-    }
+    showOnly("teamSection");
 
-
-    $("myTournamentList").innerHTML =
-      html;
-
-  }
-
-
-  /* =========================================
-     LOGIN
-  ========================================= */
-
-  $("loginButton")
-    .addEventListener(
-      "click",
-      async function() {
-
-        const email =
-          $("email")
-            .value
-            .trim();
-
-        const password =
-          $("password")
-            .value;
-
-
-        if (!email || !password) {
-
-  $("authMessage").textContent =
-    "Enter email and password.";
-
-  return;
-}
-
-$("authMessage").textContent =
-  "Logging in...";
-
-const { error } =
-  await supabaseClient.auth
-    .signInWithPassword({
-      email: email,
-      password: password
-    });
-
-if (error) {
-
-  $("authMessage").textContent =
-    error.message;
-
-  return;
-}
-
-await startApp();
-
-}
-);
+  };
 
 
 /* =========================================
-   LOGOUT
+   REGISTER TEAM
 ========================================= */
 
-$("logoutButton")
+$("registerTeamButton")
   .addEventListener(
     "click",
-    async function() {
-
-      await supabaseClient.auth.signOut();
-
-      location.reload();
-
-    }
+    registerTeam
   );
 
 
-/* =========================================
-   START APP
-========================================= */
-
-async function startApp() {
-
-  const { data } =
-    await supabaseClient.auth.getUser();
-
-  currentUser = data.user;
+async function registerTeam() {
 
   if (!currentUser) {
+
+    showMessage(
+      "teamMessage",
+      "Please login first."
+    );
+
     return;
+
   }
 
-  $("loginSection")
-    .classList
-    .add("hidden");
+  if (!selectedTournament) {
 
-  $("homeSection")
-    .classList
-    .remove("hidden");
+    showMessage(
+      "teamMessage",
+      "Tournament not selected."
+    );
 
-  $("userEmail").textContent =
-    currentUser.email || "";
+    return;
 
-  await ensureWallet();
+  }
+
+
+  const teamName =
+    $("teamName")
+      .value
+      .trim();
+
+
+  if (!teamName) {
+
+    showMessage(
+      "teamMessage",
+      "Enter team name."
+    );
+
+    return;
+
+  }
+
+
+  const players = [
+
+    {
+      name:
+        $("player1Name").value.trim(),
+
+      uid:
+        $("player1UID").value.trim()
+    },
+
+    {
+      name:
+        $("player2Name").value.trim(),
+
+      uid:
+        $("player2UID").value.trim()
+    },
+
+    {
+      name:
+        $("player3Name").value.trim(),
+
+      uid:
+        $("player3UID").value.trim()
+    },
+
+    {
+      name:
+        $("player4Name").value.trim(),
+
+      uid:
+        $("player4UID").value.trim()
+    }
+
+  ];
+
+
+  for (
+    let i = 0;
+    i < players.length;
+    i++
+  ) {
+
+    if (
+      !players[i].name ||
+      !players[i].uid
+    ) {
+
+      showMessage(
+        "teamMessage",
+        "Please fill all 4 players."
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  showMessage(
+    "teamMessage",
+    "⏳ Registering team..."
+  );
+
+
+  /* Check wallet */
+
+  const { data: wallet, error: walletError } =
+    await supabaseClient
+      .from("wallets")
+      .select("balance")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if (walletError) {
+
+    showMessage(
+      "teamMessage",
+      "Wallet error: " +
+      walletError.message
+    );
+
+    return;
+
+  }
+
+
+  const balance =
+    Number(
+      wallet?.balance || 0
+    );
+
+
+  const entryFee =
+    Number(
+      selectedTournament.entry_fee || 0
+    );
+
+
+  if (balance < entryFee) {
+
+    showMessage(
+      "teamMessage",
+      "❌ Insufficient wallet balance. Please deposit first."
+    );
+
+    return;
+
+  }
+
+
+  /* Check existing registration */
+
+  const { data: existingRegistration } =
+    await supabaseClient
+      .from("registrations")
+      .select("id")
+      .eq(
+        "tournament_id",
+        selectedTournament.id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if (existingRegistration) {
+
+    showMessage(
+      "teamMessage",
+      "You already registered for this tournament."
+    );
+
+    return;
+
+  }
+
+
+  /* Create team */
+
+  const { data: team, error: teamError } =
+    await supabaseClient
+      .from("teams")
+      .insert({
+
+        tournament_id:
+          selectedTournament.id,
+
+        captain_id:
+          currentUser.id,
+
+        name:
+          teamName
+
+      })
+      .select()
+      .single();
+
+
+  if (teamError) {
+
+    showMessage(
+      "teamMessage",
+      "Team Error: " +
+      teamError.message
+    );
+
+    return;
+
+  }
+
+
+  /* Create registration */
+
+  const { data: registration, error: registrationError } =
+    await supabaseClient
+      .from("registrations")
+      .insert({
+
+        tournament_id:
+          selectedTournament.id,
+
+        team_id:
+          team.id,
+
+        user_id:
+          currentUser.id,
+
+        status:
+          "confirmed"
+
+      })
+      .select()
+      .single();
+
+
+  if (registrationError) {
+
+    showMessage(
+      "teamMessage",
+      "Registration Error: " +
+      registrationError.message
+    );
+
+    return;
+
+  }
+
+
+  /* Add players */
+
+  const playerRows =
+    players.map(player => ({
+
+      team_id:
+        team.id,
+
+      name:
+        player.name,
+
+      team_name:
+        teamName,
+
+      tournament_id:
+        selectedTournament.id,
+
+      uid:
+        player.uid,
+
+      status:
+        "approved"
+
+    }));
+
+
+  const { error: playersError } =
+    await supabaseClient
+      .from("players")
+      .insert(playerRows);
+
+
+  if (playersError) {
+
+    showMessage(
+      "teamMessage",
+      "Players Error: " +
+      playersError.message
+    );
+
+    return;
+
+  }
+
+
+  /* Create payment record */
+
+  const { error: paymentError } =
+    await supabaseClient
+      .from("payments")
+      .insert({
+
+        user_id:
+          currentUser.id,
+
+        tournament_id:
+          selectedTournament.id,
+
+        registration_id:
+          registration.id,
+
+        amount:
+          entryFee,
+
+        currency:
+          "INR",
+
+        status:
+          "completed"
+
+      });
+
+
+  if (paymentError) {
+
+    console.error(
+      "Payment record error:",
+      paymentError
+    );
+
+  }
+
+
+  /* Deduct wallet */
+
+  const newBalance =
+    balance - entryFee;
+
+
+  const { error: balanceError } =
+    await supabaseClient
+      .from("wallets")
+      .update({
+
+        balance:
+          newBalance
+
+      })
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
+
+  if (balanceError) {
+
+    showMessage(
+      "teamMessage",
+      "Wallet update error: " +
+      balanceError.message
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "teamMessage",
+    "✅ Team registered successfully!"
+  );
+
 
   await loadWallet();
 
-}
 
-
-/* =========================================
-   TOURNAMENTS BUTTON
-========================================= */
-
-$("openTournamentsButton")
-  .addEventListener(
-    "click",
-    async function() {
-
-      showOnly("tournamentsSection");
-
-      await loadTournaments();
-
-    }
-  );
-
-
-$("backTournamentButton")
-  .addEventListener(
-    "click",
+  setTimeout(
     function() {
 
       showOnly(null);
 
-    }
+    },
+    1500
   );
 
-
-/* =========================================
-   JOIN BACK
-========================================= */
-
-$("backJoinButton")
-  .addEventListener(
-    "click",
-    function() {
-
-      showOnly("tournamentsSection");
-
-    }
-  );
+}
 
 
 /* =========================================
@@ -1309,7 +1314,9 @@ $("openDepositButton")
     "click",
     function() {
 
-      showOnly("depositSection");
+      showOnly(
+        "depositSection"
+      );
 
     }
   );
@@ -1333,7 +1340,108 @@ $("submitDepositButton")
   );
 
 
-/* =========================================
+async function submitDeposit() {
+
+  const amount =
+    Number(
+      $("depositAmount")
+        .value
+    );
+
+  const utr =
+    $("depositUTR")
+      .value
+      .trim();
+
+
+  if (
+    !amount ||
+    amount <= 0
+  ) {
+
+    showMessage(
+      "depositMessage",
+      "Enter a valid amount."
+    );
+
+    return;
+
+  }
+
+
+  if (!utr) {
+
+    showMessage(
+      "depositMessage",
+      "Enter UTR / Transaction ID."
+          return;
+
+  }
+
+
+  showMessage(
+    "depositMessage",
+    "⏳ Submitting deposit..."
+  );
+
+
+  if (!currentUser) {
+
+    showMessage(
+      "depositMessage",
+      "Please login first."
+    );
+
+    return;
+
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("deposits")
+      .insert({
+
+        user_id:
+          currentUser.id,
+
+        amount:
+          amount,
+
+        transaction_id:
+          utr,
+
+        status:
+          "pending"
+
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "depositMessage",
+      "❌ Deposit Error: " +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "depositMessage",
+    "✅ Deposit submitted successfully. Admin will verify your UTR."
+  );
+
+
+  $("depositAmount").value = "";
+
+  $("depositUTR").value = "";
+
+}
+   /* =========================================
    WITHDRAW
 ========================================= */
 
@@ -1342,7 +1450,9 @@ $("openWithdrawButton")
     "click",
     function() {
 
-      showOnly("withdrawSection");
+      showOnly(
+        "withdrawSection"
+      );
 
     }
   );
@@ -1366,7 +1476,158 @@ $("submitWithdrawButton")
   );
 
 
-/* =========================================
+async function submitWithdraw() {
+
+  const amount =
+    Number(
+      $("withdrawAmount")
+        .value
+    );
+
+  const details =
+    $("withdrawUPI")
+      .value
+      .trim();
+
+
+  if (
+    !amount ||
+    amount <= 0
+  ) {
+
+    showMessage(
+      "withdrawMessage",
+      "Enter a valid amount."
+    );
+
+    return;
+
+  }
+
+
+  if (!details) {
+
+    showMessage(
+      "withdrawMessage",
+      "Enter UPI ID / Bank Details."
+    );
+
+    return;
+
+  }
+
+
+  if (!currentUser) {
+
+    showMessage(
+      "withdrawMessage",
+      "Please login first."
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "withdrawMessage",
+    "⏳ Checking wallet..."
+  );
+
+
+  const { data: wallet, error: walletError } =
+    await supabaseClient
+      .from("wallets")
+      .select("balance")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if (walletError) {
+
+    showMessage(
+      "withdrawMessage",
+      "❌ Wallet Error: " +
+      walletError.message
+    );
+
+    return;
+
+  }
+
+
+  const balance =
+    Number(
+      wallet?.balance || 0
+    );
+
+
+  if (balance < amount) {
+
+    showMessage(
+      "withdrawMessage",
+      "❌ Insufficient wallet balance."
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "withdrawMessage",
+    "⏳ Submitting withdrawal..."
+  );
+
+
+  const { error } =
+    await supabaseClient
+      .from("withdrawals")
+      .insert({
+
+        user_id:
+          currentUser.id,
+
+        amount:
+          amount,
+
+        payment_details:
+          details,
+
+        status:
+          "pending"
+
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "withdrawMessage",
+      "❌ Withdrawal Error: " +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "withdrawMessage",
+    "✅ Withdrawal request submitted. Admin will process it."
+  );
+
+
+  $("withdrawAmount").value = "";
+
+  $("withdrawUPI").value = "";
+
+}
+  /* =========================================
    MY TOURNAMENTS
 ========================================= */
 
@@ -1375,7 +1636,9 @@ $("openMyTournamentsButton")
     "click",
     async function() {
 
-      showOnly("myTournamentsSection");
+      showOnly(
+        "myTournamentsSection"
+      );
 
       await loadMyTournaments();
 
@@ -1394,18 +1657,186 @@ $("backMyTournamentButton")
   );
 
 
+async function loadMyTournaments() {
+
+  if (!currentUser) {
+
+    showMessage(
+      "myTournamentList",
+      "Please login first."
+    );
+
+    return;
+
+  }
+
+
+  $("myTournamentList").innerHTML =
+    "⏳ Loading your tournaments...";
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("registration")
+      .select(`
+        id,
+        tournament_id,
+        team_id,
+        user_id,
+        status,
+        created_at,
+        tournaments (
+          name,
+          sport,
+          entry_fee,
+          prize_pool,
+          starts_at
+        ),
+        teams (
+          name
+        )
+      `)
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+
+
+  if (error) {
+
+    $("myTournamentList").innerHTML =
+      "❌ Error: " +
+      escapeHtml(error.message);
+
+    return;
+
+  }
+
+
+  if (!data || data.length === 0) {
+
+    $("myTournamentList").innerHTML =
+      "You haven't registered for any tournament yet.";
+
+    return;
+
+  }
+
+
+  $("myTournamentList").innerHTML =
+    data.map(function(registration) {
+
+      const tournament =
+        registration.tournaments || {};
+
+      const team =
+        registration.teams || {};
+
+
+      return `
+
+        <div class="tournament">
+
+          <h3>
+            🏆
+            ${escapeHtml(
+              tournament.name ||
+              "Tournament"
+            )}
+          </h3>
+
+          <div class="row">
+            <span>Sport</span>
+            <span>
+              ${escapeHtml(
+                tournament.sport ||
+                "-"
+              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Team</span>
+            <span>
+              ${escapeHtml(
+                team.name ||
+                "-"
+              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Entry Fee</span>
+            <span>
+              ${money(
+                tournament.entry_fee
+              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Prize Pool</span>
+            <span>
+              ${money(
+                tournament.prize_pool
+              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Status</span>
+            <span>
+              ${escapeHtml(
+                registration.status ||
+                "pending"
+              )}
+            </span>
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+  /* =========================================
+   LOGOUT
+========================================= */
+
+$("logoutButton")
+  .addEventListener(
+    "click",
+    async function() {
+
+      await supabaseClient.auth.signOut();
+
+      currentUser = null;
+
+      location.reload();
+
+    }
+  );
+
+
 /* =========================================
    CHECK SESSION
 ========================================= */
 
-const { data: sessionData } =
-  await supabaseClient.auth.getSession();
+const {
+  data: sessionData
+} = await supabaseClient.auth.getSession();
 
 if (sessionData?.session) {
-
   await startApp();
+}
 
-} 
 </script>
 
 </body>
