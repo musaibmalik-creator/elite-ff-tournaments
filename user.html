@@ -2300,11 +2300,15 @@ $("submitDepositButton").addEventListener(
         .trim();
 
 
-    if (!amount || amount <= 0) {
+    /* =========================
+       MINIMUM DEPOSIT
+    ========================= */
+
+    if (!amount || amount < 10) {
 
       showMessage(
         "depositMessage",
-        "Enter a valid amount."
+        "❌ Minimum deposit amount is ₹10."
       );
 
       return;
@@ -2312,11 +2316,15 @@ $("submitDepositButton").addEventListener(
     }
 
 
+    /* =========================
+       UTR CHECK
+    ========================= */
+
     if (!utr) {
 
       showMessage(
         "depositMessage",
-        "Enter UTR / Transaction ID."
+        "❌ Enter UTR / Transaction ID."
       );
 
       return;
@@ -2329,6 +2337,10 @@ $("submitDepositButton").addEventListener(
       "⏳ Submitting deposit..."
     );
 
+
+    /* =========================
+       SAVE DEPOSIT REQUEST
+    ========================= */
 
     const { error } =
       await supabaseClient
@@ -2363,7 +2375,12 @@ $("submitDepositButton").addEventListener(
     }
 
 
+    /* =========================
+       CLEAR FORM
+    ========================= */
+
     $("depositAmount").value = "";
+
     $("depositUTR").value = "";
 
 
@@ -2374,6 +2391,9 @@ $("submitDepositButton").addEventListener(
 
   }
 );
+
+
+    
 
 
 /* =========================================
