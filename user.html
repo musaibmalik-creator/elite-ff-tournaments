@@ -751,6 +751,100 @@ $("signupButton")
           "Password must be at least 6 characters."
         );
 
+/* =========================================
+   LOGIN
+========================================= */
+
+$("loginButton")
+  .addEventListener(
+    "click",
+    async function() {
+
+      const email =
+        $("email")
+          .value
+          .trim();
+
+      const password =
+        $("password")
+          .value;
+
+      if (!email || !password) {
+
+        showMessage(
+          "authMessage",
+          "Enter email and password."
+        );
+
+        return;
+
+      }
+
+      showMessage(
+        "authMessage",
+        "⏳ Logging in..."
+      );
+
+      const { error } =
+        await supabaseClient.auth
+          .signInWithPassword({
+            email: email,
+            password: password
+          });
+
+      if (error) {
+
+        showMessage(
+          "authMessage",
+          "❌ " + error.message
+        );
+
+        return;
+
+      }
+
+      await startApp();
+
+    }
+  );
+
+
+/* =========================================
+   CREATE ACCOUNT
+========================================= */
+
+$("signupButton")
+  .addEventListener(
+    "click",
+    async function() {
+
+      const email =
+        $("email")
+          .value
+          .trim();
+
+      const password =
+        $("password")
+          .value;
+
+      if (!email || !password) {
+
+        showMessage(
+          "authMessage",
+          "Enter email and password first."
+        );
+
+        return;
+
+      }
+
+      if (password.length < 6) {
+
+        showMessage(
+          "authMessage",
+          "Password must be at least 6 characters."
+        );
+
         return;
 
       }
@@ -766,10 +860,8 @@ $("signupButton")
       } =
         await supabaseClient.auth
           .signUp({
-
             email: email,
             password: password
-
           });
 
       if (error) {
@@ -783,7 +875,7 @@ $("signupButton")
 
       }
 
-      if (data?.session) {
+      if (data && data.session) {
 
         currentUser =
           data.user;
