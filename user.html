@@ -2078,20 +2078,25 @@ return `
 }).join("");
 
 }
-  /* =========================================
+
+
+/* =========================================
    TOURNAMENTS BUTTON
 ========================================= */
 
-$("openTournamentsButton").addEventListener(
-  "click",
-  async function() {
+$("openTournamentsButton")
+  .addEventListener(
+    "click",
+    async function() {
 
-    showOnly("tournamentsSection");
+      showOnly(
+        "tournamentsSection"
+      );
 
-    await loadTournaments();
+      await loadTournaments();
 
-  }
-);
+    }
+  );
 
 
 /* =========================================
