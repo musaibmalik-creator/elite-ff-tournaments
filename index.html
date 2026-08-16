@@ -3342,6 +3342,56 @@ async function(id){
 
 };
 
+  /* =====================================================
+   LOAD DASHBOARD COUNTS
+===================================================== */
+
+async function loadCounts(){
+
+  const tournamentResult =
+    await supabase
+      .from("tournaments")
+      .select("*", {
+        count: "exact",
+        head: true
+      });
+
+  const playerResult =
+    await supabase
+      .from("players")
+      .select("*", {
+        count: "exact",
+        head: true
+      });
+
+
+  const tournamentCount =
+    document.getElementById(
+      "tournamentCount"
+    );
+
+  const playerCount =
+    document.getElementById(
+      "playerCount"
+    );
+
+
+  if(tournamentCount){
+
+    tournamentCount.textContent =
+      tournamentResult.count || 0;
+
+  }
+
+
+  if(playerCount){
+
+    playerCount.textContent =
+      playerResult.count || 0;
+
+  }
+
+}
 
 /* =====================================================
    SESSION CHECK
