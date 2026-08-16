@@ -539,9 +539,31 @@
 </div>
 
 
+                
+
+    
+
+                              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Registered</span>
+            <span>
+              ${registration.created_at
+                ? new Date(
+                    registration.created_at
+                  ).toLocaleString()
+                : "-"
+              }
+            </span>
+          </div>
+
+        </div>
 <script>
 
 "use strict";
+
 console.log("USER SCRIPT STARTED");
 
 /* =========================================
@@ -566,14 +588,10 @@ const supabaseClient =
 ========================================= */
 
 const $ = function(id) {
-
   return document.getElementById(id);
-
 };
 
-
 let currentUser = null;
-
 let selectedTournament = null;
 
 
@@ -597,19 +615,12 @@ function escapeHtml(value) {
 }
 
 
-function showMessage(
-  elementId,
-  text
-) {
+function showMessage(elementId, text) {
 
-  const element =
-    $(elementId);
+  const element = $(elementId);
 
   if (element) {
-
-    element.textContent =
-      text || "";
-
+    element.textContent = text || "";
   }
 
 }
@@ -618,284 +629,37 @@ function showMessage(
 function showOnly(sectionId) {
 
   const sections = [
-
     "tournamentsSection",
-
     "teamSection",
-
     "depositSection",
-
     "withdrawSection",
-
     "myTournamentsSection"
-
   ];
 
   sections.forEach(function(id) {
 
-    $(id)
-      .classList
-      .add("hidden");
+    const section = $(id);
+
+    if (section) {
+      section.classList.add("hidden");
+    }
 
   });
 
 
   if (sectionId) {
 
-    $(sectionId)
-      .classList
-      .remove("hidden");
+    const section = $(sectionId);
+
+    if (section) {
+      section.classList.remove("hidden");
+    }
 
   }
 
 }
 
-/* =========================================
-   LOGIN
-========================================= */
-console.log("LOGIN CODE REACHED");
-$("loginButton").addEventListener(
-  "click",
-  async function() {
-console.log("LOGIN BUTTON CLICKED");
-    const email = $("email").value.trim();
-    const password = $("password").value;
 
-    if (!email || !password) {
-      showMessage(
-        "authMessage",
-        "Enter email and password."
-      );
-      return;
-    }
-
-    showMessage(
-      "authMessage",
-      "⏳ Logging in..."
-    );
-
-    const { error } =
-      await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-    if (error) {
-      showMessage(
-        "authMessage",
-        "❌ " + error.message
-      );
-      return;
-    }
-
-    await startApp();
-  }
-);
-
-
-/* =========================================
-   CREATE ACCOUNT
-========================================= */
-
-$("signupButton").addEventListener(
-  "click",
-  async function() {
-
-    const email = $("email").value.trim();
-    const password = $("password").value;
-
-    if (!email || !password) {
-      showMessage(
-        "authMessage",
-        "Enter email and password first."
-      );
-      return;
-    }
-
-    if (password.length < 6) {
-      showMessage(
-        "authMessage",
-        "Password must be at least 6 characters."
-      );
-      return;
-    }
-
-    showMessage(
-      "authMessage",
-      "⏳ Creating account..."
-    );
-
-    const { data, error } =
-      await supabaseClient.auth.signUp({
-        email: email,
-        password: password
-      });
-
-    if (error) {
-      showMessage(
-        "authMessage",
-        "❌ " + error.message
-      );
-      return;
-    }
-
-    if (data && data.session) {
-      currentUser = data.user;
-      await startApp();
-      return;
-    }
-
-    showMessage(
-      "authMessage",
-      "✅ Account created. Check your email to verify."
-    );
-
-  }
-);
-
-/* =========================================
-   LOGIN
-========================================= */
-
-$("loginButton")
-  .addEventListener(
-    "click",
-    async function() {
-
-      const email =
-        $("email")
-          .value
-          .trim();
-
-      const password =
-        $("password")
-          .value;
-
-      if (!email || !password) {
-
-        showMessage(
-          "authMessage",
-          "Enter email and password."
-        );
-
-        return;
-
-      }
-
-      showMessage(
-        "authMessage",
-        "⏳ Logging in..."
-      );
-
-      const { error } =
-        await supabaseClient.auth
-          .signInWithPassword({
-            email: email,
-            password: password
-          });
-
-      if (error) {
-
-        showMessage(
-          "authMessage",
-          "❌ " + error.message
-        );
-
-        return;
-
-      }
-
-      await startApp();
-
-    }
-  );
-
-
-/* =========================================
-   CREATE ACCOUNT
-========================================= */
-
-$("signupButton")
-  .addEventListener(
-    "click",
-    async function() {
-
-      const email =
-        $("email")
-          .value
-          .trim();
-
-      const password =
-        $("password")
-          .value;
-
-      if (!email || !password) {
-
-        showMessage(
-          "authMessage",
-          "Enter email and password first."
-        );
-
-        return;
-
-      }
-
-      if (password.length < 6) {
-
-        showMessage(
-          "authMessage",
-          "Password must be at least 6 characters."
-        );
-
-        return;
-
-      }
-
-      showMessage(
-        "authMessage",
-        "⏳ Creating account..."
-      );
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient.auth
-          .signUp({
-            email: email,
-            password: password
-          });
-
-      if (error) {
-
-        showMessage(
-          "authMessage",
-          "❌ " + error.message
-        );
-
-        return;
-
-      }
-
-      if (data && data.session) {
-
-        currentUser =
-          data.user;
-
-        await startApp();
-
-        return;
-
-      }
-
-      showMessage(
-        "authMessage",
-        "✅ Account created. Check your email to verify your account."
-      );
-
-    }
-  );
-  
 /* =========================================
    WALLET
 ========================================= */
@@ -903,22 +667,15 @@ $("signupButton")
 async function ensureWallet() {
 
   if (!currentUser) {
-
     return;
-
   }
-
 
   const { data, error } =
     await supabaseClient
       .from("wallets")
       .select("user_id")
-      .eq(
-        "user_id",
-        currentUser.id
-      )
+      .eq("user_id", currentUser.id)
       .maybeSingle();
-
 
   if (error) {
 
@@ -928,7 +685,6 @@ async function ensureWallet() {
     );
 
     return;
-
   }
 
 
@@ -938,14 +694,9 @@ async function ensureWallet() {
       await supabaseClient
         .from("wallets")
         .insert({
-
-          user_id:
-            currentUser.id,
-
+          user_id: currentUser.id,
           balance: 0
-
         });
-
 
     if (insertError) {
 
@@ -964,20 +715,14 @@ async function ensureWallet() {
 async function loadWallet() {
 
   if (!currentUser) {
-
     return;
-
   }
-
 
   const { data, error } =
     await supabaseClient
       .from("wallets")
       .select("balance")
-      .eq(
-        "user_id",
-        currentUser.id
-      )
+      .eq("user_id", currentUser.id)
       .maybeSingle();
 
 
@@ -988,19 +733,16 @@ async function loadWallet() {
       error
     );
 
-    $("walletBalance")
-      .textContent = "₹0.00";
+    $("walletBalance").textContent =
+      "₹0.00";
 
     return;
 
   }
 
 
-  $("walletBalance")
-    .textContent =
-      money(
-        data?.balance || 0
-      );
+  $("walletBalance").textContent =
+    money(data?.balance || 0);
 
 }
 
@@ -1010,6 +752,8 @@ async function loadWallet() {
 ========================================= */
 
 async function startApp() {
+
+  console.log("START APP");
 
   const { data, error } =
     await supabaseClient.auth.getUser();
@@ -1050,15 +794,13 @@ async function startApp() {
     .classList
     .add("hidden");
 
-
   $("homeSection")
     .classList
     .remove("hidden");
 
 
-  $("userEmail")
-    .textContent =
-      currentUser.email || "";
+  $("userEmail").textContent =
+    currentUser.email || "";
 
 
   await ensureWallet();
@@ -1072,168 +814,169 @@ async function startApp() {
    LOGIN
 ========================================= */
 
-$("loginButton")
-  .addEventListener(
-    "click",
-    async function() {
+$("loginButton").addEventListener(
+  "click",
+  async function() {
 
-      const email =
-        $("email")
-          .value
-          .trim();
+    console.log("LOGIN BUTTON CLICKED");
 
+    const email =
+      $("email").value.trim();
 
-      const password =
-        $("password")
-          .value;
+    const password =
+      $("password").value;
 
 
-      if (!email || !password) {
-
-        showMessage(
-          "authMessage",
-          "Enter email and password."
-        );
-
-        return;
-
-      }
-
+    if (!email || !password) {
 
       showMessage(
         "authMessage",
-        "Logging in..."
+        "Enter email and password."
       );
 
-
-      const { error } =
-        await supabaseClient.auth
-          .signInWithPassword({
-
-            email:
-              email,
-
-            password:
-              password
-
-          });
-
-
-      if (error) {
-
-        showMessage(
-          "authMessage",
-          error.message
-        );
-
-        return;
-
-      }
-
-
-      showMessage(
-        "authMessage",
-        "Login successful."
-      );
-
-
-      await startApp();
+      return;
 
     }
-  );
+
+
+    showMessage(
+      "authMessage",
+      "⏳ Logging in..."
+    );
+
+
+    const { error } =
+      await supabaseClient.auth
+        .signInWithPassword({
+
+          email: email,
+          password: password
+
+        });
+
+
+    if (error) {
+
+      console.error(
+        "Login error:",
+        error
+      );
+
+      showMessage(
+        "authMessage",
+        "❌ " + error.message
+      );
+
+      return;
+
+    }
+
+
+    showMessage(
+      "authMessage",
+      "✅ Login successful..."
+    );
+
+
+    await startApp();
+
+  }
+);
 
 
 /* =========================================
-   SIGN UP
+   CREATE ACCOUNT
 ========================================= */
 
-$("signupButton")
-  .addEventListener(
-    "click",
-    async function() {
+$("signupButton").addEventListener(
+  "click",
+  async function() {
 
-      const email =
-        $("email")
-          .value
-          .trim();
+    console.log("SIGNUP BUTTON CLICKED");
 
+    const email =
+      $("email").value.trim();
 
-      const password =
-        $("password")
-          .value;
+    const password =
+      $("password").value;
 
 
-      if (!email || !password) {
-
-        showMessage(
-          "authMessage",
-          "Enter email and password."
-        );
-
-        return;
-
-      }
-
-
-      if (password.length < 6) {
-
-        showMessage(
-          "authMessage",
-          "Password must be at least 6 characters."
-        );
-
-        return;
-
-      }
-
+    if (!email || !password) {
 
       showMessage(
         "authMessage",
-        "Creating account..."
+        "Enter email and password first."
       );
 
-
-      const { data, error } =
-        await supabaseClient.auth
-          .signUp({
-
-            email:
-              email,
-
-            password:
-              password
-
-          });
-
-
-      if (error) {
-
-        showMessage(
-          "authMessage",
-          error.message
-        );
-
-        return;
-
-      }
-
-
-      if (data?.session) {
-
-        await startApp();
-
-        return;
-
-      }
-
-
-      showMessage(
-        "authMessage",
-        "Account created. Please verify your email if required, then login."
-      );
+      return;
 
     }
-  );
+
+
+    if (password.length < 6) {
+
+      showMessage(
+        "authMessage",
+        "Password must be at least 6 characters."
+      );
+
+      return;
+
+    }
+
+
+    showMessage(
+      "authMessage",
+      "⏳ Creating account..."
+    );
+
+
+    const { data, error } =
+      await supabaseClient.auth
+        .signUp({
+
+          email: email,
+          password: password
+
+        });
+
+
+    if (error) {
+
+      console.error(
+        "Signup error:",
+        error
+      );
+
+      showMessage(
+        "authMessage",
+        "❌ " + error.message
+      );
+
+      return;
+
+    }
+
+
+    if (data?.session) {
+
+      currentUser =
+        data.user;
+
+      await startApp();
+
+      return;
+
+    }
+
+
+    showMessage(
+      "authMessage",
+      "✅ Account created. Check your email to verify."
+    );
+
+  }
+);
 
 
 /* =========================================
@@ -1242,9 +985,8 @@ $("signupButton")
 
 async function loadTournaments() {
 
-  $("tournamentList")
-    .innerHTML =
-      "⏳ Loading tournaments...";
+  $("tournamentList").innerHTML =
+    "⏳ Loading tournaments...";
 
 
   const { data, error } =
@@ -1261,12 +1003,9 @@ async function loadTournaments() {
 
   if (error) {
 
-    $("tournamentList")
-      .innerHTML =
-        "❌ Error: " +
-        escapeHtml(
-          error.message
-        );
+    $("tournamentList").innerHTML =
+      "❌ Error: " +
+      escapeHtml(error.message);
 
     return;
 
@@ -1275,89 +1014,81 @@ async function loadTournaments() {
 
   if (!data || data.length === 0) {
 
-    $("tournamentList")
-      .innerHTML =
-        "No tournaments available.";
+    $("tournamentList").innerHTML =
+      "No tournaments available.";
 
     return;
 
   }
 
 
-  $("tournamentList")
-    .innerHTML =
-      data.map(function(t) {
+  $("tournamentList").innerHTML =
+    data.map(function(t) {
 
-        return `
+      return `
 
-          <div class="tournament">
+        <div class="tournament">
 
-            <h3>
-              🏆 ${escapeHtml(
-                t.name || "Tournament"
+          <h3>
+            🏆 ${escapeHtml(
+              t.name || "Tournament"
+            )}
+          </h3>
+
+          <div class="row">
+            <span>Sport</span>
+            <span>
+              ${escapeHtml(
+                t.sport || "-"
               )}
-            </h3>
-
-            <div class="row">
-              <span>Sport</span>
-              <span>
-                ${escapeHtml(
-                  t.sport || "-"
-                )}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Entry Fee</span>
-              <span class="price">
-                ${money(
-                  t.entry_fee
-                )}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Prize Pool</span>
-              <span>
-                ${money(
-                  t.prize_pool
-                )}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Max Teams</span>
-              <span>
-                ${escapeHtml(
-                  t.max_teams || "-"
-                )}
-              </span>
-            </div>
-
-            <div class="row">
-              <span>Status</span>
-              <span>
-                ${escapeHtml(
-                  t.status || "-"
-                )}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              class="joinButton"
-              data-id="${escapeHtml(
-                t.id
-              )}"
-            >
-              Register Team
-            </button>
-
+            </span>
           </div>
 
-        `;
+          <div class="row">
+            <span>Entry Fee</span>
+            <span class="price">
+              ${money(t.entry_fee)}
+            </span>
+          </div>
 
-      }).join("");
+          <div class="row">
+            <span>Prize Pool</span>
+            <span>
+              ${money(t.prize_pool)}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Max Teams</span>
+            <span>
+              ${escapeHtml(
+                t.max_teams || "-"
+              )}
+            </span>
+          </div>
+
+          <div class="row">
+            <span>Status</span>
+            <span>
+              ${escapeHtml(
+                t.status || "-"
+              )}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            class="joinButton"
+            data-id="${escapeHtml(t.id)}"
+          >
+            Register Team
+          </button>
+
+        </div>
+
+      `;
+
+    }).join("");
 
 
   document
@@ -1381,7 +1112,7 @@ async function loadTournaments() {
 
 
 /* =========================================
-   TEAM REGISTRATION OPEN
+   OPEN TEAM REGISTRATION
 ========================================= */
 
 async function openTeamRegistration(
@@ -1392,18 +1123,13 @@ async function openTeamRegistration(
     await supabaseClient
       .from("tournaments")
       .select("*")
-      .eq(
-        "id",
-        tournamentId
-      )
+      .eq("id", tournamentId)
       .single();
 
 
   if (error) {
 
-    alert(
-      error.message
-    );
+    alert(error.message);
 
     return;
 
@@ -1414,43 +1140,34 @@ async function openTeamRegistration(
     data;
 
 
-  $("teamTournamentInfo")
-    .innerHTML = `
+  $("teamTournamentInfo").innerHTML = `
 
-      <div class="tournament">
+    <div class="tournament">
 
-        <h3>
-          🏆 ${escapeHtml(
-            data.name
-          )}
-        </h3>
+      <h3>
+        🏆 ${escapeHtml(data.name)}
+      </h3>
 
-        <div class="row">
-          <span>Entry Fee</span>
-          <span>
-            ${money(
-              data.entry_fee
-            )}
-          </span>
-        </div>
-
-        <div class="row">
-          <span>Prize Pool</span>
-          <span>
-            ${money(
-              data.prize_pool
-            )}
-          </span>
-        </div>
-
+      <div class="row">
+        <span>Entry Fee</span>
+        <span>
+          ${money(data.entry_fee)}
+        </span>
       </div>
 
-    `;
+      <div class="row">
+        <span>Prize Pool</span>
+        <span>
+          ${money(data.prize_pool)}
+        </span>
+      </div>
+
+    </div>
+
+  `;
 
 
-  showOnly(
-    "teamSection"
-  );
+  showOnly("teamSection");
 
 }
 
@@ -1459,46 +1176,75 @@ async function openTeamRegistration(
    REGISTER TEAM
 ========================================= */
 
-$("registerTeamButton")
-  .addEventListener(
-    "click",
-    async function() {
+$("registerTeamButton").addEventListener(
+  "click",
+  async function() {
 
-      if (!currentUser) {
+    if (!currentUser) {
 
-        showMessage(
-          "teamMessage",
-          "Please login first."
-        );
+      showMessage(
+        "teamMessage",
+        "Please login first."
+      );
 
-        return;
+      return;
 
-      }
-
-
-      if (!selectedTournament) {
-
-        showMessage(
-          "teamMessage",
-          "Tournament not selected."
-        );
-
-        return;
-
-      }
+    }
 
 
-      const teamName =
-        $("teamName")
+    if (!selectedTournament) {
+
+      showMessage(
+        "teamMessage",
+        "Tournament not selected."
+      );
+
+      return;
+
+    }
+
+
+    const teamName =
+      $("teamName").value.trim();
+
+
+    if (!teamName) {
+
+      showMessage(
+        "teamMessage",
+        "Enter team name."
+      );
+
+      return;
+
+    }
+
+
+    const players = [];
+
+
+    for (
+      let i = 1;
+      i <= 4;
+      i++
+    ) {
+
+      const name =
+        $("player" + i + "Name")
+          .value
+          .trim();
+
+      const uid =
+        $("player" + i + "UID")
           .value
           .trim();
 
 
-      if (!teamName) {
+      if (!name || !uid) {
 
         showMessage(
           "teamMessage",
-          "Enter team name."
+          "Please fill all 4 players."
         );
 
         return;
@@ -1506,704 +1252,673 @@ $("registerTeamButton")
       }
 
 
-      const players = [];
+      players.push({
+        name: name,
+        uid: uid
+      });
+
+    }
 
 
-      for (
-        let i = 1;
-        i <= 4;
-        i++
-      ) {
-
-        const name =
-          $(
-            "player" +
-            i +
-            "Name"
-          )
-            .value
-            .trim();
+    showMessage(
+      "teamMessage",
+      "⏳ Checking wallet..."
+    );
 
 
-        const uid =
-          $(
-            "player" +
-            i +
-            "UID"
-          )
-            .value
-            .trim();
+    const {
+      data: wallet,
+      error: walletError
+    } =
+      await supabaseClient
+        .from("wallets")
+        .select("balance")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .maybeSingle();
 
 
-        if (!name || !uid) {
-
-          showMessage(
-            "teamMessage",
-            "Please fill all 4 players."
-          );
-
-          return;
-
-        }
-
-
-        players.push({
-          name: name,
-          uid: uid
-        });
-
-      }
-
+    if (walletError) {
 
       showMessage(
         "teamMessage",
-        "⏳ Checking wallet..."
+        "Wallet Error: " +
+        walletError.message
+      );
+
+      return;
+
+    }
+
+
+    const balance =
+      Number(wallet?.balance || 0);
+
+
+    const entryFee =
+      Number(
+        selectedTournament.entry_fee || 0
       );
 
 
-      const { data: wallet, error: walletError } =
-        await supabaseClient
-          .from("wallets")
-          .select("balance")
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .maybeSingle();
+    if (balance < entryFee) {
 
-
-      if (walletError) {
-
-        showMessage(
-          "teamMessage",
-          "Wallet Error: " +
-          walletError.message
-        );
-
-        return;
-
-      }
-
-
-      const balance =
-        Number(
-          wallet?.balance || 0
-        );
-
-
-      const entryFee =
-        Number(
-          selectedTournament.entry_fee || 0
-        );
-
-
-      if (balance < entryFee) {
-
-        showMessage(
-          "teamMessage",
-          "❌ Insufficient wallet balance."
-        );
-
-        return;
-
-      }
-
-
-      const { data: existing } =
-        await supabaseClient
-          .from("registrations")
-          .select("id")
-          .eq(
-            "tournament_id",
-            selectedTournament.id
-          )
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .maybeSingle();
-
-
-        if (existing) {
-
-    showMessage(
-      "teamMessage",
-      "You already registered for this tournament."
-    );
-
-    return;
-
-  }
-
-
-  /* =========================================
-     CREATE TEAM
-  ========================================= */
-
-  const { data: team, error: teamError } =
-    await supabaseClient
-      .from("teams")
-      .insert({
-        tournament_id:
-          selectedTournament.id,
-
-        captain_id:
-          currentUser.id,
-
-        name:
-          teamName
-      })
-      .select()
-      .single();
-
-
-  if (teamError) {
-
-    showMessage(
-      "teamMessage",
-      "Team Error: " +
-      teamError.message
-    );
-
-    return;
-
-  }
-
-
-  /* =========================================
-     CREATE REGISTRATION
-  ========================================= */
-
-  const {
-    data: registration,
-    error: registrationError
-  } =
-    await supabaseClient
-      .from("registrations")
-      .insert({
-
-        tournament_id:
-          selectedTournament.id,
-
-        team_id:
-          team.id,
-
-        user_id:
-          currentUser.id,
-
-        status:
-          "confirmed"
-
-      })
-      .select()
-      .single();
-
-
-  if (registrationError) {
-
-    showMessage(
-      "teamMessage",
-      "Registration Error: " +
-      registrationError.message
-    );
-
-    return;
-
-  }
-
-
-  /* =========================================
-     ADD PLAYERS
-  ========================================= */
-
-  const playerRows =
-    players.map(function(player) {
-
-      return {
-
-        team_id:
-          team.id,
-
-        name:
-          player.name,
-
-        team_name:
-          teamName,
-
-        tournament_id:
-          selectedTournament.id,
-
-        uid:
-          player.uid,
-
-        status:
-          "approved"
-
-      };
-
-    });
-
-
-  const {
-    error: playersError
-  } =
-    await supabaseClient
-      .from("players")
-      .insert(
-        playerRows
+      showMessage(
+        "teamMessage",
+        "❌ Insufficient wallet balance."
       );
 
+      return;
 
-  if (playersError) {
-
-    showMessage(
-      "teamMessage",
-      "Players Error: " +
-      playersError.message
-    );
-
-    return;
-
-  }
+    }
 
 
-  /* =========================================
-     PAYMENT RECORD
-  ========================================= */
+    /* CHECK EXISTING REGISTRATION */
 
-  const {
-    error: paymentError
-  } =
-    await supabaseClient
-      .from("payments")
-      .insert({
+    const {
+      data: existing,
+      error: existingError
+    } =
+      await supabaseClient
+        .from("registrations")
+        .select("id")
+        .eq(
+          "tournament_id",
+          selectedTournament.id
+        )
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .maybeSingle();
 
-        user_id:
-          currentUser.id,
 
-        tournament_id:
-          selectedTournament.id,
+    if (existingError) {
 
-        registration_id:
-          registration.id,
+      showMessage(
+        "teamMessage",
+        "Registration Check Error: " +
+        existingError.message
+      );
 
-        amount:
-          entryFee,
+      return;
 
-        status:
-          "completed"
+    }
+
+
+    if (existing) {
+
+      showMessage(
+        "teamMessage",
+        "❌ You already registered for this tournament."
+      );
+
+      return;
+
+    }
+
+
+    /* CREATE TEAM */
+
+    const {
+      data: team,
+      error: teamError
+    } =
+      await supabaseClient
+        .from("teams")
+        .insert({
+
+          tournament_id:
+            selectedTournament.id,
+
+          captain_id:
+            currentUser.id,
+
+          name:
+            teamName
+
+        })
+        .select()
+        .single();
+
+
+    if (teamError) {
+
+      showMessage(
+        "teamMessage",
+        "Team Error: " +
+        teamError.message
+      );
+
+      return;
+
+    }
+
+
+    /* CREATE REGISTRATION */
+
+    const {
+      data: registration,
+      error: registrationError
+    } =
+      await supabaseClient
+        .from("registrations")
+        .insert({
+
+          tournament_id:
+            selectedTournament.id,
+
+          team_id:
+            team.id,
+
+          user_id:
+            currentUser.id,
+
+          status:
+            "confirmed"
+
+        })
+        .select()
+        .single();
+
+
+    if (registrationError) {
+
+      showMessage(
+        "teamMessage",
+        "Registration Error: " +
+        registrationError.message
+      );
+
+      return;
+
+    }
+
+
+    /* ADD PLAYERS */
+
+    const playerRows =
+      players.map(function(player) {
+
+        return {
+
+          team_id:
+            team.id,
+
+          name:
+            player.name,
+
+          team_name:
+            teamName,
+
+          tournament_id:
+            selectedTournament.id,
+
+          uid:
+            player.uid,
+
+          status:
+            "approved"
+
+        };
 
       });
 
 
-  if (paymentError) {
-
-    console.error(
-      "Payment record error:",
-      paymentError
-    );
-
-  }
+    const {
+      error: playersError
+    } =
+      await supabaseClient
+        .from("players")
+        .insert(playerRows);
 
 
-  /* =========================================
-     DEDUCT WALLET
-  ========================================= */
+    if (playersError) {
 
-  const newBalance =
-    balance - entryFee;
-
-
-  const {
-    error: balanceError
-  } =
-    await supabaseClient
-      .from("wallets")
-      .update({
-
-        balance:
-          newBalance
-
-      })
-      .eq(
-        "user_id",
-        currentUser.id
+      showMessage(
+        "teamMessage",
+        "Players Error: " +
+        playersError.message
       );
 
+      return;
 
-  if (balanceError) {
+    }
+
+
+    /* PAYMENT RECORD */
+
+    const {
+      error: paymentError
+    } =
+      await supabaseClient
+        .from("payments")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          tournament_id:
+            selectedTournament.id,
+
+          registration_id:
+            registration.id,
+
+          amount:
+            entryFee,
+
+          status:
+            "completed"
+
+        });
+
+
+    if (paymentError) {
+
+      console.error(
+        "Payment record error:",
+        paymentError
+      );
+
+    }
+
+
+    /* DEDUCT WALLET */
+
+    const newBalance =
+      balance - entryFee;
+
+
+    const {
+      error: balanceError
+    } =
+      await supabaseClient
+        .from("wallets")
+        .update({
+
+          balance:
+            newBalance
+
+        })
+        .eq(
+          "user_id",
+          currentUser.id
+        );
+
+
+    if (balanceError) {
+
+      showMessage(
+        "teamMessage",
+        "Wallet Update Error: " +
+        balanceError.message
+      );
+
+      return;
+
+    }
+
+
+    await loadWallet();
+
 
     showMessage(
       "teamMessage",
-      "Wallet Update Error: " +
-      balanceError.message
+      "✅ Team registered successfully!"
     );
 
-    return;
+
+    setTimeout(
+      function() {
+
+        showOnly(null);
+
+      },
+      1500
+    );
 
   }
-
-
-  await loadWallet();
-
-
-  showMessage(
-    "teamMessage",
-    "✅ Team registered successfully!"
-  );
-
-
-  setTimeout(
-    function() {
-
-      showOnly(null);
-
-    },
-    1500
-  );
-      }
+);
 
 
 /* =========================================
    DEPOSIT
 ========================================= */
 
-$("openDepositButton")
-  .addEventListener(
-    "click",
-    function() {
+$("openDepositButton").addEventListener(
+  "click",
+  function() {
 
-      showOnly(
-        "depositSection"
-      );
+    showOnly("depositSection");
 
-      showMessage(
-        "depositMessage",
-        ""
-      );
+    showMessage(
+      "depositMessage",
+      ""
+    );
 
-    }
-  );
+  }
+);
 
 
-$("backDepositButton")
-  .addEventListener(
-    "click",
-    function() {
+$("backDepositButton").addEventListener(
+  "click",
+  function() {
 
-      showOnly(null);
+    showOnly(null);
 
-    }
-  );
-
-
-$("submitDepositButton")
-  .addEventListener(
-    "click",
-    async function() {
-
-      if (!currentUser) {
-
-        showMessage(
-          "depositMessage",
-          "Please login first."
-        );
-
-        return;
-
-      }
+  }
+);
 
 
-      const amount =
-        Number(
-          $("depositAmount").value
-        );
+$("submitDepositButton").addEventListener(
+  "click",
+  async function() {
 
-
-      const utr =
-        $("depositUTR")
-          .value
-          .trim();
-
-
-      if (!amount || amount <= 0) {
-
-        showMessage(
-          "depositMessage",
-          "Enter a valid amount."
-        );
-
-        return;
-
-      }
-
-
-      if (!utr) {
-
-        showMessage(
-          "depositMessage",
-          "Enter UTR / Transaction ID."
-        );
-
-        return;
-
-      }
-
+    if (!currentUser) {
 
       showMessage(
         "depositMessage",
-        "⏳ Submitting deposit..."
+        "Please login first."
+      );
+
+      return;
+
+    }
+
+
+    const amount =
+      Number(
+        $("depositAmount").value
       );
 
 
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("deposits")
-          .insert({
-
-            user_id:
-              currentUser.id,
-
-            amount:
-              amount,
-
-            transaction_id:
-              utr,
-
-            status:
-              "pending"
-
-          });
+    const utr =
+      $("depositUTR")
+        .value
+        .trim();
 
 
-      if (error) {
-
-        showMessage(
-          "depositMessage",
-          "❌ Deposit Error: " +
-          error.message
-        );
-
-        return;
-
-      }
-
-
-      $("depositAmount").value = "";
-
-      $("depositUTR").value = "";
-
+    if (!amount || amount <= 0) {
 
       showMessage(
         "depositMessage",
-        "✅ Deposit request submitted. Admin will verify it."
+        "Enter a valid amount."
       );
 
+      return;
+
     }
-  );
+
+
+    if (!utr) {
+
+      showMessage(
+        "depositMessage",
+        "Enter UTR / Transaction ID."
+      );
+
+      return;
+
+    }
+
+
+    showMessage(
+      "depositMessage",
+      "⏳ Submitting deposit..."
+    );
+
+
+    const { error } =
+      await supabaseClient
+        .from("deposits")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          amount:
+            amount,
+
+          transaction_id:
+            utr,
+
+          status:
+            "pending"
+
+        });
+
+
+    if (error) {
+
+      showMessage(
+        "depositMessage",
+        "❌ Deposit Error: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    $("depositAmount").value = "";
+    $("depositUTR").value = "";
+
+
+    showMessage(
+      "depositMessage",
+      "✅ Deposit request submitted. Admin will verify it."
+    );
+
+  }
+);
 
 
 /* =========================================
    WITHDRAW
 ========================================= */
 
-$("openWithdrawButton")
-  .addEventListener(
-    "click",
-    function() {
+$("openWithdrawButton").addEventListener(
+  "click",
+  function() {
 
-      showOnly(
-        "withdrawSection"
-           showMessage(
-        "withdrawMessage",
-        ""
-      );
+    showOnly("withdrawSection");
 
-    }
-  );
+    showMessage(
+      "withdrawMessage",
+      ""
+    );
 
-
-$("backWithdrawButton")
-  .addEventListener(
-    "click",
-    function() {
-
-      showOnly(null);
-
-    }
-  );
+  }
+);
 
 
-$("submitWithdrawButton")
-  .addEventListener(
-    "click",
-    async function() {
+$("backWithdrawButton").addEventListener(
+  "click",
+  function() {
 
-      if (!currentUser) {
+    showOnly(null);
 
-        showMessage(
-          "withdrawMessage",
-          "Please login first."
-        );
+  }
+);
 
-        return;
 
-      }
+$("submitWithdrawButton").addEventListener(
+  "click",
+  async function() {
 
-      const amount =
-        Number(
-          $("withdrawAmount").value
-        );
-
-      const details =
-        $("withdrawUPI")
-          .value
-          .trim();
-
-      if (!amount || amount <= 0) {
-
-        showMessage(
-          "withdrawMessage",
-          "Enter a valid amount."
-        );
-
-        return;
-
-      }
-
-      if (!details) {
-
-        showMessage(
-          "withdrawMessage",
-          "Enter UPI ID / Bank Details."
-        );
-
-        return;
-
-      }
-
-      const {
-        data: wallet,
-        error: walletError
-      } =
-        await supabaseClient
-          .from("wallets")
-          .select("balance")
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .maybeSingle();
-
-      if (walletError) {
-
-        showMessage(
-          "withdrawMessage",
-          "Wallet Error: " +
-          walletError.message
-        );
-
-        return;
-
-      }
-
-      const balance =
-        Number(
-          wallet?.balance || 0
-        );
-
-      if (balance < amount) {
-
-        showMessage(
-          "withdrawMessage",
-          "❌ Insufficient wallet balance."
-        );
-
-        return;
-
-      }
+    if (!currentUser) {
 
       showMessage(
         "withdrawMessage",
-        "⏳ Submitting withdrawal..."
+        "Please login first."
       );
 
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("withdrawals")
-          .insert({
+      return;
 
-            user_id:
-              currentUser.id,
+    }
 
-            amount:
-              amount,
 
-            payment_details:
-              details,
+    const amount =
+      Number(
+        $("withdrawAmount").value
+      );
 
-            status:
-              "pending"
 
-          });
+    const details =
+      $("withdrawUPI")
+        .value
+        .trim();
 
-      if (error) {
 
-        showMessage(
-          "withdrawMessage",
-          "❌ Withdrawal Error: " +
-          error.message
-        );
-
-        return;
-
-      }
-
-      $("withdrawAmount").value = "";
-      $("withdrawUPI").value = "";
+    if (!amount || amount <= 0) {
 
       showMessage(
         "withdrawMessage",
-        "✅ Withdrawal request submitted."
+        "Enter a valid amount."
       );
 
+      return;
+
     }
-  );
-  /* =========================================
-   MY TOURNAMENTS
-========================================= */
 
-$("openMyTournamentsButton")
-  .addEventListener(
-    "click",
-    async function() {
 
-      showOnly(
-        "myTournamentsSection"
+    if (!details) {
+
+      showMessage(
+        "withdrawMessage",
+        "Enter UPI ID / Bank Details."
       );
 
-      await loadMyTournaments();
+      return;
 
     }
-  );
 
 
-$("backMyTournamentButton")
-  .addEventListener(
-    "
-          showOnly(null);
+    const {
+      data: wallet,
+      error: walletError
+    } =
+      await supabaseClient
+        .from("wallets")
+        .select("balance")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .maybeSingle();
+
+
+    if (walletError) {
+
+      showMessage(
+        "withdrawMessage",
+        "Wallet Error: " +
+        walletError.message
+      );
+
+      return;
 
     }
-  );
+
+
+    const balance =
+      Number(wallet?.balance || 0);
+
+
+    if (balance < amount) {
+
+      showMessage(
+        "withdrawMessage",
+        "❌ Insufficient wallet balance."
+      );
+
+      return;
+
+    }
+
+
+    showMessage(
+      "withdrawMessage",
+      "⏳ Submitting withdrawal..."
+    );
+
+
+    const { error } =
+      await supabaseClient
+        .from("withdrawals")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          amount:
+            amount,
+
+          payment_details:
+            details,
+
+          status:
+            "pending"
+
+        });
+
+
+    if (error) {
+
+      showMessage(
+        "withdrawMessage",
+        "❌ Withdrawal Error: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    $("withdrawAmount").value = "";
+    $("withdrawUPI").value = "";
+
+
+    showMessage(
+      "withdrawMessage",
+      "✅ Withdrawal request submitted."
+    );
+
+  }
+);
 
 
 /* =========================================
-   LOAD MY TOURNAMENTS
+   MY TOURNAMENTS
 ========================================= */
+
+$("openMyTournamentsButton").addEventListener(
+  "click",
+  async function() {
+
+    showOnly(
+      "myTournamentsSection"
+    );
+
+    await loadMyTournaments();
+
+  }
+);
+
+
+$("backMyTournamentButton").addEventListener(
+  "click",
+  function() {
+
+    showOnly(null);
+
+  }
+);
+
 
 async function loadMyTournaments() {
 
@@ -2221,7 +1936,10 @@ async function loadMyTournaments() {
     "⏳ Loading your tournaments...";
 
 
-  const { data, error } =
+  const {
+    data,
+    error
+  } =
     await supabaseClient
       .from("registrations")
       .select(`
@@ -2256,7 +1974,7 @@ async function loadMyTournaments() {
 
   if (error) {
 
-        $("myTournamentList").textContent =
+    $("myTournamentList").textContent =
       "❌ Error: " +
       error.message;
 
@@ -2279,240 +1997,158 @@ async function loadMyTournaments() {
     data.map(function(registration) {
 
       const tournament =
-        registration.tournaments || {};
+  registration.tournaments || {};
 
-      const team =
-        registration.teams || {};
+const team =
+  registration.teams || {};
 
 
-      return `
+return `
 
-        <div class="tournament">
+  <div class="tournament">
 
-          <h3>
-            🏆 ${escapeHtml(
-              tournament.name || "Tournament"
-            )}
-          </h3>
+    <h3>
+      🏆 ${escapeHtml(
+        tournament.name || "Tournament"
+      )}
+    </h3>
 
-          <div class="row">
-            <span>Sport</span>
-            <span>
-              ${escapeHtml(
-                tournament.sport || "-"
-              )}
-            </span>
-          </div>
+    <div class="row">
+      <span>Sport</span>
+      <span>
+        ${escapeHtml(
+          tournament.sport || "-"
+        )}
+      </span>
+    </div>
 
-          <div class="row">
-            <span>Team</span>
-            <span>
-              ${escapeHtml(
-                team.name || "-"
-              )}
-            </span>
-          </div>
+    <div class="row">
+      <span>Team</span>
+      <span>
+        ${escapeHtml(
+          team.name || "-"
+        )}
+      </span>
+    </div>
 
-          <div class="row">
-            <span>Entry Fee</span>
-            <span>
-              ${money(
-                tournament.entry_fee
-              )}
-            </span>
-          </div>
+    <div class="row">
+      <span>Entry Fee</span>
+      <span>
+        ${money(
+          tournament.entry_fee
+        )}
+      </span>
+    </div>
 
-          <div class="row">
-            <span>Prize Pool</span>
-            <span>
-              ${money(
-                tournament.prize_pool
-              )}
-            </span>
-          </div>
+    <div class="row">
+      <span>Prize Pool</span>
+      <span>
+        ${money(
+          tournament.prize_pool
+        )}
+      </span>
+    </div>
 
-          <div class="row">
-            <span>Status</span>
-            <span>
-              ${escapeHtml(
-                registration.status || "-"
-              )}
-            </span>
-          </div>
+    <div class="row">
+      <span>Status</span>
+      <span>
+        ${escapeHtml(
+          registration.status || "-"
+        )}
+      </span>
+    </div>
 
-          <div class="row">
-            <span>Registered</span>
-            <span>
-              ${registration.created_at
-                ? new Date(
-                    registration.created_at
-                  ).toLocaleString()
-                : "-"
-              }
-            </span>
-          </div>
+    <div class="row">
+      <span>Registered</span>
+      <span>
+        ${
+          registration.created_at
+            ? new Date(
+                registration.created_at
+              ).toLocaleString()
+            : "-"
+        }
+      </span>
+    </div>
 
-        </div>
+  </div>
 
-      `;
+`;
 
-    }).join("");
+}).join("");
+
+}
   /* =========================================
    TOURNAMENTS BUTTON
 ========================================= */
 
-$("openTournamentsButton")
-  .addEventListener(
-    "click",
-    async function() {
+$("openTournamentsButton").addEventListener(
+  "click",
+  async function() {
 
-      showOnly(
-        "tournamentsSection"
-      );
+    showOnly("tournamentsSection");
 
-      await loadTournaments();
+    await loadTournaments();
 
-    }
-  );
+  }
+);
 
 
 /* =========================================
    BACK TO HOME FROM TOURNAMENTS
 ========================================= */
 
-$("backTournamentButton")
-  .addEventListener(
-    "click",
-    function() {
+$("backTournamentButton").addEventListener(
+  "click",
+  function() {
 
-      showOnly(null);
+    showOnly(null);
 
-    }
-  );
+  }
+);
 
 
 /* =========================================
    BACK TO TOURNAMENTS FROM TEAM
 ========================================= */
 
-$("backTeamButton")
-  .addEventListener(
-    "click",
-    function() {
+$("backTeamButton").addEventListener(
+  "click",
+  async function() {
 
-      showOnly(
-        "tournamentsSection"
-      );
+    showOnly("tournamentsSection");
 
-      await loadTournaments();
+    await loadTournaments();
 
-    }
-  );
-
-}
-  /* =========================================
-   BACK TO TOURNAMENTS FROM TEAM
-========================================= */
-
-$("backTeamButton")
-  .addEventListener(
-    "click",
-    async function() {
-
-      showOnly(
-        "tournamentsSection"
-      );
-
-      await loadTournaments();
-
-    }
-  );
+  }
+);
 
 
 /* =========================================
    LOGOUT
 ========================================= */
 
-$("logoutButton")
-  .addEventListener(
-    "click",
-    async function() {
+$("logoutButton").addEventListener(
+  "click",
+  async function() {
 
-      const { error } =
-        await supabaseClient.auth.signOut();
+    const { error } =
+      await supabaseClient.auth.signOut();
 
-      if (error) {
+    if (error) {
 
-        alert(
-          error.message
-        );
+      alert(error.message);
 
-        return;
-
-      }
-
-      currentUser = null;
-
-      location.reload();
+      return;
 
     }
-  );
 
+    currentUser = null;
 
-/* =========================================
-   START APP
-========================================= */
-
-async function startApp() {
-
-  const { data, error } =
-    await supabaseClient.auth.getUser();
-
-  if (error) {
-
-    console.error(
-      "User error:",
-      error
-    );
-
-    return;
+    location.reload();
 
   }
-
-  currentUser =
-    data.user;
-
-  if (!currentUser) {
-
-    $("loginSection")
-      .classList
-      .remove("hidden");
-
-    $("homeSection")
-      .classList
-      .add("hidden");
-
-    return;
-
-  }
-
-  $("loginSection")
-    .classList
-    .add("hidden");
-
-  $("homeSection")
-    .classList
-    .remove("hidden");
-
-  $("userEmail")
-    .textContent =
-      currentUser.email || "";
-
-  await ensureWallet();
-
-  await loadWallet();
-
-}
+);
 
 
 /* =========================================
@@ -2521,8 +2157,7 @@ async function startApp() {
 
 const {
   data: sessionData
-} =
-  await supabaseClient.auth.getSession();
+} = await supabaseClient.auth.getSession();
 
 
 if (sessionData?.session) {
