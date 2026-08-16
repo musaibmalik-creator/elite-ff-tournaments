@@ -1628,6 +1628,57 @@ async function submitWithdraw() {
 
 }
   /* =========================================
+   SIGN UP
+========================================= */
+
+$("signupButton")
+  .addEventListener(
+    "click",
+    async function() {
+
+      const email =
+        $("email")
+          .value
+          .trim();
+
+      const password =
+        $("password")
+          .value;
+
+      if (!email || !password) {
+
+        $("authMessage").textContent =
+          "Enter email and password.";
+
+        return;
+
+      }
+
+      $("authMessage").textContent =
+        "Creating account...";
+
+      const { error } =
+        await supabaseClient.auth
+          .signUp({
+            email: email,
+            password: password
+          });
+
+      if (error) {
+
+        $("authMessage").textContent =
+          error.message;
+
+        return;
+
+      }
+
+      $("authMessage").textContent =
+        "Account created successfully. Please login.";
+
+    }
+  );
+  /* =========================================
    MY TOURNAMENTS
 ========================================= */
 
