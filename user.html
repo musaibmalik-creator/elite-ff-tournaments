@@ -650,7 +650,158 @@ function showOnly(sectionId) {
 
 }
 
+/* =========================================
+   LOGIN
+========================================= */
 
+$("loginButton")
+  .addEventListener(
+    "click",
+    async function() {
+
+      const email =
+        $("email")
+          .value
+          .trim();
+
+      const password =
+        $("password")
+          .value;
+
+      if (!email || !password) {
+
+        showMessage(
+          "authMessage",
+          "Enter email and password."
+        );
+
+        return;
+
+      }
+
+      showMessage(
+        "authMessage",
+        "⏳ Logging in..."
+      );
+
+      const { error } =
+        await supabaseClient.auth
+          .signInWithPassword({
+
+            email: email,
+            password: password
+
+          });
+
+      if (error) {
+
+        showMessage(
+          "authMessage",
+          "❌ " + error.message
+        );
+
+        return;
+
+      }
+
+      showMessage(
+        "authMessage",
+        "✅ Login successful..."
+      );
+
+      await startApp();
+
+    }
+  );
+
+
+/* =========================================
+   CREATE ACCOUNT
+========================================= */
+
+$("signupButton")
+  .addEventListener(
+    "click",
+    async function() {
+
+      const email =
+        $("email")
+          .value
+          .trim();
+
+      const password =
+        $("password")
+          .value;
+
+      if (!email || !password) {
+
+        showMessage(
+          "authMessage",
+          "Enter email and password first."
+        );
+
+        return;
+
+      }
+
+      if (password.length < 6) {
+
+        showMessage(
+          "authMessage",
+          "Password must be at least 6 characters."
+        );
+
+        return;
+
+      }
+
+      showMessage(
+        "authMessage",
+        "⏳ Creating account..."
+      );
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth
+          .signUp({
+
+            email: email,
+            password: password
+
+          });
+
+      if (error) {
+
+        showMessage(
+          "authMessage",
+          "❌ " + error.message
+        );
+
+        return;
+
+      }
+
+      if (data?.session) {
+
+        currentUser =
+          data.user;
+
+        await startApp();
+
+        return;
+
+      }
+
+      showMessage(
+        "authMessage",
+        "✅ Account created. Check your email to verify your account."
+      );
+
+    }
+  );
+  
 /* =========================================
    WALLET
 ========================================= */
