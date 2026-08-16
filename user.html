@@ -1084,55 +1084,55 @@ button:disabled {
 
     <!-- DEPOSIT -->
 
-    <div
-      id="depositSection"
-      class="card hidden"
+<div
+  id="depositSection"
+  class="card hidden"
+>
+
+  <div class="top">
+
+    <h2>💰 Deposit</h2>
+
+    <button
+      id="backDepositButton"
+      class="secondary"
+      type="button"
     >
+      Back
+    </button>
 
-      <div class="top">
+  </div>
 
-        <h2>💰 Deposit</h2>
+  <p class="muted">
+    Minimum deposit: ₹10
+  </p>
 
-        <button
-          id="backDepositButton"
-          class="secondary"
-          type="button"
-        >
-          Back
-        </button>
+  <input
+    id="depositAmount"
+    type="number"
+    min="10"
+    placeholder="Minimum ₹10"
+  >
 
-      </div>
+  <input
+    id="depositUTR"
+    type="text"
+    placeholder="UTR / Transaction ID"
+  >
 
-      <p class="muted">
-        Enter amount and UTR / Transaction ID.
-      </p>
+  <button
+    id="submitDepositButton"
+    type="button"
+  >
+    Submit Deposit
+  </button>
 
-      <input
-        id="depositAmount"
-        type="number"
-        min="1"
-        placeholder="Amount"
-      >
+  <div
+    id="depositMessage"
+    class="message"
+  ></div>
 
-      <input
-        id="depositUTR"
-        type="text"
-        placeholder="UTR / Transaction ID"
-      >
-
-      <button
-        id="submitDepositButton"
-        type="button"
-      >
-        Submit Deposit
-      </button>
-
-      <div
-        id="depositMessage"
-        class="message"
-      ></div>
-
-    </div>
+</div>
 
 
     <!-- WITHDRAW -->
