@@ -9,6 +9,665 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    /* =========================================
+   ELITE FF TOURNAMENTS — FULL CSS
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #fff;
+
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(239, 68, 68, .18),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(59, 130, 246, .18),
+      transparent 30%
+    ),
+    #050811;
+}
+
+.app {
+  width: 100%;
+  max-width: 600px;
+  min-height: 100vh;
+  margin: auto;
+  padding: 16px;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+}
+
+/* =========================================
+   GENERAL CARD
+========================================= */
+
+.card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(21, 28, 49, .97),
+      rgba(10, 15, 30, .97)
+    );
+
+  border: 1px solid #27304b;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, .30);
+}
+
+/* =========================================
+   INPUTS / BUTTONS
+========================================= */
+
+input,
+button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 10px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+input {
+  background: #0e1528;
+  color: #fff;
+  border: 1px solid #34405f;
+  outline: none;
+}
+
+input:focus {
+  border-color: #ef4444;
+
+  box-shadow:
+    0 0 0 2px rgba(239, 68, 68, .12);
+}
+
+button {
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  color: #fff;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+button.secondary {
+  background:
+    linear-gradient(
+      135deg,
+      #27304b,
+      #1e293b
+    );
+}
+
+button.danger {
+  background:
+    linear-gradient(
+      135deg,
+      #ef4444,
+      #b91c1c
+    );
+}
+
+button.success {
+  background:
+    linear-gradient(
+      135deg,
+      #22c55e,
+      #15803d
+    );
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   HIDDEN
+========================================= */
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================
+   TOP
+========================================= */
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.top button {
+  width: auto;
+  margin-top: 0;
+}
+
+/* =========================================
+   WALLET
+========================================= */
+
+.balance {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 8px;
+  color: #22c55e;
+
+  text-shadow:
+    0 0 15px rgba(34, 197, 94, .25);
+}
+
+.muted {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* =========================================
+   TOURNAMENT
+========================================= */
+
+.tournament {
+  background:
+    linear-gradient(
+      145deg,
+      #111a31,
+      #0b1122
+    );
+
+  border: 1px solid #2d3857;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 12px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, .20);
+}
+
+.tournament h3 {
+  color: #f8fafc;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 7px 0;
+}
+
+.row span:last-child {
+  font-weight: bold;
+}
+
+.price {
+  font-size: 18px;
+  color: #facc15;
+}
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+
+  background: #111827;
+  color: #e5e7eb;
+
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* =========================================
+   ELITE FF LOGIN
+========================================= */
+
+.login-screen {
+  position: relative;
+
+  min-height: calc(100vh - 32px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(239, 68, 68, .35),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(37, 99, 235, .35),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(124, 58, 237, .25),
+      transparent 40%
+    ),
+    linear-gradient(
+      135deg,
+      #050811,
+      #0b1020,
+      #16091d
+    );
+}
+
+/* =========================================
+   LOGIN GLOW
+========================================= */
+
+.login-glow {
+  position: absolute;
+
+  width: 280px;
+  height: 280px;
+
+  border-radius: 50%;
+
+  filter: blur(80px);
+  opacity: .55;
+
+  pointer-events: none;
+}
+
+.glow-red {
+  top: -110px;
+  left: -100px;
+
+  background: #ef4444;
+}
+
+.glow-blue {
+  right: -110px;
+  bottom: -100px;
+
+  background: #2563eb;
+}
+
+/* =========================================
+   LOGIN CARD
+========================================= */
+
+.login-card {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 430px;
+
+  padding: 32px 22px;
+
+  text-align: center;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 32, 58, .97),
+      rgba(8, 13, 27, .98)
+    );
+
+  border: 1px solid rgba(255, 255, 255, .12);
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, .65),
+    0 0 35px rgba(239, 68, 68, .12);
+
+  backdrop-filter: blur(15px);
+}
+
+/* =========================================
+   GAME BADGE
+========================================= */
+
+.game-badge {
+  width: 92px;
+  height: 92px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 42px;
+
+  background:
+    radial-gradient(
+      circle,
+      #1f2937,
+      #080d1b 72%
+    );
+
+  border: 2px solid #ef4444;
+
+  box-shadow:
+    0 0 15px rgba(239, 68, 68, .75),
+    0 0 40px rgba(239, 68, 68, .25);
+
+  animation: badgePulse 2.5s infinite;
+}
+
+@keyframes badgePulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* =========================================
+   BRAND TITLE
+========================================= */
+
+.brand-title {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin-bottom: 10px;
+
+  font-size: 24px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.brand-title span {
+  color: #ffffff;
+}
+
+.brand-title strong {
+  color: #ef4444;
+
+  font-size: 35px;
+
+  text-shadow:
+    0 0 10px rgba(239, 68, 68, .9),
+    0 0 25px rgba(239, 68, 68, .45);
+}
+
+/* =========================================
+   LOGIN SUBTITLE
+========================================= */
+
+.login-subtitle {
+  margin: 0 0 25px;
+
+  color: #cbd5e1;
+
+  font-size: 13px;
+
+  font-weight: bold;
+
+  letter-spacing: .7px;
+}
+
+/* =========================================
+   LOGIN FORM
+========================================= */
+
+.login-form {
+  width: 100%;
+}
+
+/* =========================================
+   LOGIN INPUT BOX
+========================================= */
+
+.input-box {
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+  height: 54px;
+
+  margin-top: 13px;
+  padding: 0 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(17, 24, 39, .96),
+      rgba(15, 23, 42, .96)
+    );
+
+  border: 1px solid #334155;
+
+  border-radius: 13px;
+
+  transition: .2s;
+}
+
+.input-box span {
+  width: 30px;
+  font-size: 20px;
+}
+
+.input-box input {
+  width: 100%;
+  height: 100%;
+
+  margin: 0;
+  padding: 0 8px;
+
+  background: transparent;
+  border: none;
+  outline: none;
+
+  color: #fff;
+  font-size: 15px;
+}
+
+.input-box input::placeholder {
+  color: #64748b;
+}
+
+.input-box:focus-within {
+  border-color: #ef4444;
+
+  box-shadow:
+    0 0 0 2px rgba(239, 68, 68, .12),
+    0 0 20px rgba(239, 68, 68, .18);
+}
+
+/* =========================================
+   LOGIN BUTTON
+========================================= */
+
+.login-form button {
+  width: 100%;
+  height: 52px;
+
+  margin-top: 14px;
+
+  border: none;
+  border-radius: 13px;
+
+  font-size: 15px;
+  font-weight: 900;
+
+  cursor: pointer;
+  transition: .2s;
+}
+
+.login-main-button {
+  color: #fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff3b3b,
+      #dc2626,
+      #991b1b
+    ) !important;
+
+  box-shadow:
+    0 8px 28px rgba(220, 38, 38, .35);
+}
+
+.login-main-button:hover {
+  box-shadow:
+    0 10px 35px rgba(239, 68, 68, .55);
+}
+
+/* =========================================
+   CREATE ACCOUNT BUTTON
+========================================= */
+
+.login-create-button {
+  color: #fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5,
+      #7c3aed
+    ) !important;
+
+  box-shadow:
+    0 8px 28px rgba(79, 70, 229, .30);
+}
+
+.login-create-button:hover {
+  box-shadow:
+    0 10px 35px rgba(79, 70, 229, .50);
+}
+
+/* =========================================
+   LOGIN MESSAGE
+========================================= */
+
+.login-message {
+  min-height: 22px;
+
+  margin-top: 15px;
+  padding: 8px;
+
+  color: #e2e8f0;
+
+  background: rgba(15, 23, 42, .75);
+
+  border-radius: 9px;
+
+  font-size: 13px;
+}
+
+/* =========================================
+   LOGIN FOOTER
+========================================= */
+
+.login-footer {
+  margin-top: 22px;
+
+  color: #64748b;
+
+  font-size: 11px;
+
+  font-weight: bold;
+
+  letter-spacing: .5px;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+
+  .app {
+    padding: 10px;
+  }
+
+  .login-screen {
+    min-height: calc(100vh - 20px);
+    padding: 10px;
+  }
+
+  .login-card {
+    padding: 28px 17px;
+    border-radius: 20px;
+  }
+
+  .game-badge {
+    width: 82px;
+    height: 82px;
+    font-size: 37px;
+  }
+
+  .brand-title {
+    font-size: 21px;
+  }
+
+  .brand-title strong {
+    font-size: 30px;
+  }
+
+  }
+    
     * {
       box-sizing: border-box;
     }
