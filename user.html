@@ -2138,31 +2138,66 @@ $("logoutButton").addEventListener(
   }
 );
 
-
 /* =========================================
    CHECK SESSION
 ========================================= */
 
-const {
-  data: sessionData
-} = await supabaseClient.auth.getSession();
+async function checkSession() {
+
+  console.log("CHECKING SESSION");
+
+  const {
+    data: sessionData,
+    error
+  } = await supabaseClient.auth.getSession();
+
+  if (error) {
+
+    console.error(
+      "Session Error:",
+      error
+    );
+
+    $("loginSection")
+      .classList
+      .remove("hidden");
+
+    $("homeSection")
+      .classList
+      .add("hidden");
+
+    return;
+  }
 
 
-if (sessionData?.session) {
+  if (sessionData?.session) {
 
-  await startApp();
+    console.log("SESSION FOUND");
 
-} else {
+    await startApp();
 
-  $("loginSection")
-    .classList
-    .remove("hidden");
+  } else {
 
-  $("homeSection")
-    .classList
-    .add("hidden");
+    console.log("NO SESSION");
+
+    $("loginSection")
+      .classList
+      .remove("hidden");
+
+    $("homeSection")
+      .classList
+      .add("hidden");
+
+  }
 
 }
+
+
+/* =========================================
+   START
+========================================= */
+
+checkSession();
   </script>
 
 </body>
