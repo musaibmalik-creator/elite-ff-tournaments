@@ -1853,53 +1853,89 @@ function hideSections(){
 
 }
 
-
 /* =====================================================
    LOGIN
 ===================================================== */
 
-$("loginButton")
-.addEventListener(
-  "click",
-  login
-);
+const loginButton =
+  $("loginButton");
+
+const passwordInput =
+  $("password");
 
 
-$("password")
-.addEventListener(
-  "keydown",
-  event => {
+if (loginButton) {
 
-    if(
-      event.key === "Enter"
-    ){
+  loginButton.addEventListener(
+    "click",
+    async function () {
 
-      login();
+      await login();
 
     }
+  );
+
+}
+
+
+if (passwordInput) {
+
+  passwordInput.addEventListener(
+    "keydown",
+    async function (event) {
+
+      if (event.key === "Enter") {
+
+        await login();
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   LOGIN FUNCTION
+===================================================== */
+
+async function login() {
+
+  const emailInput =
+    $("email");
+
+  const passwordInput =
+    $("password");
+
+  const message =
+    $("message");
+
+  if (
+    !emailInput ||
+    !passwordInput
+  ) {
+
+    console.error(
+      "Login inputs not found."
+    );
+
+    return;
 
   }
-);
 
-
-async function login(){
 
   const email =
-    $("email")
-      .value
-      .trim();
+    emailInput.value.trim();
 
   const password =
-    $("password")
-      .value;
+    passwordInput.value;
 
-  if(
-    !email ||
-    !password
-  ){
+
+  if (!email || !password) {
 
     showMessage(
-      $("message"),
+      message,
       "Please enter email and password."
     );
 
@@ -1908,30 +1944,48 @@ async function login(){
   }
 
 
-  $("loginButton").disabled =
-    true;
+  if (loginButton) {
 
-  $("loginButton").textContent =
-    "Logging in...";
+    loginButton.disabled =
+      true;
+
+    loginButton.textContent =
+      "Logging in...";
+
+  }
 
 
-  try{
+  showMessage(
+    message,
+    "Logging in..."
+  );
+
+
+  try {
 
     const {
       data,
       error
     } =
-    await supabase.auth
-      .signInWithPassword({
-        email,
-        password
-      });
+      await supabase.auth
+        .signInWithPassword({
+
+          email: email,
+
+          password: password
+
+        });
 
 
-    if(error){
+    if (error) {
+
+      console.error(
+        "Login Error:",
+        error
+      );
 
       showMessage(
-        $("message"),
+        message,
         "Login Error: " +
         error.message
       );
@@ -1941,36 +1995,57 @@ async function login(){
     }
 
 
-    if(
+    if (
       data &&
       data.user
-    ){
+    ) {
 
-      showDashboard(
+      showMessage(
+        message,
+        "Login successful!",
+        true
+      );
+
+
+      await showDashboard(
         data.user
       );
 
     }
 
-  }catch(error){
+
+  } catch (error) {
+
+    console.error(
+      "Login Exception:",
+      error
+    );
 
     showMessage(
-      $("message"),
+      message,
       "Login Error: " +
       error.message
     );
 
-  }finally{
+  } finally {
 
-    $("loginButton").disabled =
-      false;
+    if (loginButton) {
 
-    $("loginButton").textContent =
-      "Login";
+      loginButton.disabled =
+        false;
+
+      loginButton.textContent =
+        "Login";
+
+    }
 
   }
 
 }
+
+
+
+    
 
 
 /* =====================================================
