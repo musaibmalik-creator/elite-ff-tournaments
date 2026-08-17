@@ -1016,7 +1016,9 @@ button:disabled{
     <button id="openDepositsButton">
       💰 Manage Deposits
     </button>
-
+<button id="openWithdrawalsButton">
+  💸 Manage Withdrawals
+</button>
   </div>
 
 </div>
@@ -1614,7 +1616,44 @@ async function loadWithdrawals() {
 
   bindWithdrawalButtons();
 }
+/* =========================================
+   OPEN WITHDRAWALS
+========================================= */
 
+$("openWithdrawalsButton").addEventListener(
+  "click",
+  async function() {
+
+    $("dashboard")
+      .classList
+      .add("hidden");
+
+    $("withdrawalsSection")
+      .classList
+      .remove("hidden");
+
+    await loadWithdrawals();
+
+  }
+);
+  /* =========================================
+   BACK FROM WITHDRAWALS
+========================================= */
+
+$("backWithdrawalsButton").addEventListener(
+  "click",
+  function() {
+
+    $("withdrawalsSection")
+      .classList
+      .add("hidden");
+
+    $("dashboard")
+      .classList
+      .remove("hidden");
+
+  }
+);
 
 /* =========================================
    APPROVE / REJECT BUTTONS
