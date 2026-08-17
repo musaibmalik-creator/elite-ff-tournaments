@@ -1453,6 +1453,268 @@ let editingTournamentId = null;
 let editingPlayerId = null;
 
 
+/* =========================================
+   LOAD WITHDRAWALS
+========================================= */
+
+async function loadWithdrawals() {
+
+  const list = $("withdrawalsList");
+
+  if (!list) return;
+
+  list.innerHTML = "Loading withdrawals...";
+
+  const {
+    data: withdrawals,
+    error
+  } = await supabase
+    .from("withdrawals")
+    .select(`
+      id,
+      user_id,
+      amount,
+      upi_id,
+      status,
+      created_at,
+      payment_details
+    `)
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error(
+      "Withdrawals Error:",
+      error
+    );
+
+    list.innerHTML =
+      "<p>Failed to load withdrawals.</p>";
+
+    return;
+  }
+
+  if (!withdrawals || withdrawals.length === 0) {
+
+    list.innerHTML =
+      "<p>No withdrawal requests found.</p>";
+
+    return;
+  }
+
+  list.innerHTML = "";
+
+  withdrawals.forEach(function(withdrawal) {
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "withdrawal-card";
+
+    const statusClass =
+      withdrawal.status === "approved"
+        ? "approved"
+        : withdrawal.status === "rejected"
+        ? "rejected"
+        : "pending";
+
+    card.innerHTML = `
+
+      <div class="withdrawal-header">
+
+        <strong>
+          💸 Withdrawal Request
+        </strong>
+
+        <span class="withdrawal-status ${statusClass}">
+          ${withdrawal.status || "pending"}
+        </span>
+
+      </div>
+
+      <div class="withdrawal-row">
+        <span>User ID</span>
+        <span>
+          ${withdrawal.user_id || "-"}
+        </span>
+      </div>
+
+      <div class="withdrawal-row">
+        <span>Amount</span>
+        <span>
+          ₹${Number(
+            withdrawal.amount || 0
+          ).toFixed(2)}
+        </span>
+      </div>
+
+      <div class="withdrawal-row">
+        <span>UPI ID</span>
+        <span>
+          ${withdrawal.upi_id || "-"}
+        </span>
+      </div>
+
+      <div class="withdrawal-row">
+        <span>Payment Details</span>
+        <span>
+          ${withdrawal.payment_details || "-"}
+        </span>
+      </div>
+
+      <div class="withdrawal-row">
+        <span>Date</span>
+        <span>
+          ${
+            withdrawal.created_at
+              ? new Date(
+                  withdrawal.created_at
+                ).toLocaleString()
+              : "-"
+          }
+        </span>
+      </div>
+
+      ${
+        withdrawal.status === "pending"
+          ? `
+
+            <div class="withdrawal-actions">
+
+              <button
+                class="approve-withdrawal"
+                data-id="${withdrawal.id}"
+                type="button"
+              >
+                ✅ Approve
+              </button>
+
+              <button
+                class="reject-withdrawal"
+                data-id="${withdrawal.id}"
+                type="button"
+              >
+                ❌ Reject
+              </button>
+
+            </div>
+
+          `
+          : ""
+      }
+
+    `;
+
+    list.appendChild(card);
+
+  });
+
+  bindWithdrawalButtons();
+}
+
+
+/* =========================================
+   APPROVE / REJECT BUTTONS
+========================================= */
+
+function bindWithdrawalButtons() {
+
+  document
+    .querySelectorAll(".approve-withdrawal")
+    .forEach(function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          updateWithdrawalStatus(
+            button.dataset.id,
+            "approved"
+          );
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(".reject-withdrawal")
+    .forEach(function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          updateWithdrawalStatus(
+            button.dataset.id,
+            "rejected"
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================
+   UPDATE WITHDRAWAL STATUS
+========================================= */
+
+async function updateWithdrawalStatus(
+  withdrawalId,
+  newStatus
+) {
+
+  const action =
+    newStatus === "approved"
+      ? "approve"
+      : "reject";
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to ${action} this withdrawal?`
+    );
+
+  if (!confirmed) return;
+
+  const {
+    error
+  } = await supabase
+    .from("withdrawals")
+    .update({
+      status: newStatus
+    })
+    .eq("id", withdrawalId);
+
+  if (error) {
+
+    console.error(
+      "Withdrawal Update Error:",
+      error
+    );
+
+    alert(
+      "Failed to update withdrawal."
+    );
+
+    return;
+  }
+
+  alert(
+    `Withdrawal ${newStatus} successfully.`
+  );
+
+  await loadWithdrawals();
+
+}
+
+
 /* =====================================================
    COMMON MESSAGE
 ===================================================== */
