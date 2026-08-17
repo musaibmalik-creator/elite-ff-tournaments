@@ -2611,37 +2611,50 @@ $("submitWithdrawButton").addEventListener(
 
 
     const {
-      error: balanceError
-    } =
-      await supabaseClient
-        .from("wallets")
-        .update({
+  data: updatedWallet,
+  error: balanceError
+} =
+  await supabaseClient
+    .from("wallets")
+    .update({
+      balance: newBalance
+    })
+    .eq(
+      "user_id",
+      currentUser.id
+    )
+    .select("balance")
+    .maybeSingle();
 
-          balance:
-            newBalance
 
-        })
-        .eq(
-          "user_id",
-          currentUser.id
-        );
+if (balanceError) {
+
+  console.error(
+    "Balance Update Error:",
+    balanceError
+  );
+
+  showMessage(
+    "withdrawMessage",
+    "❌ Balance Update Error: " +
+    balanceError.message
+  );
+
+  return;
+
+}
 
 
-    if (balanceError) {
+if (!updatedWallet) {
 
-      console.error(
-        "Balance Update Error:",
-        balanceError
-      );
+  showMessage(
+    "withdrawMessage",
+    "❌ Wallet was not updated. Check wallet user_id."
+  );
 
-      showMessage(
-        "withdrawMessage",
-        "❌ Withdrawal created, but wallet balance could not be updated."
-      );
+  return;
 
-      return;
-
-    }
+}
 
 
     /* CLEAR INPUTS */
