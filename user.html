@@ -2490,8 +2490,18 @@ $("submitWithdrawButton").addEventListener(
       return;
 
     }
+if (amount < 50) {
 
+  showMessage(
+    "withdrawMessage",
+    "❌ Minimum withdrawal amount is ₹50."
+  );
 
+  return;
+
+}
+
+    
     if (!details) {
 
       showMessage(
