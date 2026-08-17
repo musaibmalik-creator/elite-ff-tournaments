@@ -1621,40 +1621,54 @@ async function loadWithdrawals() {
    OPEN WITHDRAWALS
 ========================================= */
 
-$("openWithdrawalsButton").addEventListener(
-  "click",
-  async function() {
+const openWithdrawalsButton =
+  $("openWithdrawalsButton");
 
-    $("dashboard")
-      .classList
-      .add("hidden");
+if (openWithdrawalsButton) {
 
-    $("withdrawalsSection")
-      .classList
-      .remove("hidden");
+  openWithdrawalsButton.addEventListener(
+    "click",
+    async function() {
 
-    await loadWithdrawals();
+      $("dashboard")
+        .classList
+        .add("hidden");
 
-  }
-);
+      $("withdrawalsSection")
+        .classList
+        .remove("hidden");
+
+      await loadWithdrawals();
+
+    }
+  );
+
+}
   /* =========================================
    BACK FROM WITHDRAWALS
 ========================================= */
 
-$("backWithdrawalsButton").addEventListener(
-  "click",
-  function() {
+const backWithdrawalsButton =
+  $("backWithdrawalsButton");
 
-    $("withdrawalsSection")
-      .classList
-      .add("hidden");
+if (backWithdrawalsButton) {
 
-    $("dashboard")
-      .classList
-      .remove("hidden");
+  backWithdrawalsButton.addEventListener(
+    "click",
+    function() {
 
-  }
-);
+      $("withdrawalsSection")
+        .classList
+        .add("hidden");
+
+      $("dashboard")
+        .classList
+        .remove("hidden");
+
+    }
+  );
+
+}
 
 /* =========================================
    APPROVE / REJECT BUTTONS
