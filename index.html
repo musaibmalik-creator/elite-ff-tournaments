@@ -15,179 +15,881 @@
 
 *{
   box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+  --bg:#060914;
+  --bg2:#0b1020;
+  --card:#11182d;
+  --card2:#18223b;
+  --border:rgba(255,255,255,.08);
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --primary:#6366f1;
+  --primary2:#8b5cf6;
+  --green:#22c55e;
+  --red:#ef4444;
+  --blue:#38bdf8;
+  --yellow:#f59e0b;
+}
+
+html{
+  scroll-behavior:smooth;
 }
 
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b1020;
-  color:white;
+  min-height:100vh;
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(99,102,241,.20),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(139,92,246,.18),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #050712,
+      #0b1020 50%,
+      #080d1b
+    );
+
+  background-attachment:fixed;
+  color:var(--text);
 }
+
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar{
+  width:7px;
+}
+
+::-webkit-scrollbar-track{
+  background:#060914;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#303957;
+  border-radius:20px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background:#4f5b82;
+}
+
+
+/* =========================
+   CONTAINER
+========================= */
 
 .container{
   width:92%;
-  max-width:900px;
-  margin:30px auto;
+  max-width:1000px;
+  margin:0 auto;
+  padding:30px 0 60px;
 }
+
+
+/* =========================
+   CARD
+========================= */
 
 .card{
-  background:#151c32;
-  padding:22px;
-  border-radius:16px;
+  position:relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(21,29,51,.96),
+      rgba(10,16,32,.96)
+    );
+
+  border:1px solid var(--border);
+
+  padding:24px;
+
+  border-radius:22px;
+
   margin-bottom:20px;
-  box-shadow:0 8px 30px rgba(0,0,0,.3);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.35);
+
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  overflow:hidden;
 }
 
-h1,h2,h3{
-  margin-top:0;
+.card::before{
+  content:"";
+
+  position:absolute;
+
+  top:0;
+  left:0;
+  right:0;
+
+  height:1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(129,140,248,.8),
+      transparent
+    );
 }
+
+.card:hover{
+  border-color:
+    rgba(129,140,248,.18);
+}
+
+
+/* =========================
+   HEADINGS
+========================= */
+
+h1,
+h2,
+h3{
+  margin-top:0;
+  letter-spacing:-.3px;
+}
+
+h1{
+  font-size:28px;
+  font-weight:800;
+}
+
+h2{
+  font-size:21px;
+  font-weight:750;
+}
+
+h3{
+  font-size:17px;
+  font-weight:700;
+}
+
+
+/* =========================
+   LOGIN CARD
+========================= */
+
+#loginCard{
+  max-width:500px;
+  margin:8vh auto 0;
+  padding:32px;
+}
+
+#loginCard h1{
+  text-align:center;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ffffff,
+      #a5b4fc,
+      #c4b5fd
+    );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+
+  color:transparent;
+}
+
+#loginCard h2{
+  text-align:center;
+
+  color:var(--muted);
+
+  font-size:15px;
+  font-weight:500;
+
+  margin-bottom:25px;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
 
 input,
 select,
 textarea{
+
   width:100%;
-  padding:13px;
-  margin:8px 0;
-  border:1px solid #39445f;
-  border-radius:10px;
-  background:#0d1428;
-  color:white;
+
+  padding:14px 15px;
+
+  margin:7px 0;
+
+  border:
+    1px solid
+    rgba(148,163,184,.18);
+
+  border-radius:13px;
+
+  background:
+    rgba(5,10,24,.78);
+
+  color:var(--text);
+
   font-size:15px;
+
+  outline:none;
+
+  transition:
+    border-color .2s,
+    box-shadow .2s;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#64748b;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+
+  border-color:
+    rgba(99,102,241,.85);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(99,102,241,.12),
+
+    0 0 25px
+    rgba(99,102,241,.08);
 }
 
 textarea{
-  min-height:90px;
+  min-height:100px;
   resize:vertical;
 }
 
-button{
-  width:100%;
-  padding:13px;
-  margin-top:10px;
-  border:0;
-  border-radius:10px;
-  background:#5865f2;
+select option{
+  background:#111827;
   color:white;
-  font-size:15px;
-  font-weight:bold;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+button{
+
+  width:100%;
+
+  padding:14px 16px;
+
+  margin-top:10px;
+
+  border:1px solid
+    rgba(255,255,255,.06);
+
+  border-radius:13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary2)
+    );
+
+  color:white;
+
+  font-size:14px;
+
+  font-weight:750;
+
   cursor:pointer;
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease;
+
+  box-shadow:
+    0 8px 22px
+    rgba(99,102,241,.18);
 }
 
 button:hover{
-  opacity:.9;
+
+  opacity:1;
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 12px 28px
+    rgba(99,102,241,.25);
+}
+
+button:active{
+  transform:translateY(0);
 }
 
 button:disabled{
-  opacity:.5;
+
+  opacity:.45;
+
   cursor:not-allowed;
+
+  transform:none;
+
+  box-shadow:none;
 }
 
+
+/* =========================
+   BUTTON COLORS
+========================= */
+
 .danger{
-  background:#e53935;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ef4444,
+      #b91c1c
+    );
+
+  box-shadow:
+    0 8px 22px
+    rgba(239,68,68,.16);
+}
+
+.danger:hover{
+
+  box-shadow:
+    0 12px 28px
+    rgba(239,68,68,.24);
 }
 
 .secondary{
-  background:#303a55;
+
+  background:
+    linear-gradient(
+      135deg,
+      #26324f,
+      #182139
+    );
+
+  color:#dbeafe;
+
+  box-shadow:none;
+}
+
+.secondary:hover{
+
+  box-shadow:
+    0 8px 20px
+    rgba(0,0,0,.25);
 }
 
 .successButton{
-  background:#159447;
+
+  background:
+    linear-gradient(
+      135deg,
+      #22c55e,
+      #15803d
+    );
+
+  box-shadow:
+    0 8px 22px
+    rgba(34,197,94,.16);
 }
 
-.hidden{
-  display:none!important;
-}
 
-.message{
-  margin-top:12px;
-  padding:10px;
-  border-radius:8px;
-  background:#202942;
-}
-
-.success{
-  color:#55e68a;
-}
-
-.error{
-  color:#ff6666;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-.stat{
-  background:#202942;
-  padding:18px;
-  border-radius:12px;
-  text-align:center;
-}
-
-.stat-number{
-  font-size:28px;
-  font-weight:bold;
-}
-
-.tournament-card{
-  background:#202942;
-  padding:18px;
-  margin-top:15px;
-  border-radius:14px;
-}
-
-.badge{
-  display:inline-block;
-  padding:5px 9px;
-  border-radius:20px;
-  background:#5865f2;
-  font-size:12px;
-}
-
-.info{
-  line-height:1.8;
-  margin-top:10px;
-}
+/* =========================
+   TOP BAR
+========================= */
 
 .top{
+
   display:flex;
+
   justify-content:space-between;
+
   align-items:center;
-  gap:10px;
+
+  gap:15px;
+
+  margin-bottom:5px;
+}
+
+.top h1,
+.top h2,
+.top h3{
+  margin-bottom:0;
 }
 
 .top button{
+
   width:auto;
-  padding:9px 14px;
+
+  min-width:85px;
+
+  padding:10px 16px;
+
   margin:0;
 }
 
+
+/* =========================
+   DASHBOARD STATS
+========================= */
+
+.stats{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:14px;
+
+  margin:22px 0;
+}
+
+.stat{
+
+  position:relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,41,72,.92),
+      rgba(15,23,42,.92)
+    );
+
+  border:
+    1px solid
+    var(--border);
+
+  padding:22px 15px;
+
+  border-radius:17px;
+
+  text-align:center;
+
+  overflow:hidden;
+}
+
+.stat::after{
+
+  content:"";
+
+  position:absolute;
+
+  width:80px;
+  height:80px;
+
+  right:-35px;
+  top:-35px;
+
+  border-radius:50%;
+
+  background:
+    rgba(99,102,241,.12);
+}
+
+.stat-number{
+
+  font-size:34px;
+
+  line-height:1;
+
+  font-weight:850;
+
+  margin-bottom:8px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #a5b4fc
+    );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+
+  color:transparent;
+}
+
+.stat div:last-child{
+
+  color:var(--muted);
+
+  font-size:13px;
+}
+
+
+/* =========================
+   TOURNAMENT / LIST CARDS
+========================= */
+
+.tournament-card{
+
+  position:relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,41,72,.80),
+      rgba(15,23,42,.80)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.07);
+
+  padding:19px;
+
+  margin-top:14px;
+
+  border-radius:17px;
+
+  transition:
+    transform .2s,
+    border-color .2s,
+    box-shadow .2s;
+}
+
+.tournament-card:hover{
+
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(99,102,241,.25);
+
+  box-shadow:
+    0 12px 35px
+    rgba(0,0,0,.22);
+}
+
+.tournament-card h3{
+  margin:12px 0 8px;
+}
+
+
+/* =========================
+   BADGE
+========================= */
+
+.badge{
+
+  display:inline-flex;
+
+  align-items:center;
+
+  padding:6px 10px;
+
+  border-radius:999px;
+
+  background:
+    rgba(99,102,241,.16);
+
+  border:
+    1px solid
+    rgba(129,140,248,.22);
+
+  color:#c7d2fe;
+
+  font-size:11px;
+
+  font-weight:700;
+
+  text-transform:uppercase;
+
+  letter-spacing:.4px;
+}
+
+
+/* =========================
+   INFO
+========================= */
+
+.info{
+
+  line-height:1.9;
+
+  margin-top:10px;
+
+  color:#cbd5e1;
+
+  font-size:14px;
+}
+
+
+/* =========================
+   DEPOSIT STATUS
+========================= */
+
+.deposit-status{
+
+  padding:6px 11px;
+
+  border-radius:999px;
+
+  display:inline-block;
+
+  background:#202b45;
+
+  border:
+    1px solid
+    rgba(255,255,255,.07);
+}
+
+
+/* =========================
+   ACTION ROW
+========================= */
+
 .action-row{
+
   display:flex;
-  gap:8px;
+
+  gap:9px;
 }
 
 .action-row button{
   flex:1;
 }
 
-.deposit-status{
-  padding:6px 10px;
-  border-radius:20px;
-  display:inline-block;
-  background:#303a55;
+
+/* =========================
+   MESSAGE
+========================= */
+
+.message{
+
+  margin-top:13px;
+
+  padding:12px 14px;
+
+  border-radius:12px;
+
+  background:
+    rgba(30,41,72,.75);
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+
+  color:#cbd5e1;
+
+  font-size:13px;
+
+  line-height:1.5;
 }
 
+.success{
+
+  color:#86efac;
+
+  border-color:
+    rgba(34,197,94,.18);
+
+  background:
+    rgba(20,83,45,.18);
+}
+
+.error{
+
+  color:#fca5a5;
+
+  border-color:
+    rgba(239,68,68,.18);
+
+  background:
+    rgba(127,29,29,.18);
+}
+
+
+/* =========================
+   USER EMAIL
+========================= */
+
+#userEmail{
+
+  color:var(--muted);
+
+  font-size:13px;
+
+  margin-top:-8px;
+
+  margin-bottom:5px;
+}
+
+
+/* =========================
+   HIDDEN
+========================= */
+
+.hidden{
+  display:none!important;
+}
+
+
+/* =========================
+   SECTION ANIMATION
+========================= */
+
+#dashboard,
+#tournamentsSection,
+#playersSection,
+#teamsSection,
+#paymentsSection,
+#depositsSection{
+
+  animation:
+    sectionIn .25s ease;
+}
+
+@keyframes sectionIn{
+
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
 @media(max-width:600px){
+
+  .container{
+
+    width:94%;
+
+    padding:
+      16px 0 40px;
+  }
+
+  .card{
+
+    padding:18px;
+
+    border-radius:18px;
+
+    margin-bottom:15px;
+  }
+
+  #loginCard{
+
+    margin-top:5vh;
+
+    padding:
+      24px 18px;
+  }
+
+  h1{
+    font-size:24px;
+  }
+
+  h2{
+    font-size:19px;
+  }
+
+  .stats{
+
+    grid-template-columns:
+      1fr 1fr;
+
+    gap:9px;
+  }
+
+  .stat{
+
+    padding:
+      17px 8px;
+  }
+
+  .stat-number{
+    font-size:28px;
+  }
+
+  .top{
+
+    align-items:flex-start;
+  }
+
+  .top button{
+
+    min-width:70px;
+
+    padding:
+      9px 12px;
+  }
+
+  .action-row{
+
+    flex-direction:column;
+  }
+
+  input,
+  select,
+  textarea{
+
+    font-size:16px;
+  }
+
+}
+
+
+/* =========================
+   SMALL PHONES
+========================= */
+
+@media(max-width:380px){
+
+  .container{
+    width:95%;
+  }
 
   .stats{
     grid-template-columns:1fr;
   }
 
-  .action-row{
+  .top{
     flex-direction:column;
+  }
+
+  .top button{
+    width:100%;
   }
 
 }
@@ -199,6 +901,9 @@ button:disabled{
 <body>
 
 <div class="container">
+
+
+
 
 <!-- =====================================================
      LOGIN
