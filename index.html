@@ -3269,7 +3269,7 @@ $("backDepositsButton")
 
 
 /* =====================================================
-   APPROVE DEPOSIT
+   APPROVE DEPOSIT + CREDIT WALLET
 ===================================================== */
 
 window.approveDeposit =
@@ -3277,22 +3277,21 @@ async function(id){
 
   if(
     !confirm(
-      "Approve this deposit?"
+      "Approve this deposit and add amount to wallet?"
     )
   ){
     return;
   }
 
-  const { error } =
-    await supabase
-      .from("deposits")
-      .update({
-        status: "approved"
-      })
-      .eq(
-        "id",
-        id
-      );
+
+  const { data, error } =
+    await supabase.rpc(
+      "approve_deposit_and_credit_wallet",
+      {
+        p_deposit_id: id
+      }
+    );
+
 
   if(error){
 
@@ -3305,9 +3304,31 @@ async function(id){
 
   }
 
+
+  if(!data || !data.success){
+
+    alert(
+      "Deposit approval failed."
+    );
+
+    return;
+
+  }
+
+
   alert(
-    "Deposit approved successfully! ✅"
+    "Deposit approved! ✅\n\n" +
+    "Added: ₹" +
+    Number(
+      data.amount || 0
+    ).toFixed(2) +
+    "\n\n" +
+    "New Wallet Balance: ₹" +
+    Number(
+      data.new_balance || 0
+    ).toFixed(2)
   );
+
 
   await loadDeposits();
 
