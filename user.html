@@ -2419,10 +2419,6 @@ $("submitDepositButton").addEventListener(
   }
 );
 
-
-    
-
-
 /* =========================================
    WITHDRAW
 ========================================= */
@@ -2480,6 +2476,8 @@ $("submitWithdrawButton").addEventListener(
         .trim();
 
 
+    /* MINIMUM ₹50 */
+
     if (!amount || amount <= 0) {
 
       showMessage(
@@ -2490,18 +2488,20 @@ $("submitWithdrawButton").addEventListener(
       return;
 
     }
-if (amount < 50) {
 
-  showMessage(
-    "withdrawMessage",
-    "❌ Minimum withdrawal amount is ₹50."
-  );
 
-  return;
+    if (amount < 50) {
 
-}
+      showMessage(
+        "withdrawMessage",
+        "❌ Minimum withdrawal amount is ₹50."
+      );
 
-    
+      return;
+
+    }
+
+
     if (!details) {
 
       showMessage(
@@ -2513,6 +2513,8 @@ if (amount < 50) {
 
     }
 
+
+    /* GET WALLET */
 
     const {
       data: wallet,
@@ -2545,6 +2547,8 @@ if (amount < 50) {
       Number(wallet?.balance || 0);
 
 
+    /* CHECK BALANCE */
+
     if (balance < amount) {
 
       showMessage(
@@ -2563,7 +2567,11 @@ if (amount < 50) {
     );
 
 
-    const { error } =
+    /* CREATE WITHDRAWAL REQUEST */
+
+    const {
+      error: withdrawalError
+    } =
       await supabaseClient
         .from("withdrawals")
         .insert({
@@ -2583,12 +2591,12 @@ if (amount < 50) {
         });
 
 
-    if (error) {
+    if (withdrawalError) {
 
       showMessage(
         "withdrawMessage",
         "❌ Withdrawal Error: " +
-        error.message
+        withdrawalError.message
       );
 
       return;
@@ -2596,17 +2604,73 @@ if (amount < 50) {
     }
 
 
+    /* DEDUCT WALLET BALANCE */
+
+    const newBalance =
+      balance - amount;
+
+
+    const {
+      error: balanceError
+    } =
+      await supabaseClient
+        .from("wallets")
+        .update({
+
+          balance:
+            newBalance
+
+        })
+        .eq(
+          "user_id",
+          currentUser.id
+        );
+
+
+    if (balanceError) {
+
+      console.error(
+        "Balance Update Error:",
+        balanceError
+      );
+
+      showMessage(
+        "withdrawMessage",
+        "❌ Withdrawal created, but wallet balance could not be updated."
+      );
+
+      return;
+
+    }
+
+
+    /* CLEAR INPUTS */
+
     $("withdrawAmount").value = "";
+
     $("withdrawUPI").value = "";
 
 
+    /* SUCCESS */
+
     showMessage(
       "withdrawMessage",
-      "✅ Withdrawal request submitted."
+      "✅ Withdrawal request submitted. ₹" +
+      amount.toFixed(2) +
+      " deducted from your wallet.",
+      true
     );
 
   }
 );
+    
+
+
+
+
+
+    
+      
 
 
 /* =========================================
