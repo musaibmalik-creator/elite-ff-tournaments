@@ -1498,16 +1498,10 @@ button.success{
 </div>
 
 
-<!-- =========================================
-     HOME BOTTOM NAVIGATION
-========================================= -->
-
+<!-- HOME BOTTOM NAVIGATION -->
 <div class="bottom-nav">
 
-  <button
-    type="button"
-    onclick="showOnly(null)"
-  >
+  <button type="button" onclick="showOnly(null)">
     <span>🏠</span>
     <small>Home</small>
   </button>
@@ -1547,6 +1541,322 @@ button.success{
 </div>
 
 </div>
+
+<!-- ⚠️ YAHAN TUMHARI PURI JAVASCRIPT HOGI -->
+<script>
+"use strict";
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+  "https://yenhkcditizmcekjeswy.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+const $ = (id) => document.getElementById(id);
+
+let currentUser = null;
+let selectedTournament = null;
+
+function money(value) {
+  return "₹" + Number(value || 0).toFixed(2);
+}
+
+function showMessage(elementId, text) {
+  const element = $(elementId);
+  if (element) {
+    element.textContent = text || "";
+  }
+}
+
+/* =========================================
+   LOGIN
+========================================= */
+
+$("loginButton").addEventListener("click", async function () {
+
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  if (!email || !password) {
+    showMessage(
+      "authMessage",
+      "❌ Enter email and password."
+    );
+    return;
+  }
+
+  showMessage(
+    "authMessage",
+    "⏳ Logging in..."
+  );
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+  if (error) {
+
+    console.error("Login error:", error);
+
+    showMessage(
+      "authMessage",
+      "❌ " + error.message
+    );
+
+    return;
+  }
+
+  currentUser = data.user;
+
+  showMessage(
+    "authMessage",
+    "✅ Login successful..."
+  );
+
+  await startApp();
+
+});
+
+/* =========================================
+   CREATE ACCOUNT
+========================================= */
+
+$("signupButton").addEventListener("click", async function () {
+
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  if (!email || !password) {
+    showMessage(
+      "authMessage",
+      "❌ Enter email and password."
+    );
+    return;
+  }
+
+  if (password.length < 6) {
+    showMessage(
+      "authMessage",
+      "❌ Password must be at least 6 characters."
+    );
+    return;
+  }
+
+  showMessage(
+    "authMessage",
+    "⏳ Creating account..."
+  );
+
+  const { data, error } =
+    await supabaseClient.auth.signUp({
+      email: email,
+      password: password
+    });
+
+  if (error) {
+
+    showMessage(
+      "authMessage",
+      "❌ " + error.message
+    );
+
+    return;
+  }
+
+  if (data.session) {
+
+    currentUser = data.user;
+
+    await startApp();
+
+    return;
+  }
+
+  showMessage(
+    "authMessage",
+    "✅ Account created. Check your email to verify."
+  );
+
+});
+
+/* =========================================
+   START APP
+========================================= */
+
+async function startApp() {
+
+  const { data, error } =
+    await supabaseClient.auth.getUser();
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  currentUser = data.user;
+
+  if (!currentUser) {
+
+    $("loginSection").classList.remove("hidden");
+    $("homeSection").classList.add("hidden");
+
+    return;
+  }
+
+  $("loginSection").classList.add("hidden");
+  $("homeSection").classList.remove("hidden");
+
+  $("userEmail").textContent =
+    currentUser.email || "";
+
+  await ensureWallet();
+  await loadWallet();
+}
+
+/* =========================================
+   WALLET
+========================================= */
+
+async function ensureWallet() {
+
+  if (!currentUser) return;
+
+  const { data, error } =
+    await supabaseClient
+      .from("wallets")
+      .select("user_id")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
+  if (error) {
+    console.error("Wallet check:", error);
+    return;
+  }
+
+  if (!data) {
+
+    const { error: insertError } =
+      await supabaseClient
+        .from("wallets")
+        .insert({
+          user_id: currentUser.id,
+          balance: 0
+        });
+
+    if (insertError) {
+      console.error(
+        "Wallet create:",
+        insertError
+      );
+    }
+  }
+}
+
+async function loadWallet() {
+
+  if (!currentUser) return;
+
+  const { data, error } =
+    await supabaseClient
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
+  if (error) {
+
+    console.error(
+      "Wallet load:",
+      error
+    );
+
+    $("walletBalance").textContent =
+      "₹0.00";
+
+    return;
+  }
+
+  $("walletBalance").textContent =
+    money(data?.balance || 0);
+}
+
+/* =========================================
+   SESSION CHECK
+========================================= */
+
+async function checkSession() {
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.auth.getSession();
+
+  if (error) {
+
+    console.error(
+      "Session Error:",
+      error
+    );
+
+    return;
+  }
+
+  if (data?.session) {
+    await startApp();
+  } else {
+
+    $("loginSection")
+      .classList
+      .remove("hidden");
+
+    $("homeSection")
+      .classList
+      .add("hidden");
+  }
+}
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+$("logoutButton").addEventListener(
+  "click",
+  async function () {
+
+    const { error } =
+      await supabaseClient.auth.signOut();
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    currentUser = null;
+
+    location.reload();
+  }
+);
+
+/* =========================================
+   START
+========================================= */
+
+checkSession();
+
+</script>
 
 </body>
 </html>
