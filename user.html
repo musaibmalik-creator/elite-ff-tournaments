@@ -1836,16 +1836,20 @@ button:disabled {
 
 "use strict";
 
-/* =========================================================
+/* =====================================================
    SUPABASE
-========================================================= */
+===================================================== */
 
-const SUPABASE_URL = "https://YOUR-PROJECT-ID.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR-KEY-HERE";
+const SUPABASE_URL =
+"https://yenhkcditizmcekjeswy.supabase.co";
 
-const supabaseClient = window.supabase.createClient(
+const SUPABASE_KEY =
+"sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
+const supabaseClient =
+window.supabase.createClient(
   SUPABASE_URL,
-  SUPABASE_ANON_KEY
+  SUPABASE_KEY
 );
 
 let currentUser = null;
