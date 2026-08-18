@@ -1,955 +1,1166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>Elite FF Tournaments</title>
 
-  <title>Elite FF Tournaments</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
 
-  <style>
-    /* =========================================
-   ELITE FF TOURNAMENTS — FULL CSS
-========================================= */
-
-* {
-  box-sizing: border-box;
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  background:#070707;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
+body{
+  font-family:Arial,sans-serif;
+  color:#fff;
+  background:#070707;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  color: #fff;
+button,input{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+.app{
+  width:100%;
+  max-width:600px;
+  min-height:100vh;
+  margin:auto;
+  background:#090909;
+  position:relative;
+  padding-bottom:92px;
+}
+
+h1,h2,h3,p{
+  margin-top:0;
+}
+
+:root{
+  --gold:#ffc400;
+  --gold2:#ffe36b;
+  --black:#080808;
+  --panel:#151515;
+  --panel2:#222224;
+  --muted:#a7a7ad;
+  --line:#303034;
+}
+
+/* =========================
+   LOGIN
+========================= */
+
+.login-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 
   background:
     radial-gradient(
-      circle at 15% 10%,
-      rgba(239, 68, 68, .18),
+      circle at 20% 15%,
+      rgba(255,196,0,.18),
       transparent 30%
     ),
     radial-gradient(
-      circle at 85% 20%,
-      rgba(59, 130, 246, .18),
-      transparent 30%
+      circle at 85% 85%,
+      rgba(255,140,0,.12),
+      transparent 35%
     ),
-    #050811;
+    #070707;
 }
 
-.app {
-  width: 100%;
-  max-width: 600px;
-  min-height: 100vh;
-  margin: auto;
-  padding: 16px;
-}
+.login-card{
+  width:100%;
+  max-width:430px;
+  padding:30px 20px;
+  text-align:center;
 
-h1,
-h2,
-h3 {
-  margin-top: 0;
-}
-
-/* =========================================
-   GENERAL CARD
-========================================= */
-
-.card {
   background:
     linear-gradient(
       145deg,
-      rgba(21, 28, 49, .97),
-      rgba(10, 15, 30, .97)
+      #191919,
+      #0c0c0c
     );
 
-  border: 1px solid #27304b;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 14px;
+  border:1px solid rgba(255,196,0,.35);
+  border-radius:24px;
 
   box-shadow:
-    0 12px 35px rgba(0, 0, 0, .30);
+    0 20px 60px #000,
+    0 0 30px rgba(255,196,0,.08);
 }
 
-/* =========================================
-   INPUTS / BUTTONS
-========================================= */
+.game-badge{
+  width:92px;
+  height:92px;
+  margin:0 auto 15px;
 
-input,
-button {
-  width: 100%;
-  padding: 13px;
-  margin-top: 10px;
-  border-radius: 10px;
-  font-size: 15px;
-}
+  border-radius:50%;
 
-input {
-  background: #0e1528;
-  color: #fff;
-  border: 1px solid #34405f;
-  outline: none;
-}
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-input:focus {
-  border-color: #ef4444;
+  font-size:42px;
+
+  background:#0b0b0b;
+  border:2px solid var(--gold);
 
   box-shadow:
-    0 0 0 2px rgba(239, 68, 68, .12);
+    0 0 20px rgba(255,196,0,.45);
 }
 
-button {
-  background:
-    linear-gradient(
-      135deg,
-      #2563eb,
-      #4f46e5
-    );
+.brand-title{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  flex-wrap:wrap;
 
-  color: #fff;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: .2s;
+  font-size:23px;
+  font-weight:900;
 }
 
-button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
+.brand-title span{
+  color:#fff;
 }
 
-button:active {
-  transform: scale(.98);
-}
-
-button.secondary {
-  background:
-    linear-gradient(
-      135deg,
-      #27304b,
-      #1e293b
-    );
-}
-
-button.danger {
-  background:
-    linear-gradient(
-      135deg,
-      #ef4444,
-      #b91c1c
-    );
-}
-
-button.success {
-  background:
-    linear-gradient(
-      135deg,
-      #22c55e,
-      #15803d
-    );
-}
-
-button:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-}
-
-/* =========================================
-   HIDDEN
-========================================= */
-
-.hidden {
-  display: none !important;
-}
-
-/* =========================================
-   TOP
-========================================= */
-
-.top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.top button {
-  width: auto;
-  margin-top: 0;
-}
-
-/* =========================================
-   WALLET
-========================================= */
-
-.balance {
-  font-size: 28px;
-  font-weight: bold;
-  margin-top: 8px;
-  color: #22c55e;
+.brand-title strong{
+  color:var(--gold);
+  font-size:34px;
 
   text-shadow:
-    0 0 15px rgba(34, 197, 94, .25);
+    0 0 15px rgba(255,196,0,.5);
 }
 
-.muted {
-  color: #9ca3af;
-  font-size: 13px;
+.login-subtitle{
+  color:#bbb;
+  margin:12px 0 22px;
+  font-size:13px;
+  font-weight:bold;
 }
 
-/* =========================================
-   TOURNAMENT
-========================================= */
+.input-box{
+  display:flex;
+  align-items:center;
 
-.tournament {
+  height:54px;
+  margin-top:12px;
+  padding:0 13px;
+
+  background:#111;
+  border:1px solid #363636;
+  border-radius:13px;
+}
+
+.input-box span{
+  width:30px;
+  font-size:19px;
+}
+
+.input-box input{
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0 8px;
+
+  background:transparent;
+  border:0;
+  outline:0;
+
+  color:#fff;
+}
+
+.input-box input::placeholder{
+  color:#777;
+}
+
+.input-box:focus-within{
+  border-color:var(--gold);
+
+  box-shadow:
+    0 0 0 2px rgba(255,196,0,.1);
+}
+
+.login-form button{
+  height:52px;
+  width:100%;
+  margin-top:13px;
+
+  border-radius:13px;
+  border:0;
+
+  font-weight:900;
+}
+
+.login-main-button{
+  background:
+    linear-gradient(
+      135deg,
+      #ffe45b,
+      #f5a900
+    )!important;
+
+  color:#111!important;
+}
+
+.login-create-button{
+  background:#242424!important;
+  color:#fff!important;
+  border:1px solid #444!important;
+}
+
+.login-message{
+  min-height:22px;
+  margin-top:14px;
+  padding:8px;
+
+  background:#111;
+  border-radius:9px;
+
+  font-size:13px;
+}
+
+.login-footer{
+  margin-top:20px;
+  color:#777;
+  font-size:11px;
+  font-weight:bold;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.elite-header{
+  min-height:88px;
+
+  padding:14px 16px 12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #191919,
+      #101010
+    );
+
+  border-bottom:1px solid #292929;
+}
+
+.brand-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.logo{
+  width:56px;
+  height:56px;
+  flex:0 0 56px;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#080808;
+  border:2px solid var(--gold);
+
+  font-size:28px;
+
+  box-shadow:
+    0 0 15px rgba(255,196,0,.3);
+}
+
+.brand-name{
+  font-size:20px;
+  font-weight:900;
+  line-height:1.05;
+  white-space:nowrap;
+}
+
+.brand-sub{
+  font-size:12px;
+  color:#bbb;
+  margin-top:5px;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.notify{
+  width:auto!important;
+  padding:5px!important;
+  margin:0!important;
+
+  background:transparent!important;
+  color:#fff!important;
+
+  font-size:23px!important;
+}
+
+.wallet-pill{
+  min-width:105px;
+
+  padding:11px 12px;
+
+  border-radius:30px;
+
+  background:#080808;
+  border:1px solid #363636;
+
+  color:var(--gold);
+
+  font-size:17px;
+  font-weight:900;
+  text-align:center;
+}
+
+/* =========================
+   HOME
+========================= */
+
+.home-content{
+  padding:12px 20px;
+}
+
+.welcome{
+  min-height:108px;
+
+  border-radius:15px;
+
+  display:flex;
+  align-items:center;
+
+  overflow:hidden;
+
+  background:
+    linear-gradient(
+      90deg,
+      #252525,
+      #121212
+    );
+
+  border:1px solid #262626;
+
+  margin-bottom:25px;
+}
+
+.welcome-icon{
+  width:105px;
+  min-height:108px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffcf22,
+      #e59a00
+    );
+
+  font-size:40px;
+  color:#111;
+}
+
+.welcome-text{
+  padding:15px;
+
+  font-size:20px;
+  font-weight:900;
+  line-height:1.25;
+}
+
+.account-title{
+  font-size:25px;
+  margin:0 0 24px;
+}
+
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+
+  margin-bottom:27px;
+}
+
+.quick-btn{
+  border:0!important;
+  background:transparent!important;
+  color:#fff!important;
+
+  padding:0!important;
+  margin:0!important;
+
+  width:auto!important;
+}
+
+.quick-icon{
+  width:70px;
+  height:70px;
+
+  margin:auto;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#303034;
+
+  font-size:30px;
+
+  box-shadow:
+    inset 0 0 0 1px #3c3c40;
+}
+
+.quick-label{
+  display:block;
+
+  margin-top:9px;
+
+  font-size:13px;
+  font-weight:bold;
+
+  white-space:nowrap;
+}
+
+.section-title{
+  font-size:25px;
+  margin:0 0 20px;
+}
+
+.games-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.game-card{
+  background:#303034;
+
+  border-radius:8px;
+  padding:8px;
+
+  border:1px solid #3a3a3e;
+
+  overflow:hidden;
+  text-align:left;
+}
+
+.game-img{
+  width:100%;
+  height:108px;
+
+  border-radius:12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #4a3213,
+      #9a681e,
+      #30200c
+    );
+
+  font-size:45px;
+}
+
+.game-name{
+  font-size:14px;
+  font-weight:900;
+
+  margin:10px 3px 5px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+.section-card{
+  margin:12px 20px;
+  padding:15px;
+
+  background:#141414;
+
+  border:1px solid #303030;
+  border-radius:15px;
+}
+
+.section-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.section-top h2{
+  font-size:22px;
+}
+
+.back-btn{
+  width:auto!important;
+  margin:0!important;
+
+  background:#2b2b2b!important;
+  color:#fff!important;
+}
+
+.tournament{
   background:
     linear-gradient(
       145deg,
-      #111a31,
-      #0b1122
+      #202020,
+      #111
     );
 
-  border: 1px solid #2d3857;
-  border-radius: 12px;
-  padding: 14px;
-  margin-top: 12px;
+  border:1px solid #3a3a3a;
+  border-radius:14px;
 
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, .20);
+  padding:15px;
+  margin-top:12px;
 }
 
-.tournament h3 {
-  color: #f8fafc;
+.tournament h3{
+  color:#fff;
+  margin-bottom:14px;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 7px 0;
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+
+  margin:8px 0;
+
+  color:#bbb;
 }
 
-.row span:last-child {
-  font-weight: bold;
+.row span:last-child{
+  font-weight:bold;
+  color:#fff;
 }
 
-.price {
-  font-size: 18px;
-  color: #facc15;
+.price{
+  font-size:18px;
+  color:var(--gold)!important;
 }
 
-/* =========================================
-   MESSAGE
-========================================= */
+.message{
+  margin-top:10px;
+  padding:10px;
 
-.message {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
+  border-radius:9px;
 
-  background: #111827;
-  color: #e5e7eb;
+  background:#101010;
 
-  line-height: 1.5;
-  white-space: pre-wrap;
+  line-height:1.5;
+  white-space:pre-wrap;
 }
 
-/* =========================================
-   ELITE FF LOGIN
-========================================= */
+.card{
+  background:#1b1b1b;
 
-.login-screen {
-  position: relative;
+  border:1px solid #303030;
+  border-radius:12px;
 
-  min-height: calc(100vh - 32px);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-  overflow: hidden;
-
-  background:
-    radial-gradient(
-      circle at 15% 10%,
-      rgba(239, 68, 68, .35),
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at 90% 20%,
-      rgba(37, 99, 235, .35),
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at 50% 100%,
-      rgba(124, 58, 237, .25),
-      transparent 40%
-    ),
-    linear-gradient(
-      135deg,
-      #050811,
-      #0b1020,
-      #16091d
-    );
+  padding:13px;
+  margin-bottom:12px;
 }
 
-/* =========================================
-   LOGIN GLOW
-========================================= */
+input{
+  width:100%;
 
-.login-glow {
-  position: absolute;
+  padding:13px;
+  margin-top:10px;
 
-  width: 280px;
-  height: 280px;
+  border-radius:10px;
+  border:1px solid #3b3b3b;
 
-  border-radius: 50%;
+  background:#101010;
+  color:#fff;
 
-  filter: blur(80px);
-  opacity: .55;
-
-  pointer-events: none;
+  outline:none;
 }
 
-.glow-red {
-  top: -110px;
-  left: -100px;
-
-  background: #ef4444;
+input:focus{
+  border-color:var(--gold);
 }
 
-.glow-blue {
-  right: -110px;
-  bottom: -100px;
+button{
+  width:100%;
 
-  background: #2563eb;
-}
+  padding:13px;
+  margin-top:10px;
 
-/* =========================================
-   LOGIN CARD
-========================================= */
-
-.login-card {
-  position: relative;
-  z-index: 2;
-
-  width: 100%;
-  max-width: 430px;
-
-  padding: 32px 22px;
-
-  text-align: center;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(25, 32, 58, .97),
-      rgba(8, 13, 27, .98)
-    );
-
-  border: 1px solid rgba(255, 255, 255, .12);
-
-  border-radius: 24px;
-
-  box-shadow:
-    0 25px 70px rgba(0, 0, 0, .65),
-    0 0 35px rgba(239, 68, 68, .12);
-
-  backdrop-filter: blur(15px);
-}
-
-/* =========================================
-   GAME BADGE
-========================================= */
-
-.game-badge {
-  width: 92px;
-  height: 92px;
-
-  margin: 0 auto 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  font-size: 42px;
-
-  background:
-    radial-gradient(
-      circle,
-      #1f2937,
-      #080d1b 72%
-    );
-
-  border: 2px solid #ef4444;
-
-  box-shadow:
-    0 0 15px rgba(239, 68, 68, .75),
-    0 0 40px rgba(239, 68, 68, .25);
-
-  animation: badgePulse 2.5s infinite;
-}
-
-@keyframes badgePulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* =========================================
-   BRAND TITLE
-========================================= */
-
-.brand-title {
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-wrap: wrap;
-
-  gap: 7px;
-
-  margin-bottom: 10px;
-
-  font-size: 24px;
-
-  font-weight: 900;
-
-  letter-spacing: 1px;
-}
-
-.brand-title span {
-  color: #ffffff;
-}
-
-.brand-title strong {
-  color: #ef4444;
-
-  font-size: 35px;
-
-  text-shadow:
-    0 0 10px rgba(239, 68, 68, .9),
-    0 0 25px rgba(239, 68, 68, .45);
-}
-
-/* =========================================
-   LOGIN SUBTITLE
-========================================= */
-
-.login-subtitle {
-  margin: 0 0 25px;
-
-  color: #cbd5e1;
-
-  font-size: 13px;
-
-  font-weight: bold;
-
-  letter-spacing: .7px;
-}
-
-/* =========================================
-   LOGIN FORM
-========================================= */
-
-.login-form {
-  width: 100%;
-}
-
-/* =========================================
-   LOGIN INPUT BOX
-========================================= */
-
-.input-box {
-  display: flex;
-
-  align-items: center;
-
-  width: 100%;
-  height: 54px;
-
-  margin-top: 13px;
-  padding: 0 14px;
+  border-radius:10px;
+  border:0;
 
   background:
     linear-gradient(
       135deg,
-      rgba(17, 24, 39, .96),
-      rgba(15, 23, 42, .96)
+      #ffd83d,
+      #e9a900
     );
 
-  border: 1px solid #334155;
-
-  border-radius: 13px;
-
-  transition: .2s;
+  color:#111;
+  font-weight:900;
 }
 
-.input-box span {
-  width: 30px;
-  font-size: 20px;
+button.secondary{
+  background:#2b2b2b;
+  color:#fff;
 }
 
-.input-box input {
-  width: 100%;
-  height: 100%;
-
-  margin: 0;
-  padding: 0 8px;
-
-  background: transparent;
-  border: none;
-  outline: none;
-
-  color: #fff;
-  font-size: 15px;
+button.danger{
+  background:#d22;
+  color:#fff;
 }
 
-.input-box input::placeholder {
-  color: #64748b;
-}
-
-.input-box:focus-within {
-  border-color: #ef4444;
-
-  box-shadow:
-    0 0 0 2px rgba(239, 68, 68, .12),
-    0 0 20px rgba(239, 68, 68, .18);
-}
-
-/* =========================================
-   LOGIN BUTTON
-========================================= */
-
-.login-form button {
-  width: 100%;
-  height: 52px;
-
-  margin-top: 14px;
-
-  border: none;
-  border-radius: 13px;
-
-  font-size: 15px;
-  font-weight: 900;
-
-  cursor: pointer;
-  transition: .2s;
-}
-
-.login-main-button {
-  color: #fff !important;
-
+button.success{
   background:
     linear-gradient(
       135deg,
-      #ff3b3b,
-      #dc2626,
-      #991b1b
-    ) !important;
+      #ffd83d,
+      #e9a900
+    );
+
+  color:#111;
+}
+
+.balance{
+  font-size:28px;
+  font-weight:bold;
+  color:var(--gold);
+}
+
+.muted{
+  color:#999;
+  font-size:13px;
+}
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottom-nav{
+  position:fixed;
+  z-index:50;
+
+  bottom:0;
+  left:50%;
+
+  transform:translateX(-50%);
+
+  width:100%;
+  max-width:600px;
+
+  height:82px;
+
+  background:#161616;
+
+  border-top:1px solid #303030;
+
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+
+  padding:
+    6px
+    7px
+    env(safe-area-inset-bottom,7px);
+}
+
+.nav-btn{
+  background:transparent!important;
+
+  color:#bdbdc2!important;
+
+  border:0!important;
+
+  margin:0!important;
+  padding:3px!important;
+
+  width:100%!important;
+
+  display:flex;
+  flex-direction:column;
+
+  align-items:center;
+  justify-content:center;
+
+  gap:4px;
+}
+
+.nav-btn .nav-icon{
+  font-size:24px;
+  line-height:1;
+}
+
+.nav-btn .nav-text{
+  font-size:12px;
+  font-weight:bold;
+}
+
+.nav-btn.active{
+  color:#fff!important;
+}
+
+.nav-btn.active .nav-icon{
+  background:#075fc8;
+
+  border-radius:30px;
+
+  padding:7px 22px;
 
   box-shadow:
-    0 8px 28px rgba(220, 38, 38, .35);
+    0 0 15px rgba(0,105,255,.2);
 }
 
-.login-main-button:hover {
-  box-shadow:
-    0 10px 35px rgba(239, 68, 68, .55);
+.nav-btn.active .nav-text{
+  color:#2e9cff;
 }
 
-/* =========================================
-   CREATE ACCOUNT BUTTON
-========================================= */
-
-.login-create-button {
-  color: #fff !important;
-
-  background:
-    linear-gradient(
-      135deg,
-      #2563eb,
-      #4f46e5,
-      #7c3aed
-    ) !important;
-
-  box-shadow:
-    0 8px 28px rgba(79, 70, 229, .30);
-}
-
-.login-create-button:hover {
-  box-shadow:
-    0 10px 35px rgba(79, 70, 229, .50);
-}
-
-/* =========================================
-   LOGIN MESSAGE
-========================================= */
-
-.login-message {
-  min-height: 22px;
-
-  margin-top: 15px;
-  padding: 8px;
-
-  color: #e2e8f0;
-
-  background: rgba(15, 23, 42, .75);
-
-  border-radius: 9px;
-
-  font-size: 13px;
-}
-
-/* =========================================
-   LOGIN FOOTER
-========================================= */
-
-.login-footer {
-  margin-top: 22px;
-
-  color: #64748b;
-
-  font-size: 11px;
-
-  font-weight: bold;
-
-  letter-spacing: .5px;
-}
-
-/* =========================================
+/* =========================
    MOBILE
-========================================= */
+========================= */
 
-@media (max-width: 480px) {
+@media(max-width:480px){
 
-  .app {
-    padding: 10px;
+  .elite-header{
+    padding-left:14px;
+    padding-right:14px;
   }
 
-  .login-screen {
-    min-height: calc(100vh - 20px);
-    padding: 10px;
+  .logo{
+    width:52px;
+    height:52px;
+    flex-basis:52px;
   }
 
-  .login-card {
-    padding: 28px 17px;
-    border-radius: 20px;
+  .brand-name{
+    font-size:18px;
   }
 
-  .game-badge {
-    width: 82px;
-    height: 82px;
-    font-size: 37px;
+  .brand-sub{
+    font-size:11px;
   }
 
-  .brand-title {
-    font-size: 21px;
+  .wallet-pill{
+    min-width:95px;
+    font-size:15px;
+    padding:10px 9px;
   }
 
-  .brand-title strong {
-    font-size: 30px;
+  .quick-icon{
+    width:64px;
+    height:64px;
+    font-size:27px;
   }
 
+  .quick-label{
+    font-size:12px;
   }
-    
-    * {
-      box-sizing: border-box;
-    }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: #fff;
-    }
+  .game-img{
+    height:104px;
+  }
 
-    .app {
-      max-width: 600px;
-      margin: auto;
-      padding: 16px;
-    }
+  .game-name{
+    font-size:13px;
+  }
+}
 
-    h1,
-    h2,
-    h3 {
-      margin-top: 0;
-    }
+@media(max-width:370px){
 
-    .card {
-      background: #151c31;
-      border: 1px solid #27304b;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
+  .brand-name{
+    font-size:16px;
+  }
 
-    input,
-    button {
-      width: 100%;
-      padding: 13px;
-      margin-top: 10px;
-      border-radius: 10px;
-      border: 1px solid #34405f;
-      font-size: 15px;
-    }
+  .brand-sub{
+    font-size:10px;
+  }
 
-    input {
-      background: #0e1528;
-      color: #fff;
-      outline: none;
-    }
+  .wallet-pill{
+    min-width:84px;
+    font-size:13px;
+  }
 
-    button {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
+  .quick-icon{
+    width:58px;
+    height:58px;
+  }
 
-    button.secondary {
-      background: #27304b;
-    }
+  .quick-label{
+    font-size:11px;
+  }
 
-    button.danger {
-      background: #dc2626;
-    }
-
-    button.success {
-      background: #16a34a;
-    }
-
-    button:disabled {
-      opacity: .6;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .top button {
-      width: auto;
-      margin-top: 0;
-    }
-
-    .balance {
-      font-size: 28px;
-      font-weight: bold;
-      margin-top: 8px;
-    }
-
-    .muted {
-      color: #9ca3af;
-      font-size: 13px;
-    }
-
-    .tournament {
-      background: #10172b;
-      border: 1px solid #2d3857;
-      border-radius: 12px;
-      padding: 14px;
-      margin-top: 12px;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 7px 0;
-    }
-
-    .row span:last-child {
-      font-weight: bold;
-    }
-
-    .message {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #111827;
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-
-    .price {
-      font-size: 18px;
-      font-weight: bold;
-    }
-  </style>
+  .games-grid{
+    gap:7px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-<!-- LOGIN / REGISTER -->
-  <div id="loginSection" class="login-screen">  <div class="login-glow glow-red"></div>
-  <div class="login-glow glow-blue"></div>  <div class="login-card"><div class="game-badge">
-  🎮
-</div>
+<!-- =========================
+     LOGIN
+========================= -->
 
-<div class="brand-title">
-  <span>ELITE</span>
-  <strong>FF</strong>
-  <span>TOURNAMENTS</span>
-</div>
+<div id="loginSection" class="login-screen">
 
-<p class="login-subtitle">
-  🔥 ENTER THE BATTLE • WIN BIG 🔥
-</p>
+  <div class="login-card">
 
-<div class="login-form">
+    <div class="game-badge">
+      🔥
+    </div>
 
-  <div class="input-box">
-    <span>📧</span>
-    <input
-      id="email"
-      type="email"
-      placeholder="Enter your Email"
-      autocomplete="email"
-    >
-  </div>
+    <div class="brand-title">
+      <span>ELITE</span>
+      <strong>FF</strong>
+      <span>TOURNAMENTS</span>
+    </div>
 
-  <div class="input-box">
-    <span>🔐</span>
-    <input
-      id="password"
-      type="password"
-      placeholder="Enter your Password"
-      autocomplete="current-password"
-    >
-  </div>
+    <p class="login-subtitle">
+      🔥 ENTER THE BATTLE • WIN BIG 🔥
+    </p>
 
-  <button
-    id="loginButton"
-    type="button"
-    class="login-main-button"
-  >
-    ⚡ LOGIN
-  </button>
+    <div class="login-form">
 
-  <button
-    id="signupButton"
-    type="button"
-    class="login-create-button"
-  >
-    🚀 CREATE ACCOUNT
-  </button>
+      <div class="input-box">
+        <span>📧</span>
 
-</div>
-
-<div
-  id="authMessage"
-  class="message login-message"
-></div>
-
-<div class="login-footer">
-  🏆 COMPETE &nbsp; • &nbsp; ⚔️ DOMINATE &nbsp; • &nbsp; 💰 WIN
-</div>
-
-  </div>
-</div>
-
-
-  <!-- HOME -->
-
-  <div
-    id="homeSection"
-    class="hidden"
-  >
-
-    <div class="card">
-
-      <div class="top">
-
-        <div>
-
-          <h2>👤 My Account</h2>
-
-          <div
-            id="userEmail"
-            class="muted"
-          ></div>
-
-        </div>
-
-        <button
-          id="logoutButton"
-          class="secondary"
-          type="button"
+        <input
+          id="email"
+          type="email"
+          placeholder="Enter your Email"
+          autocomplete="email"
         >
-          Logout
-        </button>
-
       </div>
 
-      <p>Wallet Balance</p>
+      <div class="input-box">
+        <span>🔐</span>
 
-      <div
-        id="walletBalance"
-        class="balance"
+        <input
+          id="password"
+          type="password"
+          placeholder="Enter your Password"
+          autocomplete="current-password"
+        >
+      </div>
+
+      <button
+        id="loginButton"
+        type="button"
+        class="login-main-button"
       >
-        ₹0.00
+        ⚡ LOGIN
+      </button>
+
+      <button
+        id="signupButton"
+        type="button"
+        class="login-create-button"
+      >
+        🚀 CREATE ACCOUNT
+      </button>
+
+    </div>
+
+    <div
+      id="authMessage"
+      class="message login-message"
+    ></div>
+
+    <div class="login-footer">
+      🏆 COMPETE • ⚔️ DOMINATE • 💰 WIN
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     MAIN APP
+========================= -->
+
+<div
+  id="homeSection"
+  class="hidden"
+>
+
+  <!-- HEADER -->
+
+  <header class="elite-header">
+
+    <div class="brand-wrap">
+
+      <div class="logo">
+        🔥
+      </div>
+
+      <div>
+
+        <div class="brand-name">
+          Elite FF Tournaments
+        </div>
+
+        <div class="brand-sub">
+          Tournament Platform
+        </div>
+
       </div>
 
     </div>
 
 
-    <!-- MENU -->
-
-    <div class="card">
+    <div class="header-right">
 
       <button
-        id="openTournamentsButton"
+        id="notificationButton"
+        class="notify"
         type="button"
       >
-        🏆 Tournaments
+        🔔
       </button>
+
+      <div
+        id="headerWallet"
+        class="wallet-pill"
+      >
+        🪙 0.00
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main class="home-content">
+
+    <!-- WELCOME -->
+
+    <div class="welcome">
+
+      <div class="welcome-icon">
+        📢
+      </div>
+
+      <div class="welcome-text">
+        Welcome to<br>
+        Elite FF Tournaments
+      </div>
+
+    </div>
+
+
+    <!-- ACCOUNT -->
+
+    <h2 class="account-title">
+      Account Details
+    </h2>
+
+
+    <div class="quick-grid">
 
       <button
-        id="openDepositButton"
+        id="profileQuick"
+        class="quick-btn"
         type="button"
       >
-        💰 Deposit
+
+        <span class="quick-icon">
+          👤
+        </span>
+
+        <span class="quick-label">
+          My Profile
+        </span>
+
       </button>
+
 
       <button
-        id="openWithdrawButton"
+        id="matchesQuick"
+        class="quick-btn"
         type="button"
       >
-        💸 Withdraw
+
+        <span class="quick-icon">
+          🎮
+        </span>
+
+        <span class="quick-label">
+          My Matches
+        </span>
+
       </button>
+
 
       <button
-        id="openMyTournamentsButton"
+        id="playersQuick"
+        class="quick-btn"
         type="button"
       >
-        🎮 My Tournaments
+
+        <span class="quick-icon">
+          📊
+        </span>
+
+        <span class="quick-label">
+          Top Players
+        </span>
+
       </button>
 
+
+      <button
+        id="contactQuick"
+        class="quick-btn"
+        type="button"
+      >
+
+        <span class="quick-icon">
+          🎧
+        </span>
+
+        <span class="quick-label">
+          Contact Us
+        </span>
+
+      </button>
+
+    </div>
+
+
+    <!-- ESPORTS -->
+
+    <h2 class="section-title">
+      Esports Games
+    </h2>
+
+
+    <div class="games-grid">
+
+      <div class="game-card">
+        <div class="game-img">
+          🔫
+        </div>
+
+        <div class="game-name">
+          BATTLE ROYALE
+        </div>
+      </div>
+
+
+      <div class="game-card">
+        <div class="game-img">
+          🎯
+        </div>
+
+        <div class="game-name">
+          CLASH SQUAD 1
+        </div>
+      </div>
+
+
+      <div class="game-card">
+        <div class="game-img">
+          ⚔️
+        </div>
+
+        <div class="game-name">
+          LONE WOLF 1
+        </div>
+      </div>
+
+
+      <div class="game-card">
+        <div class="game-img">
+          🏹
+        </div>
+
+        <div class="game-name">
+          BR SURVIVAL
+        </div>
+      </div>
+
+
+      <div class="game-card">
+        <div class="game-img">
+          🐰
+        </div>
+
+        <div class="game-name">
+          CLASH SQUAD 2
+        </div>
+      </div>
+
+
+      <div class="game-card">
+        <div class="game-img">
+          🔥
+        </div>
+
+        <div class="game-name">
+          LONE WOLF 2
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- COMPATIBILITY -->
+
+    <div
+      id="userEmail"
+      class="hidden"
+    ></div>
+
+    <div
+      id="walletBalance"
+      class="hidden"
+    >
+      ₹0.00
     </div>
 
 
@@ -957,16 +1168,18 @@ button:disabled {
 
     <div
       id="tournamentsSection"
-      class="card hidden"
+      class="section-card hidden"
     >
 
-      <div class="top">
+      <div class="section-top">
 
-        <h2>🏆 Tournaments</h2>
+        <h2>
+          🏆 Tournaments
+        </h2>
 
         <button
           id="backTournamentButton"
-          class="secondary"
+          class="secondary back-btn"
           type="button"
         >
           Back
@@ -985,16 +1198,18 @@ button:disabled {
 
     <div
       id="teamSection"
-      class="card hidden"
+      class="section-card hidden"
     >
 
-      <div class="top">
+      <div class="section-top">
 
-        <h2>👥 Register Team</h2>
+        <h2>
+          👥 Register Team
+        </h2>
 
         <button
           id="backTeamButton"
-          class="secondary"
+          class="secondary back-btn"
           type="button"
         >
           Back
@@ -1002,7 +1217,9 @@ button:disabled {
 
       </div>
 
+
       <div id="teamTournamentInfo"></div>
+
 
       <input
         id="teamName"
@@ -1010,7 +1227,10 @@ button:disabled {
         placeholder="Team Name"
       >
 
-      <h3>Player 1</h3>
+
+      <h3>
+        Player 1
+      </h3>
 
       <input
         id="player1Name"
@@ -1024,7 +1244,10 @@ button:disabled {
         placeholder="Free Fire UID"
       >
 
-      <h3>Player 2</h3>
+
+      <h3>
+        Player 2
+      </h3>
 
       <input
         id="player2Name"
@@ -1038,7 +1261,10 @@ button:disabled {
         placeholder="Free Fire UID"
       >
 
-      <h3>Player 3</h3>
+
+      <h3>
+        Player 3
+      </h3>
 
       <input
         id="player3Name"
@@ -1052,7 +1278,10 @@ button:disabled {
         placeholder="Free Fire UID"
       >
 
-      <h3>Player 4</h3>
+
+      <h3>
+        Player 4
+      </h3>
 
       <input
         id="player4Name"
@@ -1066,6 +1295,7 @@ button:disabled {
         placeholder="Free Fire UID"
       >
 
+
       <button
         id="registerTeamButton"
         class="success"
@@ -1073,6 +1303,7 @@ button:disabled {
       >
         Register Team & Join
       </button>
+
 
       <div
         id="teamMessage"
@@ -1084,104 +1315,127 @@ button:disabled {
 
     <!-- DEPOSIT -->
 
-<div
-  id="depositSection"
-  class="card hidden"
->
-
-  <div class="top">
-
-    <h2>💰 Deposit</h2>
-
-    <button
-      id="backDepositButton"
-      class="secondary"
-      type="button"
-    >
-      Back
-    </button>
-
-  </div>
-
-  <p class="muted">
-    Minimum deposit: ₹10
-  </p>
-
-  <div class="card">
-
-    <h3>💳 Payment Details</h3>
-
-    <p class="muted">
-      UPI se payment karein:
-    </p>
-
-    <p>
-      <strong>UPI ID:</strong>
-      <span>elightffarena@ptaxis</span>
-    </p>
-
-    <button
-      type="button"
-      class="success"
-      onclick="navigator.clipboard.writeText('elightffarena@ptaxis')"
-    >
-      📋 Copy UPI ID
-    </button>
-
-    <p class="muted">
-      Payment karne ke baad neeche amount aur UTR / Transaction ID enter karein.
-    </p>
-
-  </div>
-
-  <input
-    id="depositAmount"
-    type="number"
-    min="10"
-    placeholder="Amount (Minimum ₹10)"
-  >
-
-  <input
-    id="depositUTR"
-    type="text"
-    placeholder="UTR / Transaction ID"
-  >
-
-  <button
-    id="submitDepositButton"
-    type="button"
-  >
-    Submit Deposit
-  </button>
-
-  <div
-    id="depositMessage"
-    class="message"
-  ></div>
-
-</div>
-
-
-    <!-- WITHDRAW -->
-
     <div
-      id="withdrawSection"
-      class="card hidden"
+      id="depositSection"
+      class="section-card hidden"
     >
 
-      <div class="top">
+      <div class="section-top">
 
-        <h2>💸 Withdraw</h2>
+        <h2>
+          💰 Deposit
+        </h2>
 
         <button
-          id="backWithdrawButton"
-          class="secondary"
+          id="backDepositButton"
+          class="secondary back-btn"
           type="button"
         >
           Back
         </button>
 
       </div>
+
+
+      <p class="muted">
+        Minimum deposit: ₹10
+      </p>
+
+
+      <div class="card">
+
+        <h3>
+          💳 Payment Details
+        </h3>
+
+        <p class="muted">
+          UPI se payment karein:
+        </p>
+
+        <p>
+          <strong>UPI ID:</strong>
+          <span>
+            elightffarena@ptaxis
+          </span>
+        </p>
+
+
+        <button
+          type="button"
+          class="success"
+          id="copyUpiButton"
+        >
+          📋 Copy UPI ID
+        </button>
+
+
+        <p class="muted">
+          Payment ke baad amount aur
+          UTR / Transaction ID enter karein.
+        </p>
+
+      </div>
+
+
+      <input
+        id="depositAmount"
+        type="number"
+        min="10"
+        placeholder="Amount (Minimum ₹10)"
+      >
+
+
+      <input
+        id="depositUTR"
+        type="text"
+        placeholder="UTR / Transaction ID"
+      >
+
+
+      <button
+        id="submitDepositButton"
+        type="button"
+      >
+        Submit Deposit
+      </button>
+
+
+      <div
+        id="depositMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <!-- WITHDRAW -->
+
+    <div
+      id="withdrawSection"
+      class="section-card hidden"
+    >
+
+      <div class="section-top">
+
+        <h2>
+          💸 Withdraw
+        </h2>
+
+        <button
+          id="backWithdrawButton"
+          class="secondary back-btn"
+          type="button"
+        >
+          Back
+        </button>
+
+      </div>
+
+
+      <p class="muted">
+        Minimum withdrawal: ₹50
+      </p>
+
 
       <input
         id="withdrawAmount"
@@ -1190,11 +1444,13 @@ button:disabled {
         placeholder="Amount"
       >
 
+
       <input
         id="withdrawUPI"
         type="text"
         placeholder="UPI ID / Bank Details"
       >
+
 
       <button
         id="submitWithdrawButton"
@@ -1202,6 +1458,7 @@ button:disabled {
       >
         Submit Withdrawal
       </button>
+
 
       <div
         id="withdrawMessage"
@@ -1211,1805 +1468,85 @@ button:disabled {
     </div>
 
 
-    <!-- MY TOURNAMENTS -->
+    <!-- =========================================
+     MY TOURNAMENTS
+========================================= -->
 
-    <div
-      id="myTournamentsSection"
-      class="card hidden"
+<div
+  id="myTournamentsSection"
+  class="card hidden"
+>
+
+  <div class="top">
+
+    <h2>🎮 My Tournaments</h2>
+
+    <button
+      id="backMyTournamentButton"
+      class="secondary"
+      type="button"
     >
+      Back
+    </button>
 
-      <div class="top">
+  </div>
 
-        <h2>🎮 My Tournaments</h2>
-
-        <button
-          id="backMyTournamentButton"
-          class="secondary"
-          type="button"
-        >
-          Back
-        </button>
-
-      </div>
-
-      <div id="myTournamentList">
-        Loading...
-      </div>
-
-    </div>
-
+  <div id="myTournamentList">
+    Loading...
   </div>
 
 </div>
 
-<script>
 
-"use strict";
-
-console.log("USER SCRIPT STARTED");
-                
-
-    
-
-                            
-
-/* =========================================
-   SUPABASE
-========================================= */
-
-const SUPABASE_URL =
-  "https://yenhkcditizmcekjeswy.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-/* =========================================
-   HELPERS
-========================================= */
-
-const $ = function(id) {
-  return document.getElementById(id);
-};
-
-let currentUser = null;
-let selectedTournament = null;
-
-
-function money(value) {
-
-  return "₹" +
-    Number(value || 0).toFixed(2);
-
-}
-
-
-function escapeHtml(value) {
-
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-function showMessage(elementId, text) {
-
-  const element = $(elementId);
-
-  if (element) {
-    element.textContent = text || "";
-  }
-
-}
-
-
-function showOnly(sectionId) {
-
-  const sections = [
-    "tournamentsSection",
-    "teamSection",
-    "depositSection",
-    "withdrawSection",
-    "myTournamentsSection"
-  ];
-
-  sections.forEach(function(id) {
-
-    const section = $(id);
-
-    if (section) {
-      section.classList.add("hidden");
-    }
-
-  });
-
-
-  if (sectionId) {
-
-    const section = $(sectionId);
-
-    if (section) {
-      section.classList.remove("hidden");
-    }
-
-  }
-
-}
-
-
-/* =========================================
-   WALLET
-========================================= */
-
-async function ensureWallet() {
-
-  if (!currentUser) {
-    return;
-  }
-
-  const { data, error } =
-    await supabaseClient
-      .from("wallets")
-      .select("user_id")
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
-
-  if (error) {
-
-    console.error(
-      "Wallet check:",
-      error
-    );
-
-    return;
-  }
-
-
-  if (!data) {
-
-    const { error: insertError } =
-      await supabaseClient
-        .from("wallets")
-        .insert({
-          user_id: currentUser.id,
-          balance: 0
-        });
-
-    if (insertError) {
-
-      console.error(
-        "Wallet create:",
-        insertError
-      );
-
-    }
-
-  }
-
-}
-
-
-async function loadWallet() {
-
-  if (!currentUser) {
-    return;
-  }
-
-  const { data, error } =
-    await supabaseClient
-      .from("wallets")
-      .select("balance")
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
-
-
-  if (error) {
-
-    console.error(
-      "Wallet load:",
-      error
-    );
-
-    $("walletBalance").textContent =
-      "₹0.00";
-
-    return;
-
-  }
-
-
-  $("walletBalance").textContent =
-    money(data?.balance || 0);
-
-}
-
-
-/* =========================================
-   START APP
-========================================= */
-
-async function startApp() {
-
-  console.log("START APP");
-
-  const { data, error } =
-    await supabaseClient.auth.getUser();
-
-
-  if (error) {
-
-    console.error(
-      "Get user error:",
-      error
-    );
-
-    return;
-
-  }
-
-
-  currentUser =
-    data?.user || null;
-
-
-  if (!currentUser) {
-
-    $("loginSection")
-      .classList
-      .remove("hidden");
-
-    $("homeSection")
-      .classList
-      .add("hidden");
-
-    return;
-
-  }
-
-
-  $("loginSection")
-    .classList
-    .add("hidden");
-
-  $("homeSection")
-    .classList
-    .remove("hidden");
-
-
-  $("userEmail").textContent =
-    currentUser.email || "";
-
-
-  await ensureWallet();
-
-  await loadWallet();
-
-}
-
-
-/* =========================================
-   LOGIN
-========================================= */
-
-$("loginButton").addEventListener(
-  "click",
-  async function() {
-
-    console.log("LOGIN BUTTON CLICKED");
-
-    const email =
-      $("email").value.trim();
-
-    const password =
-      $("password").value;
-
-
-    if (!email || !password) {
-
-      showMessage(
-        "authMessage",
-        "Enter email and password."
-      );
-
-      return;
-
-    }
-
-
-    showMessage(
-      "authMessage",
-      "⏳ Logging in..."
-    );
-
-
-    const { error } =
-      await supabaseClient.auth
-        .signInWithPassword({
-
-          email: email,
-          password: password
-
-        });
-
-
-    if (error) {
-
-      console.error(
-        "Login error:",
-        error
-      );
-
-      showMessage(
-        "authMessage",
-        "❌ " + error.message
-      );
-
-      return;
-
-    }
-
-
-    showMessage(
-      "authMessage",
-      "✅ Login successful..."
-    );
-
-
-    await startApp();
-
-  }
-);
-
-
-/* =========================================
-   CREATE ACCOUNT
-========================================= */
-
-$("signupButton").addEventListener(
-  "click",
-  async function() {
-
-    console.log("SIGNUP BUTTON CLICKED");
-
-    const email =
-      $("email").value.trim();
-
-    const password =
-      $("password").value;
-
-
-    if (!email || !password) {
-
-      showMessage(
-        "authMessage",
-        "Enter email and password first."
-      );
-
-      return;
-
-    }
-
-
-    if (password.length < 6) {
-
-      showMessage(
-        "authMessage",
-        "Password must be at least 6 characters."
-      );
-
-      return;
-
-    }
-
-
-    showMessage(
-      "authMessage",
-      "⏳ Creating account..."
-    );
-
-
-    const { data, error } =
-      await supabaseClient.auth
-        .signUp({
-
-          email: email,
-          password: password
-
-        });
-
-
-    if (error) {
-
-      console.error(
-        "Signup error:",
-        error
-      );
-
-      showMessage(
-        "authMessage",
-        "❌ " + error.message
-      );
-
-      return;
-
-    }
-
-
-    if (data?.session) {
-
-      currentUser =
-        data.user;
-
-      await startApp();
-
-      return;
-
-    }
-
-
-    showMessage(
-      "authMessage",
-      "✅ Account created. Check your email to verify."
-    );
-
-  }
-);
-
-
-/* =========================================
-   TOURNAMENTS
-========================================= */
-
-async function loadTournaments() {
-
-  $("tournamentList").innerHTML =
-    "⏳ Loading tournaments...";
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("tournaments")
-      .select("*")
-      .order(
-        "starts_at",
-        {
-          ascending: true
-        }
-      );
-
-
-  if (error) {
-
-    $("tournamentList").innerHTML =
-      "❌ Error: " +
-      escapeHtml(error.message);
-
-    return;
-
-  }
-
-
-  if (!data || data.length === 0) {
-
-    $("tournamentList").innerHTML =
-      "No tournaments available.";
-
-    return;
-
-  }
-
-
-  $("tournamentList").innerHTML =
-    data.map(function(t) {
-
-      return `
-
-        <div class="tournament">
-
-          <h3>
-            🏆 ${escapeHtml(
-              t.name || "Tournament"
-            )}
-          </h3>
-
-          <div class="row">
-            <span>Sport</span>
-            <span>
-              ${escapeHtml(
-                t.sport || "-"
-              )}
-            </span>
-          </div>
-
-          <div class="row">
-            <span>Entry Fee</span>
-            <span class="price">
-              ${money(t.entry_fee)}
-            </span>
-          </div>
-
-          <div class="row">
-            <span>Prize Pool</span>
-            <span>
-              ${money(t.prize_pool)}
-            </span>
-          </div>
-
-          <div class="row">
-            <span>Max Teams</span>
-            <span>
-              ${escapeHtml(
-                t.max_teams || "-"
-              )}
-            </span>
-          </div>
-
-          <div class="row">
-            <span>Status</span>
-            <span>
-              ${escapeHtml(
-                t.status || "-"
-              )}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            class="joinButton"
-            data-id="${escapeHtml(t.id)}"
-          >
-            Register Team
-          </button>
-
-        </div>
-
-      `;
-
-    }).join("");
-
-
-  document
-    .querySelectorAll(".joinButton")
-    .forEach(function(button) {
-
-      button.addEventListener(
-        "click",
-        function() {
-
-          openTeamRegistration(
-            button.dataset.id
-          );
-
-        }
-      );
-
-    });
-
-}
-
-
-/* =========================================
-   OPEN TEAM REGISTRATION
-========================================= */
-
-async function openTeamRegistration(
-  tournamentId
-) {
-
-  const { data, error } =
-    await supabaseClient
-      .from("tournaments")
-      .select("*")
-      .eq("id", tournamentId)
-      .single();
-
-
-  if (error) {
-
-    alert(error.message);
-
-    return;
-
-  }
-
-
-  selectedTournament =
-    data;
-
-
-  $("teamTournamentInfo").innerHTML = `
-
-    <div class="tournament">
-
-      <h3>
-        🏆 ${escapeHtml(data.name)}
-      </h3>
-
-      <div class="row">
-        <span>Entry Fee</span>
-        <span>
-          ${money(data.entry_fee)}
-        </span>
-      </div>
-
-      <div class="row">
-        <span>Prize Pool</span>
-        <span>
-          ${money(data.prize_pool)}
-        </span>
-      </div>
-
-    </div>
-
-  `;
-
-
-  showOnly("teamSection");
-
-}
-
-
-/* =========================================
-   REGISTER TEAM
-========================================= */
-
-$("registerTeamButton").addEventListener(
-  "click",
-  async function() {
-
-    if (!currentUser) {
-
-      showMessage(
-        "teamMessage",
-        "Please login first."
-      );
-
-      return;
-
-    }
-
-
-    if (!selectedTournament) {
-
-      showMessage(
-        "teamMessage",
-        "Tournament not selected."
-      );
-
-      return;
-
-    }
-
-
-    const teamName =
-      $("teamName").value.trim();
-
-
-    if (!teamName) {
-
-      showMessage(
-        "teamMessage",
-        "Enter team name."
-      );
-
-      return;
-
-    }
-
-
-    const players = [];
-
-
-    for (
-      let i = 1;
-      i <= 4;
-      i++
-    ) {
-
-      const name =
-        $("player" + i + "Name")
-          .value
-          .trim();
-
-      const uid =
-        $("player" + i + "UID")
-          .value
-          .trim();
-
-
-      if (!name || !uid) {
-
-        showMessage(
-          "teamMessage",
-          "Please fill all 4 players."
-        );
-
-        return;
-
-      }
-
-
-      players.push({
-        name: name,
-        uid: uid
-      });
-
-    }
-
-
-    showMessage(
-      "teamMessage",
-      "⏳ Checking wallet..."
-    );
-
-
-    const {
-      data: wallet,
-      error: walletError
-    } =
-      await supabaseClient
-        .from("wallets")
-        .select("balance")
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .maybeSingle();
-
-
-    if (walletError) {
-
-      showMessage(
-        "teamMessage",
-        "Wallet Error: " +
-        walletError.message
-      );
-
-      return;
-
-    }
-
-
-    const balance =
-      Number(wallet?.balance || 0);
-
-
-    const entryFee =
-      Number(
-        selectedTournament.entry_fee || 0
-      );
-
-
-    if (balance < entryFee) {
-
-      showMessage(
-        "teamMessage",
-        "❌ Insufficient wallet balance."
-      );
-
-      return;
-
-    }
-
-
-    /* CHECK EXISTING REGISTRATION */
-
-    const {
-      data: existing,
-      error: existingError
-    } =
-      await supabaseClient
-        .from("registrations")
-        .select("id")
-        .eq(
-          "tournament_id",
-          selectedTournament.id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .maybeSingle();
-
-
-    if (existingError) {
-
-      showMessage(
-        "teamMessage",
-        "Registration Check Error: " +
-        existingError.message
-      );
-
-      return;
-
-    }
-
-
-    if (existing) {
-
-      showMessage(
-        "teamMessage",
-        "❌ You already registered for this tournament."
-      );
-
-      return;
-
-    }
-
-
-    /* CREATE TEAM */
-
-    const {
-      data: team,
-      error: teamError
-    } =
-      await supabaseClient
-        .from("teams")
-        .insert({
-
-          tournament_id:
-            selectedTournament.id,
-
-          captain_id:
-            currentUser.id,
-
-          name:
-            teamName
-
-        })
-        .select()
-        .single();
-
-
-    if (teamError) {
-
-      showMessage(
-        "teamMessage",
-        "Team Error: " +
-        teamError.message
-      );
-
-      return;
-
-    }
-
-
-    /* CREATE REGISTRATION */
-
-    const {
-      data: registration,
-      error: registrationError
-    } =
-      await supabaseClient
-        .from("registrations")
-        .insert({
-
-          tournament_id:
-            selectedTournament.id,
-
-          team_id:
-            team.id,
-
-          user_id:
-            currentUser.id,
-
-          status:
-            "confirmed"
-
-        })
-        .select()
-        .single();
-
-
-    if (registrationError) {
-
-      showMessage(
-        "teamMessage",
-        "Registration Error: " +
-        registrationError.message
-      );
-
-      return;
-
-    }
-
-
-    /* ADD PLAYERS */
-
-    const playerRows =
-      players.map(function(player) {
-
-        return {
-
-          team_id:
-            team.id,
-
-          name:
-            player.name,
-
-          team_name:
-            teamName,
-
-          tournament_id:
-            selectedTournament.id,
-
-          uid:
-            player.uid,
-
-          status:
-            "approved"
-
-        };
-
-      });
-
-
-    const {
-      error: playersError
-    } =
-      await supabaseClient
-        .from("players")
-        .insert(playerRows);
-
-
-    if (playersError) {
-
-      showMessage(
-        "teamMessage",
-        "Players Error: " +
-        playersError.message
-      );
-
-      return;
-
-    }
-
-
-    /* PAYMENT RECORD */
-
-    const {
-      error: paymentError
-    } =
-      await supabaseClient
-        .from("payments")
-        .insert({
-
-          user_id:
-            currentUser.id,
-
-          tournament_id:
-            selectedTournament.id,
-
-          registration_id:
-            registration.id,
-
-          amount:
-            entryFee,
-
-          status:
-            "completed"
-
-        });
-
-
-    if (paymentError) {
-
-      console.error(
-        "Payment record error:",
-        paymentError
-      );
-
-    }
-
-
-    /* DEDUCT WALLET */
-
-    const newBalance =
-      balance - entryFee;
-
-
-    const {
-      error: balanceError
-    } =
-      await supabaseClient
-        .from("wallets")
-        .update({
-
-          balance:
-            newBalance
-
-        })
-        .eq(
-          "user_id",
-          currentUser.id
-        );
-
-
-    if (balanceError) {
-
-      showMessage(
-        "teamMessage",
-        "Wallet Update Error: " +
-        balanceError.message
-      );
-
-      return;
-
-    }
-
-
-    await loadWallet();
-
-
-    showMessage(
-      "teamMessage",
-      "✅ Team registered successfully!"
-    );
-
-
-    setTimeout(
-      function() {
-
-        showOnly(null);
-
-      },
-      1500
-    );
-
-  }
-);
-
-
-/* =========================================
-   DEPOSIT
-========================================= */
-
-$("openDepositButton").addEventListener(
-  "click",
-  function() {
-
-    showOnly("depositSection");
-
-    showMessage(
-      "depositMessage",
-      ""
-    );
-
-  }
-);
-
-
-$("backDepositButton").addEventListener(
-  "click",
-  function() {
-
-    showOnly(null);
-
-  }
-);
-
-
-$("submitDepositButton").addEventListener(
-  "click",
-  async function() {
-
-    if (!currentUser) {
-
-      showMessage(
-        "depositMessage",
-        "Please login first."
-      );
-
-      return;
-
-    }
-
-
-    const amount =
-      Number(
-        $("depositAmount").value
-      );
-
-
-    const utr =
-      $("depositUTR")
-        .value
-        .trim();
-
-
-    /* =========================
-       MINIMUM DEPOSIT
-    ========================= */
-
-    if (!amount || amount < 10) {
-
-      showMessage(
-        "depositMessage",
-        "❌ Minimum deposit amount is ₹10."
-      );
-
-      return;
-
-    }
-
-
-    /* =========================
-       UTR CHECK
-    ========================= */
-
-    if (!utr) {
-
-      showMessage(
-        "depositMessage",
-        "❌ Enter UTR / Transaction ID."
-      );
-
-      return;
-
-    }
-
-
-    showMessage(
-      "depositMessage",
-      "⏳ Submitting deposit..."
-    );
-
-
-    /* =========================
-       SAVE DEPOSIT REQUEST
-    ========================= */
-
-    const { error } =
-      await supabaseClient
-        .from("deposits")
-        .insert({
-
-          user_id:
-            currentUser.id,
-
-          amount:
-            amount,
-
-          transaction_id:
-            utr,
-
-          status:
-            "pending"
-
-        });
-
-
-    if (error) {
-
-      showMessage(
-        "depositMessage",
-        "❌ Deposit Error: " +
-        error.message
-      );
-
-      return;
-
-    }
-
-
-    /* =========================
-       CLEAR FORM
-    ========================= */
-
-    $("depositAmount").value = "";
-
-    $("depositUTR").value = "";
-
-
-    showMessage(
-      "depositMessage",
-      "✅ Deposit request submitted. Admin will verify it."
-    );
-
-  }
-);
-
-/* =========================================
-   WITHDRAW
-========================================= */
-
-$("openWithdrawButton").addEventListener(
-  "click",
-  function() {
-
-    showOnly("withdrawSection");
-
-    showMessage(
-      "withdrawMessage",
-      ""
-    );
-
-  }
-);
-
-
-$("backWithdrawButton").addEventListener(
-  "click",
-  function() {
-
-    showOnly(null);
-
-  }
-);
-
-
-$("submitWithdrawButton").addEventListener(
-  "click",
-  async function() {
-
-    if (!currentUser) {
-
-      showMessage(
-        "withdrawMessage",
-        "Please login first."
-      );
-
-      return;
-
-    }
-
-
-    const amount =
-      Number(
-        $("withdrawAmount").value
-      );
-
-
-    const details =
-      $("withdrawUPI")
-        .value
-        .trim();
-
-
-    /* MINIMUM ₹50 */
-
-    if (!amount || amount <= 0) {
-
-      showMessage(
-        "withdrawMessage",
-        "Enter a valid amount."
-      );
-
-      return;
-
-    }
-
-
-    if (amount < 50) {
-
-      showMessage(
-        "withdrawMessage",
-        "❌ Minimum withdrawal amount is ₹50."
-      );
-
-      return;
-
-    }
-
-
-    if (!details) {
-
-      showMessage(
-        "withdrawMessage",
-        "Enter UPI ID / Bank Details."
-      );
-
-      return;
-
-    }
-
-
-    /* GET WALLET */
-
-    const {
-      data: wallet,
-      error: walletError
-    } =
-      await supabaseClient
-        .from("wallets")
-        .select("balance")
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .maybeSingle();
-
-
-    if (walletError) {
-
-      showMessage(
-        "withdrawMessage",
-        "Wallet Error: " +
-        walletError.message
-      );
-
-      return;
-
-    }
-
-
-    const balance =
-      Number(wallet?.balance || 0);
-
-
-    /* CHECK BALANCE */
-
-    if (balance < amount) {
-
-      showMessage(
-        "withdrawMessage",
-        "❌ Insufficient wallet balance."
-      );
-
-      return;
-
-    }
-
-
-    showMessage(
-      "withdrawMessage",
-      "⏳ Submitting withdrawal..."
-    );
-
-
-    /* CREATE WITHDRAWAL REQUEST */
-
-    const {
-      error: withdrawalError
-    } =
-      await supabaseClient
-        .from("withdrawals")
-        .insert({
-
-          user_id:
-            currentUser.id,
-
-          amount:
-            amount,
-
-          payment_details:
-            details,
-
-          status:
-            "pending"
-
-        });
-
-
-    if (withdrawalError) {
-
-      showMessage(
-        "withdrawMessage",
-        "❌ Withdrawal Error: " +
-        withdrawalError.message
-      );
-
-      return;
-
-    }
-
-
-    /* DEDUCT WALLET BALANCE */
-
-    const newBalance =
-      balance - amount;
-
-
-    const {
-  data: updatedWallet,
-  error: balanceError
-} =
-  await supabaseClient
-    .from("wallets")
-    .update({
-      balance: newBalance
-    })
-    .eq(
-      "user_id",
-      currentUser.id
-    )
-    .select("balance")
-    .maybeSingle();
-
-
-if (balanceError) {
-
-  console.error(
-    "Balance Update Error:",
-    balanceError
-  );
-
-  showMessage(
-    "withdrawMessage",
-    "❌ Balance Update Error: " +
-    balanceError.message
-  );
-
-  return;
-
-}
-
-
-if (!updatedWallet) {
-
-  showMessage(
-    "withdrawMessage",
-    "❌ Wallet was not updated. Check wallet user_id."
-  );
-
-  return;
-
-}
-
-
-    /* CLEAR INPUTS */
-
-    $("withdrawAmount").value = "";
-
-    $("withdrawUPI").value = "";
-
-
-    /* SUCCESS */
-
-    showMessage(
-      "withdrawMessage",
-      "✅ Withdrawal request submitted. ₹" +
-      amount.toFixed(2) +
-      " deducted from your wallet.",
-      true
-    );
-
-  }
-);
-    
-
-
-
-
-
-    
-      
-
-
-/* =========================================
-   MY TOURNAMENTS
-========================================= */
-
-$("openMyTournamentsButton").addEventListener(
-  "click",
-  async function() {
-
-    showOnly(
-      "myTournamentsSection"
-    );
-
-    await loadMyTournaments();
-
-  }
-);
-
-
-$("backMyTournamentButton").addEventListener(
-  "click",
-  function() {
-
-    showOnly(null);
-
-  }
-);
-
-
-async function loadMyTournaments() {
-
-  if (!currentUser) {
-
-    $("myTournamentList").textContent =
-      "Please login first.";
-
-    return;
-
-  }
-
-
-  $("myTournamentList").textContent =
-    "⏳ Loading your tournaments...";
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("registrations")
-      .select(`
-        id,
-        tournament_id,
-        team_id,
-        user_id,
-        status,
-        created_at,
-        tournaments (
-          name,
-          sport,
-          entry_fee,
-          prize_pool,
-          starts_at
-        ),
-        teams (
-          name
-        )
-      `)
-      .eq(
-        "user_id",
-        currentUser.id
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    $("myTournamentList").textContent =
-      "❌ Error: " +
-      error.message;
-
-    return;
-
-  }
-
-
-  if (!data || data.length === 0) {
-
-    $("myTournamentList").textContent =
-      "You haven't registered for any tournaments yet.";
-
-    return;
-
-  }
-
-
-  $("myTournamentList").innerHTML =
-    data.map(function(registration) {
-
-      const tournament =
-  registration.tournaments || {};
-
-const team =
-  registration.teams || {};
-
-
-return `
-
-  <div class="tournament">
-
-    <h3>
-      🏆 ${escapeHtml(
-        tournament.name || "Tournament"
-      )}
-    </h3>
-
-    <div class="row">
-      <span>Sport</span>
-      <span>
-        ${escapeHtml(
-          tournament.sport || "-"
-        )}
-      </span>
-    </div>
-
-    <div class="row">
-      <span>Team</span>
-      <span>
-        ${escapeHtml(
-          team.name || "-"
-        )}
-      </span>
-    </div>
-
-    <div class="row">
-      <span>Entry Fee</span>
-      <span>
-        ${money(
-          tournament.entry_fee
-        )}
-      </span>
-    </div>
-
-    <div class="row">
-      <span>Prize Pool</span>
-      <span>
-        ${money(
-          tournament.prize_pool
-        )}
-      </span>
-    </div>
-
-    <div class="row">
-      <span>Status</span>
-      <span>
-        ${escapeHtml(
-          registration.status || "-"
-        )}
-      </span>
-    </div>
-
-    <div class="row">
-      <span>Registered</span>
-      <span>
-        ${
-          registration.created_at
-            ? new Date(
-                registration.created_at
-              ).toLocaleString()
-            : "-"
-        }
-      </span>
-    </div>
-
-  </div>
-
-`;
-
-}).join("");
-
-}
-
-
-/* =========================================
-   TOURNAMENTS BUTTON
-========================================= */
-
-$("openTournamentsButton")
-  .addEventListener(
-    "click",
-    async function() {
-
-      showOnly(
-        "tournamentsSection"
-      );
-
-      await loadTournaments();
-
-    }
-  );
-
-
-/* =========================================
-   BACK TO HOME FROM TOURNAMENTS
-========================================= */
-
-$("backTournamentButton").addEventListener(
-  "click",
-  function() {
-
-    showOnly(null);
-
-  }
-);
-
-
-/* =========================================
-   BACK TO TOURNAMENTS FROM TEAM
-========================================= */
-
-$("backTeamButton").addEventListener(
-  "click",
-  async function() {
-
-    showOnly("tournamentsSection");
-
-    await loadTournaments();
-
-  }
-);
-
-
-/* =========================================
-   LOGOUT
-========================================= */
-
-$("logoutButton").addEventListener(
-  "click",
-  async function() {
-
-    const { error } =
-      await supabaseClient.auth.signOut();
-
-    if (error) {
-
-      alert(error.message);
-
-      return;
-
-    }
-
-    currentUser = null;
-
-    location.reload();
-
-  }
-);
-
-/* =========================================
-   CHECK SESSION
-========================================= */
-
-async function checkSession() {
-
-  console.log("CHECKING SESSION");
-
-  const {
-    data: sessionData,
-    error
-  } = await supabaseClient.auth.getSession();
-
-  if (error) {
-
-    console.error(
-      "Session Error:",
-      error
-    );
-
-    $("loginSection")
-      .classList
-      .remove("hidden");
-
-    $("homeSection")
-      .classList
-      .add("hidden");
-
-    return;
-  }
-
-
-  if (sessionData?.session) {
-
-    console.log("SESSION FOUND");
-
-    await startApp();
-
-  } else {
-
-    console.log("NO SESSION");
-
-    $("loginSection")
-      .classList
-      .remove("hidden");
-
-    $("homeSection")
-      .classList
-      .add("hidden");
-
-  }
-
-}
-
-
-/* =========================================
-   START
-========================================= */
-
-checkSession();
-  </script>
+<!-- =========================================
+     HOME BOTTOM NAVIGATION
+========================================= -->
+
+<div class="bottom-nav">
+
+  <button
+    type="button"
+    onclick="showOnly(null)"
+  >
+    <span>🏠</span>
+    <small>Home</small>
+  </button>
+
+  <button
+    type="button"
+    onclick="document.getElementById('openTournamentsButton').click()"
+  >
+    <span>🎮</span>
+    <small>Matches</small>
+  </button>
+
+  <button
+    type="button"
+    onclick="document.getElementById('openDepositButton').click()"
+  >
+    <span>💰</span>
+    <small>Earn</small>
+  </button>
+
+  <button
+    type="button"
+    onclick="document.getElementById('openWithdrawButton').click()"
+  >
+    <span>👛</span>
+    <small>Wallet</small>
+  </button>
+
+  <button
+    type="button"
+    onclick="document.getElementById('openMyTournamentsButton').click()"
+  >
+    <span>👤</span>
+    <small>Profile</small>
+  </button>
+
+</div>
+
+</div>
 
 </body>
 </html>
