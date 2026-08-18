@@ -1909,7 +1909,150 @@ function showOnly(sectionId) {
   }
 }
 
+/* =========================================================
+   APP NAVIGATION
+========================================================= */
 
+function showOnly(sectionId) {
+
+  const sections = [
+    "tournamentsSection",
+    "teamSection",
+    "depositSection",
+    "withdrawSection",
+    "myTournamentsSection"
+  ];
+
+  sections.forEach(function(id) {
+
+    const section = document.getElementById(id);
+
+    if (section) {
+      section.classList.add("hidden");
+    }
+
+  });
+
+  // Home button
+  if (!sectionId) {
+    return;
+  }
+
+  const target = document.getElementById(sectionId);
+
+  if (target) {
+    target.classList.remove("hidden");
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+}
+
+
+/* =========================================================
+   TOURNAMENTS
+========================================================= */
+
+const openTournamentsButton =
+  document.getElementById("openTournamentsButton");
+
+if (openTournamentsButton) {
+
+  openTournamentsButton.addEventListener("click", function() {
+
+    showOnly("tournamentsSection");
+
+  });
+
+}
+
+
+/* =========================================================
+   DEPOSIT / EARN
+========================================================= */
+
+const openDepositButton =
+  document.getElementById("openDepositButton");
+
+if (openDepositButton) {
+
+  openDepositButton.addEventListener("click", function() {
+
+    showOnly("depositSection");
+
+  });
+
+}
+
+
+/* =========================================================
+   WITHDRAW / WALLET
+========================================================= */
+
+const openWithdrawButton =
+  document.getElementById("openWithdrawButton");
+
+if (openWithdrawButton) {
+
+  openWithdrawButton.addEventListener("click", function() {
+
+    showOnly("withdrawSection");
+
+  });
+
+}
+
+
+/* =========================================================
+   MY TOURNAMENTS / PROFILE
+========================================================= */
+
+const openMyTournamentsButton =
+  document.getElementById("openMyTournamentsButton");
+
+if (openMyTournamentsButton) {
+
+  openMyTournamentsButton.addEventListener("click", function() {
+
+    showOnly("myTournamentsSection");
+
+  });
+
+}
+
+
+/* =========================================================
+   BACK BUTTONS
+========================================================= */
+
+document.getElementById("backTournamentButton")
+?.addEventListener("click", function() {
+  showOnly(null);
+});
+
+document.getElementById("backDepositButton")
+?.addEventListener("click", function() {
+  showOnly(null);
+});
+
+document.getElementById("backWithdrawButton")
+?.addEventListener("click", function() {
+  showOnly(null);
+});
+
+document.getElementById("backMyTournamentButton")
+?.addEventListener("click", function() {
+  showOnly(null);
+});
+
+document.getElementById("backTeamButton")
+?.addEventListener("click", function() {
+  showOnly("tournamentsSection");
+});
+
+   
 /* =========================================================
    LOGIN
 ========================================================= */
