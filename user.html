@@ -1908,7 +1908,133 @@ function showOnly(sectionId) {
     home.classList.remove("hidden");
   }
 }
+/* =========================================================
+   LOGIN
+========================================================= */
 
+const loginButton = $("loginButton");
+
+if (loginButton) {
+
+  loginButton.addEventListener("click", async function () {
+
+    const email = $("email")?.value.trim();
+    const password = $("password")?.value;
+
+    setMessage("authMessage", "");
+
+    if (!email || !password) {
+      setMessage(
+        "authMessage",
+        "Email aur password dono enter karein."
+      );
+      return;
+    }
+
+    loginButton.disabled = true;
+    loginButton.textContent = "⏳ LOGINNING...";
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+    loginButton.disabled = false;
+    loginButton.textContent = "⚡ LOGIN";
+
+    if (error) {
+      setMessage(
+        "authMessage",
+        "❌ " + error.message
+      );
+      return;
+    }
+
+    currentUser = data.user;
+
+    openApp(currentUser);
+
+  });
+
+}
+/* =========================================================
+   CREATE ACCOUNT
+========================================================= */
+
+const signupButton = $("signupButton");
+
+if (signupButton) {
+
+  signupButton.addEventListener("click", async function () {
+
+    const email = $("email")?.value.trim();
+    const password = $("password")?.value;
+
+    setMessage("authMessage", "");
+
+    if (!email || !password) {
+      setMessage(
+        "authMessage",
+        "Account banane ke liye email aur password enter karein."
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage(
+        "authMessage",
+        "Password kam se kam 6 characters ka hona chahiye."
+      );
+      return;
+    }
+
+    signupButton.disabled = true;
+    signupButton.textContent = "⏳ CREATING...";
+
+    const { data, error } =
+      await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+      });
+
+    signupButton.disabled = false;
+    signupButton.textContent = "🚀 CREATE ACCOUNT";
+
+    if (error) {
+      setMessage(
+        "authMessage",
+        "❌ " + error.message
+      );
+      return;
+    }
+
+    /*
+      Agar Supabase mein email confirmation ON hai,
+      to session null ho sakta hai aur user ko
+      email verify karni hogi.
+    */
+
+    if (!data.session) {
+
+      setMessage(
+        "authMessage",
+        "✅ Account create ho gaya. Apni email verify karein, phir LOGIN karein."
+      );
+
+      return;
+    }
+
+    currentUser = data.user;
+
+    openApp(currentUser);
+
+  });
+
+}
+
+   
+   
 /* =========================================================
    APP NAVIGATION
 ========================================================= */
@@ -2053,132 +2179,10 @@ document.getElementById("backTeamButton")
 });
 
    
-/* =========================================================
-   LOGIN
-========================================================= */
-
-const loginButton = $("loginButton");
-
-if (loginButton) {
-
-  loginButton.addEventListener("click", async function () {
-
-    const email = $("email")?.value.trim();
-    const password = $("password")?.value;
-
-    setMessage("authMessage", "");
-
-    if (!email || !password) {
-      setMessage(
-        "authMessage",
-        "Email aur password dono enter karein."
-      );
-      return;
-    }
-
-    loginButton.disabled = true;
-    loginButton.textContent = "⏳ LOGINNING...";
-
-    const { data, error } =
-      await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-    loginButton.disabled = false;
-    loginButton.textContent = "⚡ LOGIN";
-
-    if (error) {
-      setMessage(
-        "authMessage",
-        "❌ " + error.message
-      );
-      return;
-    }
-
-    currentUser = data.user;
-
-    openApp(currentUser);
-
-  });
-
-}
 
 
-/* =========================================================
-   CREATE ACCOUNT
-========================================================= */
 
-const signupButton = $("signupButton");
 
-if (signupButton) {
-
-  signupButton.addEventListener("click", async function () {
-
-    const email = $("email")?.value.trim();
-    const password = $("password")?.value;
-
-    setMessage("authMessage", "");
-
-    if (!email || !password) {
-      setMessage(
-        "authMessage",
-        "Account banane ke liye email aur password enter karein."
-      );
-      return;
-    }
-
-    if (password.length < 6) {
-      setMessage(
-        "authMessage",
-        "Password kam se kam 6 characters ka hona chahiye."
-      );
-      return;
-    }
-
-    signupButton.disabled = true;
-    signupButton.textContent = "⏳ CREATING...";
-
-    const { data, error } =
-      await supabaseClient.auth.signUp({
-        email: email,
-        password: password
-      });
-
-    signupButton.disabled = false;
-    signupButton.textContent = "🚀 CREATE ACCOUNT";
-
-    if (error) {
-      setMessage(
-        "authMessage",
-        "❌ " + error.message
-      );
-      return;
-    }
-
-    /*
-      Agar Supabase mein email confirmation ON hai,
-      to session null ho sakta hai aur user ko
-      email verify karni hogi.
-    */
-
-    if (!data.session) {
-
-      setMessage(
-        "authMessage",
-        "✅ Account create ho gaya. Apni email verify karein, phir LOGIN karein."
-      );
-
-      return;
-    }
-
-    currentUser = data.user;
-
-    openApp(currentUser);
-
-  });
-
-}
 
 
 /* =========================================================
