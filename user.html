@@ -1908,68 +1908,75 @@ function showOnly(sectionId) {
     home.classList.remove("hidden");
   }
 }
-    /* =====================================================
+   /* =====================================================
    LOGIN
 ===================================================== */
 
 const loginButton = document.getElementById("loginButton");
 
-loginButton.addEventListener("click", async function () {
+if (loginButton) {
+  loginButton.addEventListener("click", async function () {
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const message = document.getElementById("authMessage");
+    const email =
+      document.getElementById("email").value.trim();
 
-  message.textContent = "⏳ Login ho raha hai...";
+    const password =
+      document.getElementById("password").value;
 
-  if (!email || !password) {
-    message.textContent =
-      "⚠️ Email aur password dono enter karein.";
-    return;
-  }
+    const message =
+      document.getElementById("authMessage");
 
-  try {
+    message.textContent = "⏳ Login ho raha hai...";
 
-    const result =
-      await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-    console.log("LOGIN RESULT:", result);
-
-    if (result.error) {
+    if (!email || !password) {
       message.textContent =
-        "❌ " + result.error.message;
+        "⚠️ Email aur password dono enter karein.";
       return;
     }
 
-    currentUser = result.data.user;
+    try {
 
-    message.textContent = "✅ Login successful!";
+      const result =
+        await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
 
-    document
-      .getElementById("loginSection")
-      .classList.add("hidden");
+      console.log("LOGIN RESULT:", result);
 
-    document
-      .getElementById("homeSection")
-      .classList.remove("hidden");
+      if (result.error) {
+        message.textContent =
+          "❌ " + result.error.message;
+        return;
+      }
 
-    document.getElementById("userEmail").textContent =
-      currentUser.email;
+      currentUser = result.data.user;
 
-  } catch (error) {
+      message.textContent =
+        "✅ Login successful!";
 
-    console.error("LOGIN ERROR:", error);
+      document
+        .getElementById("loginSection")
+        .classList.add("hidden");
 
-    message.textContent =
-      "❌ " + error.message;
+      document
+        .getElementById("homeSection")
+        .classList.remove("hidden");
 
-  }
+      document.getElementById("userEmail").textContent =
+        currentUser.email;
 
-}); 
+    } catch (error) {
 
+      console.error("LOGIN ERROR:", error);
+
+      message.textContent =
+        "❌ " + error.message;
+
+    }
+
+  });
+} 
    
 /* =========================================================
    CREATE ACCOUNT
