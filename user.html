@@ -1836,37 +1836,531 @@ button:disabled {
 
 "use strict";
 
-/* =========================================
-   LOGOUT
-========================================= */
+/* =========================================================
+   SUPABASE
+========================================================= */
 
-const logoutButton = document.getElementById("logoutButton");
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
 
-if (logoutButton) {
-  logoutButton.addEventListener("click", async function () {
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
-    const { error } =
-      await supabaseClient.auth.signOut();
+let currentUser = null;
 
-    if (error) {
-      alert(error.message);
-      return;
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function setMessage(id, message) {
+  const el = $(id);
+
+  if (el) {
+    el.textContent = message || "";
+  }
+}
+
+function showSection(id) {
+  const sections = [
+    "tournamentsSection",
+    "teamSection",
+    "depositSection",
+    "withdrawSection",
+    "myTournamentsSection"
+  ];
+
+  sections.forEach(sectionId => {
+    const el = $(sectionId);
+
+    if (el) {
+      el.classList.add("hidden");
     }
-
-    currentUser = null;
-    location.reload();
-
   });
+
+  if (id) {
+    const target = $(id);
+
+    if (target) {
+      target.classList.remove("hidden");
+    }
+  }
+}
+
+function showOnly(sectionId) {
+  showSection(sectionId);
+
+  const home = $("homeSection");
+
+  if (home) {
+    home.classList.remove("hidden");
+  }
 }
 
 
-/* =========================================
+/* =========================================================
+   LOGIN
+========================================================= */
+
+const loginButton = $("loginButton");
+
+if (loginButton) {
+
+  loginButton.addEventListener("click", async function () {
+
+    const email = $("email")?.value.trim();
+    const password = $("password")?.value;
+
+    setMessage("authMessage", "");
+
+    if (!email || !password) {
+      setMessage(
+        "authMessage",
+        "Email aur password dono enter karein."
+      );
+      return;
+    }
+
+    loginButton.disabled = true;
+    loginButton.textContent = "⏳ LOGINNING...";
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+    loginButton.disabled = false;
+    loginButton.textContent = "⚡ LOGIN";
+
+    if (error) {
+      setMessage(
+        "authMessage",
+        "❌ " + error.message
+      );
+      return;
+    }
+
+    currentUser = data.user;
+
+    openApp(currentUser);
+
+  });
+
+}
+
+
+/* =========================================================
+   CREATE ACCOUNT
+========================================================= */
+
+const signupButton = $("signupButton");
+
+if (signupButton) {
+
+  signupButton.addEventListener("click", async function () {
+
+    const email = $("email")?.value.trim();
+    const password = $("password")?.value;
+
+    setMessage("authMessage", "");
+
+    if (!email || !password) {
+      setMessage(
+        "authMessage",
+        "Account banane ke liye email aur password enter karein."
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage(
+        "authMessage",
+        "Password kam se kam 6 characters ka hona chahiye."
+      );
+      return;
+    }
+
+    signupButton.disabled = true;
+    signupButton.textContent = "⏳ CREATING...";
+
+    const { data, error } =
+      await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+      });
+
+    signupButton.disabled = false;
+    signupButton.textContent = "🚀 CREATE ACCOUNT";
+
+    if (error) {
+      setMessage(
+        "authMessage",
+        "❌ " + error.message
+      );
+      return;
+    }
+
+    /*
+      Agar Supabase mein email confirmation ON hai,
+      to session null ho sakta hai aur user ko
+      email verify karni hogi.
+    */
+
+    if (!data.session) {
+
+      setMessage(
+        "authMessage",
+        "✅ Account create ho gaya. Apni email verify karein, phir LOGIN karein."
+      );
+
+      return;
+    }
+
+    currentUser = data.user;
+
+    openApp(currentUser);
+
+  });
+
+}
+
+
+/* =========================================================
    START APP
-========================================= */
+========================================================= */
+
+function openApp(user) {
+
+  currentUser = user;
+
+  const loginSection = $("loginSection");
+  const homeSection = $("homeSection");
+
+  if (loginSection) {
+    loginSection.classList.add("hidden");
+  }
+
+  if (homeSection) {
+    homeSection.classList.remove("hidden");
+  }
+
+  if ($("userEmail")) {
+    $("userEmail").textContent =
+      user?.email || "";
+  }
+
+  showSection(null);
+
+}
+
+
+/* =========================================================
+   CHECK SESSION
+========================================================= */
+
+async function checkSession() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient.auth.getSession();
+
+  if (error) {
+
+    console.error(
+      "Session error:",
+      error
+    );
+
+    return;
+  }
+
+  const session = data.session;
+
+  if (session?.user) {
+
+    currentUser = session.user;
+
+    openApp(session.user);
+
+  } else {
+
+    currentUser = null;
+
+    const loginSection = $("loginSection");
+    const homeSection = $("homeSection");
+
+    if (loginSection) {
+      loginSection.classList.remove("hidden");
+    }
+
+    if (homeSection) {
+      homeSection.classList.add("hidden");
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTH STATE CHANGE
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+  function (event, session) {
+
+    if (session?.user) {
+
+      currentUser = session.user;
+
+      openApp(session.user);
+
+    } else {
+
+      currentUser = null;
+
+      const loginSection = $("loginSection");
+      const homeSection = $("homeSection");
+
+      if (loginSection) {
+        loginSection.classList.remove("hidden");
+      }
+
+      if (homeSection) {
+        homeSection.classList.add("hidden");
+      }
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+const logoutButton = $("logoutButton");
+
+if (logoutButton) {
+
+  logoutButton.addEventListener(
+    "click",
+    async function () {
+
+      logoutButton.disabled = true;
+      logoutButton.textContent = "Logging out...";
+
+      const { error } =
+        await supabaseClient.auth.signOut();
+
+      if (error) {
+
+        logoutButton.disabled = false;
+        logoutButton.textContent = "Logout";
+
+        alert(error.message);
+
+        return;
+      }
+
+      currentUser = null;
+
+      location.reload();
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HOME → TOURNAMENTS
+========================================================= */
+
+const openTournamentsButton =
+  $("openTournamentsButton");
+
+if (openTournamentsButton) {
+
+  openTournamentsButton.addEventListener(
+    "click",
+    function () {
+
+      showSection("tournamentsSection");
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HOME → DEPOSIT
+========================================================= */
+
+const openDepositButton =
+  $("openDepositButton");
+
+if (openDepositButton) {
+
+  openDepositButton.addEventListener(
+    "click",
+    function () {
+
+      showSection("depositSection");
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HOME → WITHDRAW
+========================================================= */
+
+const openWithdrawButton =
+  $("openWithdrawButton");
+
+if (openWithdrawButton) {
+
+  openWithdrawButton.addEventListener(
+    "click",
+    function () {
+
+      showSection("withdrawSection");
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HOME → MY TOURNAMENTS
+========================================================= */
+
+const openMyTournamentsButton =
+  $("openMyTournamentsButton");
+
+if (openMyTournamentsButton) {
+
+  openMyTournamentsButton.addEventListener(
+    "click",
+    function () {
+
+      showSection("myTournamentsSection");
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BACK BUTTONS
+========================================================= */
+
+const backTournamentButton =
+  $("backTournamentButton");
+
+if (backTournamentButton) {
+
+  backTournamentButton.addEventListener(
+    "click",
+    function () {
+
+      showSection(null);
+
+    }
+  );
+
+}
+
+
+const backTeamButton =
+  $("backTeamButton");
+
+if (backTeamButton) {
+
+  backTeamButton.addEventListener(
+    "click",
+    function () {
+
+      showSection("tournamentsSection");
+
+    }
+  );
+
+}
+
+
+const backDepositButton =
+  $("backDepositButton");
+
+if (backDepositButton) {
+
+  backDepositButton.addEventListener(
+    "click",
+    function () {
+
+      showSection(null);
+
+    }
+  );
+
+}
+
+
+const backWithdrawButton =
+  $("backWithdrawButton");
+
+if (backWithdrawButton) {
+
+  backWithdrawButton.addEventListener(
+    "click",
+    function () {
+
+      showSection(null);
+
+    }
+  );
+
+}
+
+
+const backMyTournamentButton =
+  $("backMyTournamentButton");
+
+if (backMyTournamentButton) {
+
+  backMyTournamentButton.addEventListener(
+    "click",
+    function () {
+
+      showSection(null);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
 
 checkSession();
-
-</script>
+   </script>
 
 </body>
 </html>
