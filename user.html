@@ -1774,68 +1774,69 @@ button:disabled {
     </div>
 
   </div>
+<!-- =========================================
+     BOTTOM NAVIGATION
+========================================= -->
+
+<div class="bottom-nav">
+
+  <!-- HOME -->
+  <button
+    type="button"
+    onclick="showOnly(null)"
+  >
+    <span>🏠</span>
+    <small>Home</small>
+  </button>
 
 
-  <!-- =========================================
-       BOTTOM NAVIGATION
-  ========================================= -->
-
-  <div class="bottom-nav">
-
-    <button
-      type="button"
-      onclick="showOnly(null)"
-    >
-      <span>🏠</span>
-      <small>Home</small>
-    </button>
+  <!-- MATCHES -->
+  <button
+    type="button"
+    onclick="document.getElementById('openTournamentsButton').click()"
+  >
+    <span>🎮</span>
+    <small>Matches</small>
+  </button>
 
 
-    <button
-      type="button"
-      onclick="document.getElementById('openTournamentsButton').click()"
-    >
-      <span>🎮</span>
-      <small>Matches</small>
-    </button>
+  <!-- EARN -->
+  <button
+    type="button"
+    onclick="document.getElementById('openDepositButton').click()"
+  >
+    <span>💰</span>
+    <small>Earn</small>
+  </button>
 
 
-    <button
-      type="button"
-      onclick="document.getElementById('openDepositButton').click()
-            type="button"
-      onclick="document.getElementById('openDepositButton').click()"
-    >
-      <span>💰</span>
-      <small>Earn</small>
-    </button>
+  <!-- WALLET -->
+  <button
+    type="button"
+    onclick="document.getElementById('openWithdrawButton').click()"
+  >
+    <span>👛</span>
+    <small>Wallet</small>
+  </button>
 
 
-    <button
-      type="button"
-      onclick="document.getElementById('openWithdrawButton').click()"
-    >
-      <span>👛</span>
-      <small>Wallet</small>
-    </button>
-
-
-    <button
-      type="button"
-      onclick="document.getElementById('openMyTournamentsButton').click()"
-    >
-      <span>👤</span>
-      <small>Profile</small>
-    </button>
-
-  </div>
+  <!-- PROFILE -->
+  <button
+    type="button"
+    onclick="document.getElementById('openMyTournamentsButton').click()"
+  >
+    <span>👤</span>
+    <small>Profile</small>
+  </button>
 
 </div>
 
 <script>
 
 "use strict";
+
 alert("SCRIPT STARTED");
+  
 /* =====================================================
    SUPABASE
 ===================================================== */
