@@ -1908,56 +1908,69 @@ function showOnly(sectionId) {
     home.classList.remove("hidden");
   }
 }
-/* =========================================================
+    /* =====================================================
    LOGIN
-========================================================= */
+===================================================== */
 
-const loginButton = $("loginButton");
+const loginButton = document.getElementById("loginButton");
 
-if (loginButton) {
+loginButton.addEventListener("click", async function () {
 
-  loginButton.addEventListener("click", async function () {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("authMessage");
 
-    const email = $("email")?.value.trim();
-    const password = $("password")?.value;
+  message.textContent = "⏳ Login ho raha hai...";
 
-    setMessage("authMessage", "");
+  if (!email || !password) {
+    message.textContent =
+      "⚠️ Email aur password dono enter karein.";
+    return;
+  }
 
-    if (!email || !password) {
-      setMessage(
-        "authMessage",
-        "Email aur password dono enter karein."
-      );
-      return;
-    }
+  try {
 
-    loginButton.disabled = true;
-    loginButton.textContent = "⏳ LOGINNING...";
-
-    const { data, error } =
+    const result =
       await supabaseClient.auth.signInWithPassword({
         email: email,
         password: password
       });
 
-    loginButton.disabled = false;
-    loginButton.textContent = "⚡ LOGIN";
+    console.log("LOGIN RESULT:", result);
 
-    if (error) {
-      setMessage(
-        "authMessage",
-        "❌ " + error.message
-      );
+    if (result.error) {
+      message.textContent =
+        "❌ " + result.error.message;
       return;
     }
 
-    currentUser = data.user;
+    currentUser = result.data.user;
 
-    openApp(currentUser);
+    message.textContent = "✅ Login successful!";
 
-  });
+    document
+      .getElementById("loginSection")
+      .classList.add("hidden");
 
-}
+    document
+      .getElementById("homeSection")
+      .classList.remove("hidden");
+
+    document.getElementById("userEmail").textContent =
+      currentUser.email;
+
+  } catch (error) {
+
+    console.error("LOGIN ERROR:", error);
+
+    message.textContent =
+      "❌ " + error.message;
+
+  }
+
+}); 
+
+   
 /* =========================================================
    CREATE ACCOUNT
 ========================================================= */
