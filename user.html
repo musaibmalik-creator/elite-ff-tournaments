@@ -2342,9 +2342,8 @@ function setMessage(id, text) {
   }
 }
 
-
 /* =====================================================
-   SHOW ONLY
+   SHOW ONLY SECTION
 ===================================================== */
 
 function showOnly(sectionId) {
@@ -2352,55 +2351,81 @@ function showOnly(sectionId) {
   const sections = [
     "homeSection",
     "tournamentsSection",
-    "teamSection",
+    "topPlayersSection",
     "depositSection",
     "withdrawSection",
-    "myTournamentsSection",
     "profileSection",
-    "topPlayersSection",
-    "contactSection"
+    "walletSection",
+    "matchesSection",
+    "myTournamentsSection"
   ];
 
   sections.forEach(function(id) {
 
-    const el = $(id);
+    const section = $(id);
 
-    if (el) {
-      el.classList.add("hidden");
+    if (!section) return;
+
+    if (id === sectionId) {
+      section.style.display = "block";
+    } else {
+      section.style.display = "none";
     }
 
   });
 
 
-  if (sectionId) {
-
-    const target = $(sectionId);
-
-    if (target) {
-      target.classList.remove("hidden");
-    }
-
-  } else {
+  /* Home */
+  if (sectionId === null) {
 
     const home = $("homeSection");
 
     if (home) {
-      home.classList.remove("hidden");
+      home.style.display = "block";
     }
 
   }
 
-  updateBottomNav(sectionId);
+
+  /* Load data when section opens */
+
+  if (sectionId === "walletSection") {
+
+    if (typeof loadWallet === "function") {
+      loadWallet();
+    }
+
+  }
+
+
+  if (sectionId === "matchesSection") {
+
+    if (typeof loadMyMatches === "function") {
+      loadMyMatches();
+    }
+
+  }
+
+
+  if (sectionId === "topPlayersSection") {
+
+    if (typeof loadTopPlayers === "function") {
+      loadTopPlayers();
+    }
+
+  }
+
+
+  if (sectionId === "myTournamentsSection") {
+
+    if (typeof loadMyTournaments === "function") {
+      loadMyTournaments();
+    }
+
+  }
+
 }
 
-
-/* =====================================================
-   HOME
-===================================================== */
-
-function goHome() {
-  showOnly(null);
-}
 
 
 /* =====================================================
