@@ -2399,6 +2399,180 @@ function showOnly(sectionId) {
 }
 
 /* =====================================================
+   LOAD TOURNAMENTS
+===================================================== */
+
+async function loadTournaments(filter = null) {
+
+  const list =
+    document.getElementById("tournamentList");
+
+  const subtitle =
+    document.getElementById("tournamentSubtitle");
+
+  if (!list) return;
+
+  list.innerHTML = "Loading...";
+
+  try {
+
+    let query = supabaseClient
+      .from("tournaments")
+      .select(`
+        id,
+        name,
+        sport,
+        description,
+        entry_fee,
+        prize_pool,
+        max_teams,
+        status,
+        starts_at
+      `)
+      .order("starts_at", {
+        ascending: true
+      });
+
+    if (filter) {
+      query = query.eq("sport", filter);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error(
+        "LOAD TOURNAMENTS ERROR:",
+        error
+      );
+
+      list.innerHTML =
+        "⚠️ Tournaments load nahi ho pa rahe.";
+
+      return;
+    }
+
+    if (!data || data.length === 0) {
+
+      list.innerHTML =
+        "📭 Abhi koi tournament available nahi hai.";
+
+      if (subtitle) {
+        subtitle.textContent =
+          filter
+            ? filter + " mein koi tournament nahi mila."
+            : "Available matches";
+      }
+
+      return;
+    }
+
+    if (subtitle) {
+      subtitle.textContent =
+        filter
+          ? filter + " tournaments"
+          : "Available matches";
+    }
+
+    list.innerHTML = data.map(function(tournament) {
+
+      const date =
+        tournament.starts_at
+          ? new Date(
+              tournament.starts_at
+            ).toLocaleString("en-IN", {
+              dateStyle: "medium",
+              timeStyle: "short"
+            })
+          : "Time not set";
+
+      return `
+        <div class="tournament">
+
+          <div class="trow">
+            <div>
+              <b>${tournament.name || "Tournament"}</b>
+              <small>
+                ${tournament.sport || ""}
+              </small>
+            </div>
+
+            <strong>
+              ₹${tournament.prize_pool ?? 0}
+            </strong>
+          </div>
+
+          <div class="trow">
+            <span>
+              Entry Fee
+            </span>
+
+            <b>
+              ₹${tournament.entry_fee ?? 0}
+            </b>
+          </div>
+
+          <div class="trow">
+            <span>
+              Max Teams
+            </span>
+
+            <b>
+              ${tournament.max_teams ?? 0}
+            </b>
+          </div>
+
+          <div class="trow">
+            <span>
+              Starts
+            </span>
+
+            <b>
+              ${date}
+            </b>
+          </div>
+
+          <div class="trow">
+            <span>
+              Status
+            </span>
+
+            <b>
+              ${tournament.status || "Pending"}
+            </b>
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+
+  } catch (err) {
+
+    console.error(
+      "TOURNAMENT LOAD ERROR:",
+      err
+    );
+
+    list.innerHTML =
+      "⚠️ Something went wrong.";
+
+  }
+
+          }
+
+/* =====================================================
+   FILTER TOURNAMENTS
+===================================================== */
+
+function filterTournaments(sport) {
+
+  showOnly("tournamentsSection");
+
+  loadTournaments(sport);
+
+}
+  
+/* =====================================================
    BOTTOM NAV ACTIVE
 ===================================================== */
 
