@@ -1391,6 +1391,9 @@ input:focus{
 </section>
 
 
+    </section>
+
+
 <!-- =========================
      TOP PLAYERS
 ========================= -->
@@ -1420,37 +1423,63 @@ input:focus{
   <div class="leaderboard">
 
     <div class="leader">
-      <span>🥇</span>
+      <div>🥇</div>
+
       <div>
         <b>Elite Player</b>
         <small>Champion</small>
       </div>
+
       <strong>₹10,000</strong>
     </div>
 
     <div class="leader">
-      <span>🥈</span>
+      <div>🥈</div>
+
       <div>
         <b>Pro Player</b>
         <small>Runner Up</small>
       </div>
+
       <strong>₹7,500</strong>
     </div>
 
     <div class="leader">
-      <span>🥉</span>
+      <div>🥉</div>
+
       <div>
         <b>FF Champion</b>
-        <small>Top Player</small>
+        <small>Top Fragger</small>
       </div>
+
       <strong>₹5,000</strong>
+    </div>
+
+    <div class="leader">
+      <div>🏅</div>
+
+      <div>
+        <b>Elite Warrior</b>
+        <small>Pro Player</small>
+      </div>
+
+      <strong>₹3,500</strong>
+    </div>
+
+    <div class="leader">
+      <div>🏅</div>
+
+      <div>
+        <b>Battle King</b>
+        <small>Elite Player</small>
+      </div>
+
+      <strong>₹2,500</strong>
     </div>
 
   </div>
 
 </section>
-
-
 <!-- =========================
      CONTACT
 ========================= -->
@@ -1477,22 +1506,16 @@ input:focus{
 
   </div>
 
-  <div class="contact-box">
+  <div class="tournament">
 
-    <div class="contact-item">
-      <span>📧</span>
-      <div>
-        <b>Email</b>
-        <p class="muted">support@eliteff.com</p>
-      </div>
+    <div class="trow">
+      <span>📧 Email</span>
+      <b>support@eliteff.com</b>
     </div>
 
-    <div class="contact-item">
-      <span>💬</span>
-      <div>
-        <b>WhatsApp</b>
-        <p class="muted">Contact Admin</p>
-      </div>
+    <div class="trow">
+      <span>💬 WhatsApp</span>
+      <b>Contact Admin</b>
     </div>
 
   </div>
@@ -1501,7 +1524,7 @@ input:focus{
 
 
 <!-- =========================
-     BOTTOM NAV
+     BOTTOM NAVIGATION
 ========================= -->
 
 <nav class="bottom-nav">
@@ -1509,7 +1532,7 @@ input:focus{
   <button
     class="nav-btn active"
     type="button"
-    onclick="goHome()"
+    onclick="showOnly(null)"
   >
     <span>🏠</span>
     <small>Home</small>
@@ -1518,7 +1541,7 @@ input:focus{
   <button
     class="nav-btn"
     type="button"
-    onclick="openTournaments()"
+    onclick="showOnly('tournamentsSection'); loadTournaments()"
   >
     <span>🎮</span>
     <small>Matches</small>
@@ -1527,7 +1550,7 @@ input:focus{
   <button
     class="nav-btn"
     type="button"
-    onclick="openTopPlayers()"
+    onclick="showOnly('topPlayersSection')"
   >
     <span>🏆</span>
     <small>Top Players</small>
@@ -1536,7 +1559,7 @@ input:focus{
   <button
     class="nav-btn"
     type="button"
-    onclick="openWallet()"
+    onclick="showOnly('depositSection')"
   >
     <span>💰</span>
     <small>Wallet</small>
@@ -1545,7 +1568,7 @@ input:focus{
   <button
     class="nav-btn"
     type="button"
-    onclick="openProfile()"
+    onclick="showOnly('profileSection'); loadProfile()"
   >
     <span>👤</span>
     <small>Profile</small>
@@ -1562,9 +1585,43 @@ input:focus{
 
 <script>
 
-function hideAllSections(){
+const SUPABASE_URL =
+  "https://yenhkcditizmcekjeswy.supabase.co";
 
-  const ids = [
+const SUPABASE_KEY =
+  "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+let currentUser = null;
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function setMessage(id, text) {
+
+  const el = document.getElementById(id);
+
+  if (el) {
+    el.textContent = text;
+  }
+
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function showOnly(sectionId) {
+
+  const sections = [
     "homeSection",
     "tournamentsSection",
     "teamSection",
@@ -1576,107 +1633,632 @@ function hideAllSections(){
     "contactSection"
   ];
 
-  ids.forEach(function(id){
+  sections.forEach(function(id) {
 
     const el = document.getElementById(id);
 
-    if(el){
+    if (el) {
       el.classList.add("hidden");
     }
 
   });
 
+  if (sectionId) {
+
+    const target =
+      document.getElementById(sectionId);
+
+    if (target) {
+      target.classList.remove("hidden");
+    }
+
+  } else {
+
+    const home =
+      document.getElementById("homeSection");
+
+    if (home) {
+      home.classList.remove("hidden");
+    }
+
+  }
+
+  updateBottomNav(sectionId);
+
 }
 
 
-function goHome(){
-
-  hideAllSections();
-
-  document
-    .getElementById("homeSection")
-    ?.classList.remove("hidden");
-
-  setActiveNav(0);
-
+function goHome() {
+  showOnly(null);
 }
 
 
-function openTournaments(){
+/* =========================
+   BOTTOM NAV ACTIVE
+========================= */
 
-  hideAllSections();
+function updateBottomNav(sectionId) {
 
-  document
-    .getElementById("tournamentsSection")
-    ?.classList.remove("hidden");
+  const buttons =
+    document.querySelectorAll(".nav-btn");
 
-  setActiveNav(1);
+  buttons.forEach(function(btn) {
+    btn.classList.remove("active");
+  });
 
-  if(typeof loadTournaments === "function"){
-    loadTournaments();
+  if (sectionId === "tournamentsSection") {
+    buttons[1]?.classList.add("active");
+  }
+  else if (sectionId === "topPlayersSection") {
+    buttons[2]?.classList.add("active");
+  }
+  else if (
+    sectionId === "depositSection" ||
+    sectionId === "withdrawSection"
+  ) {
+    buttons[3]?.classList.add("active");
+  }
+  else if (sectionId === "profileSection") {
+    buttons[4]?.classList.add("active");
+  }
+  else {
+    buttons[0]?.classList.add("active");
   }
 
 }
 
 
-function openTopPlayers(){
+/* =========================
+   TOURNAMENTS
+========================= */
 
-  hideAllSections();
+async function loadTournaments(filter = null) {
 
-  document
-    .getElementById("topPlayersSection")
-    ?.classList.remove("hidden");
+  const list =
+    document.getElementById("tournamentList");
 
-  setActiveNav(2);
+  const subtitle =
+    document.getElementById("tournamentSubtitle");
 
-}
+  if (!list) return;
 
+  list.innerHTML = "⏳ Loading tournaments...";
 
-function openWallet(){
+  try {
 
-  hideAllSections();
+    let query =
+      supabaseClient
+        .from("tournaments")
+        .select(`
+          id,
+          name,
+          sport,
+          description,
+          entry_fee,
+          prize_pool,
+          max_teams,
+          status,
+          starts_at
+        `)
+        .order("starts_at", {
+          ascending:true
+        });
 
-  document
-    .getElementById("depositSection")
-    ?.classList.remove("hidden");
+    if (filter) {
+      query = query.eq("sport", filter);
+    }
 
-  setActiveNav(3);
+    const { data, error } =
+      await query;
 
-}
+    if (error) {
 
+      console.error(error);
 
-function openProfile(){
+      list.innerHTML =
+        "⚠️ Tournaments load nahi ho pa rahe.";
 
-  hideAllSections();
+      return;
+    }
 
-  document
-    .getElementById("profileSection")
-    ?.classList.remove("hidden");
+    if (!data || data.length === 0) {
 
-  setActiveNav(4);
+      list.innerHTML =
+        "📭 Abhi koi tournament available nahi hai.";
 
-  if(typeof loadProfile === "function"){
-    loadProfile();
+      return;
+    }
+
+    if (subtitle) {
+      subtitle.textContent =
+        filter
+          ? filter + " tournaments"
+          : "Available matches";
+    }
+
+    list.innerHTML =
+      data.map(function(t) {
+
+        const date =
+          t.starts_at
+            ? new Date(
+                t.starts_at
+              ).toLocaleString("en-IN", {
+                dateStyle:"medium",
+                timeStyle:"short"
+              })
+            : "Time not set";
+
+        return `
+
+          <div class="tournament">
+
+            <div class="tournament-top">
+
+              <h3>
+                🏆 ${t.name || "Tournament"}
+              </h3>
+
+              <span class="badge">
+                ${t.status || "OPEN"}
+              </span>
+
+            </div>
+
+            <div class="trow">
+              <span>Game</span>
+              <b>${t.sport || "Free Fire"}</b>
+            </div>
+
+            <div class="trow">
+              <span>Entry Fee</span>
+              <b>₹${t.entry_fee ?? 0}</b>
+            </div>
+
+            <div class="trow">
+              <span>Prize Pool</span>
+              <b>₹${t.prize_pool ?? 0}</b>
+            </div>
+
+            <div class="trow">
+              <span>Max Teams</span>
+              <b>${t.max_teams ?? 0}</b>
+            </div>
+
+            <div class="trow">
+              <span>Starts</span>
+              <b>${date}</b>
+            </div>
+
+            <button
+              class="primary join"
+              type="button"
+              onclick="openTeamRegistration('${t.id}')"
+            >
+              🏆 JOIN TOURNAMENT
+            </button>
+
+          </div>
+
+        `;
+
+      }).join("");
+
+  }
+  catch(error) {
+
+    console.error(error);
+
+    list.innerHTML =
+      "⚠️ Something went wrong.";
+
   }
 
 }
 
 
-function setActiveNav(index){
+function filterTournaments(sport) {
 
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach(function(btn, i){
+  showOnly("tournamentsSection");
 
-      btn.classList.toggle(
-        "active",
-        i === index
-      );
+  loadTournaments(sport);
 
+}
+
+
+/* =========================
+   TEAM REGISTRATION
+========================= */
+
+let selectedTournamentId = null;
+
+
+function openTeamRegistration(id) {
+
+  selectedTournamentId = id;
+
+  const info =
+    document.getElementById("teamTournamentInfo");
+
+  if (info) {
+    info.textContent =
+      "Tournament selected. Team details enter karein.";
+  }
+
+  showOnly("teamSection");
+
+}
+
+
+/* =========================
+   PROFILE
+========================= */
+
+function loadProfile() {
+
+  if (!currentUser) return;
+
+  const email =
+    currentUser.email || "User";
+
+  const profileEmail =
+    document.getElementById("profileEmail");
+
+  if (profileEmail) {
+    profileEmail.textContent = email;
+  }
+
+}
+
+
+/* =========================
+   COPY UPI
+========================= */
+
+function copyUPI() {
+
+  const el =
+    document.getElementById("upiId");
+
+  if (!el) return;
+
+  const upi =
+    el.textContent.trim();
+
+  navigator.clipboard
+    ?.writeText(upi)
+    .then(function() {
+      alert("✅ UPI ID copied!");
+    })
+    .catch(function() {
+      alert("UPI ID: " + upi);
     });
 
 }
 
+
+/* =========================
+   LOGIN
+========================= */
+
+document
+  .getElementById("loginButton")
+  ?.addEventListener(
+    "click",
+    async function() {
+
+      const email =
+        document
+          .getElementById("email")
+          ?.value
+          .trim();
+
+      const password =
+        document
+          .getElementById("password")
+          ?.value;
+
+      if (!email || !password) {
+
+        setMessage(
+          "authMessage",
+          "⚠️ Email aur password enter karein."
+        );
+
+        return;
+      }
+
+      setMessage(
+        "authMessage",
+        "⏳ Logging in..."
+      );
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth
+          .signInWithPassword({
+            email,
+            password
+          });
+
+      if (error) {
+
+        setMessage(
+          "authMessage",
+          "❌ " + error.message
+        );
+
+        return;
+      }
+
+      currentUser = data.user;
+
+      openApp();
+
+    }
+  );
+
+
+/* =========================
+   SIGNUP
+========================= */
+
+document
+  .getElementById("signupButton")
+  ?.addEventListener(
+    "click",
+    async function() {
+
+      const email =
+        document
+          .getElementById("email")
+          ?.value
+          .trim();
+
+      const password =
+        document
+          .getElementById("password")
+          ?.value;
+
+      if (!email || !password) {
+
+        setMessage(
+          "authMessage",
+          "⚠️ Email aur password enter karein."
+        );
+
+        return;
+      }
+
+      if (password.length < 6) {
+
+        setMessage(
+          "authMessage",
+          "⚠️ Password minimum 6 characters ka hona chahiye."
+        );
+
+        return;
+      }
+
+      setMessage(
+        "authMessage",
+        "⏳ Account create ho raha hai..."
+      );
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth
+          .signUp({
+            email,
+            password
+          });
+
+      if (error) {
+
+        setMessage(
+          "authMessage",
+          "❌ " + error.message
+        );
+
+        return;
+      }
+
+      if (data.session) {
+
+        currentUser = data.user;
+
+        openApp();
+
+      }
+      else {
+
+        setMessage(
+          "authMessage",
+          "✅ Account created. Email verification required ho sakti hai."
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================
+   OPEN APP
+========================= */
+
+function openApp() {
+
+  document
+    .getElementById("loginSection")
+    ?.classList.add("hidden");
+
+  showOnly(null);
+
+  loadProfile();
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+document
+  .getElementById("logoutButton")
+  ?.addEventListener(
+    "click",
+    async function() {
+
+      await supabaseClient.auth.signOut();
+
+      currentUser = null;
+
+      document
+        .getElementById("homeSection")
+        ?.classList.add("hidden");
+
+      document
+        .getElementById("loginSection")
+        ?.classList.remove("hidden");
+
+    }
+  );
+
+
+/* =========================
+   QUICK BUTTONS
+========================= */
+
+document
+  .getElementById("openTournamentsButton")
+  ?.addEventListener(
+    "click",
+    function() {
+
+      showOnly("tournamentsSection");
+
+      loadTournaments();
+
+    }
+  );
+
+
+document
+  .getElementById("openDepositButton")
+  ?.addEventListener(
+    "click",
+    function() {
+
+      showOnly("depositSection");
+
+    }
+  );
+
+
+document
+  .getElementById("openWithdrawButton")
+  ?.addEventListener(
+    "click",
+    function() {
+
+      showOnly("withdrawSection");
+
+    }
+  );
+
+
+document
+  .getElementById("openProfileButton")
+  ?.addEventListener(
+    "click",
+    function() {
+
+      showOnly("profileSection");
+
+      loadProfile();
+
+    }
+  );
+
+
+/* =========================
+   BACK BUTTONS
+========================= */
+
+[
+  "backDepositButton",
+  "backWithdrawButton",
+  "backMyTournamentButton",
+  "backProfileButton",
+  "backTopPlayersButton",
+  "backContactButton"
+].forEach(function(id) {
+
+  document
+    .getElementById(id)
+    ?.addEventListener(
+      "click",
+      goHome
+    );
+
+});
+
+
+/* =========================
+   SESSION
+========================= */
+
+async function checkSession() {
+
+  const {
+    data
+  } =
+    await supabaseClient.auth
+      .getSession();
+
+  if (data.session?.user) {
+
+    currentUser =
+      data.session.user;
+
+    openApp();
+
+  }
+  else {
+
+    document
+      .getElementById("loginSection")
+      ?.classList.remove("hidden");
+
+    document
+      .getElementById("homeSection")
+      ?.classList.add("hidden");
+
+  }
+
+}
+
+
+supabaseClient.auth
+  .onAuthStateChange(
+    function(event, session) {
+
+      currentUser =
+        session?.user || null;
+
+    }
+  );
+
+
+checkSession();
+
 </script>
+
 </body>
 </html>
+
