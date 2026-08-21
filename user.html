@@ -2783,6 +2783,13 @@ document.addEventListener("DOMContentLoaded", function () {
       loadProfile();
     });
 
+    // REGISTER TEAM BUTTON
+  document
+    .getElementById("registerTeamButton")
+    ?.addEventListener("click", function () {
+      showOnly("teamRegistrationSection");
+    });
+  
   // Session check
   checkSession();
 
