@@ -1367,44 +1367,43 @@ input:focus{
       </div>
 
       <div class="stat">
-
-        <b id="profileMatches">0</b>
+                <b id="profileMatches">0</b>
         <small>Matches</small>
       </div>
 
       <div class="stat">
-        <b id="profileWins">0</b>
-        <small>Wins</small>
+        <b>Elite</b>
+        <small>Player</small>
       </div>
 
     </div>
 
+    <button
+      id="logoutButton"
+      class="danger"
+      type="button"
+    >
+      🚪 LOGOUT
+    </button>
+
   </div>
-
-  <button
-    id="logoutButton"
-    class="danger"
-    type="button"
-  >
-    🚪 LOGOUT
-  </button>
-
-  <div id="profileMessage" class="message"></div>
 
 </section>
 
 
-<!-- TOP PLAYERS -->
+<!-- =========================
+     TOP PLAYERS
+========================= -->
 
 <section
   id="topPlayersSection"
-  class="panel hidden"
+  class="panel hidden fade"
 >
 
   <div class="panel-head">
 
     <div>
-      <h2>👑 Top Players</h2>
+      <h2>🏆 Top Players</h2>
       <small>Elite FF leaderboard</small>
     </div>
 
@@ -1418,25 +1417,54 @@ input:focus{
 
   </div>
 
-  <div id="leaderboardList" class="leaderboard">
-    Loading...
+  <div class="leaderboard">
+
+    <div class="leader">
+      <span>🥇</span>
+      <div>
+        <b>Elite Player</b>
+        <small>Champion</small>
+      </div>
+      <strong>₹10,000</strong>
+    </div>
+
+    <div class="leader">
+      <span>🥈</span>
+      <div>
+        <b>Pro Player</b>
+        <small>Runner Up</small>
+      </div>
+      <strong>₹7,500</strong>
+    </div>
+
+    <div class="leader">
+      <span>🥉</span>
+      <div>
+        <b>FF Champion</b>
+        <small>Top Player</small>
+      </div>
+      <strong>₹5,000</strong>
+    </div>
+
   </div>
 
 </section>
 
 
-<!-- CONTACT -->
+<!-- =========================
+     CONTACT
+========================= -->
 
 <section
   id="contactSection"
-  class="panel hidden"
+  class="panel hidden fade"
 >
 
   <div class="panel-head">
 
     <div>
       <h2>📞 Contact Us</h2>
-      <small>Need help?</small>
+      <small>Elite FF Support</small>
     </div>
 
     <button
@@ -1452,32 +1480,18 @@ input:focus{
   <div class="contact-box">
 
     <div class="contact-item">
-      <span>📱</span>
+      <span>📧</span>
       <div>
-        <b>WhatsApp Support</b>
-        <small class="muted">
-          Contact admin for help
-        </small>
+        <b>Email</b>
+        <p class="muted">support@eliteff.com</p>
       </div>
     </div>
 
     <div class="contact-item">
       <span>💬</span>
       <div>
-        <b>Telegram Support</b>
-        <small class="muted">
-          Join our support channel
-        </small>
-      </div>
-    </div>
-
-    <div class="contact-item">
-      <span>📢</span>
-      <div>
-        <b>Elite FF Tournaments</b>
-        <small class="muted">
-          Tournament updates & announcements
-        </small>
+        <b>WhatsApp</b>
+        <p class="muted">Contact Admin</p>
       </div>
     </div>
 
@@ -1486,58 +1500,52 @@ input:focus{
 </section>
 
 
-<!-- BOTTOM NAV -->
+<!-- =========================
+     BOTTOM NAV
+========================= -->
 
-<nav
-  id="bottomNav"
-  class="bottom-nav hidden"
->
+<nav class="bottom-nav">
 
   <button
-    id="navHome"
     class="nav-btn active"
     type="button"
-    onclick="showOnly('homeSection')"
+    onclick="goHome()"
   >
     <span>🏠</span>
     <small>Home</small>
   </button>
 
   <button
-    id="navTournaments"
     class="nav-btn"
     type="button"
-    onclick="showOnly('tournamentsSection')"
+    onclick="openTournaments()"
   >
-    <span>🏆</span>
+    <span>🎮</span>
     <small>Matches</small>
   </button>
 
   <button
-    id="navTopPlayers"
     class="nav-btn"
     type="button"
-    onclick="showOnly('topPlayersSection')"
+    onclick="openTopPlayers()"
   >
-    <span>👑</span>
-    <small>Players</small>
+    <span>🏆</span>
+    <small>Top Players</small>
   </button>
 
   <button
-    id="navWallet"
     class="nav-btn"
     type="button"
-    onclick="showOnly('depositSection')"
+    onclick="openWallet()"
   >
     <span>💰</span>
     <small>Wallet</small>
   </button>
 
   <button
-    id="navProfile"
     class="nav-btn"
     type="button"
-    onclick="showOnly('profileSection')"
+    onclick="openProfile()"
   >
     <span>👤</span>
     <small>Profile</small>
@@ -1545,69 +1553,18 @@ input:focus{
 
 </nav>
 
-</div>
+</section>
 
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
 
 <script>
 
-/* =====================================================
-   SUPABASE
-===================================================== */
+function hideAllSections(){
 
-const SUPABASE_URL =
-  "YOUR_SUPABASE_URL";
-
-const SUPABASE_ANON_KEY =
-  "YOUR_SUPABASE_ANON_KEY";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
-
-
-/* =====================================================
-   GLOBAL VARIABLES
-===================================================== */
-
-let currentUser = null;
-let currentTournament = null;
-let previousSection = "homeSection";
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function $(id){
-  return document.getElementById(id);
-}
-
-
-function setMessage(id, text){
-  const el = $(id);
-
-  if(el){
-    el.textContent = text || "";
-  }
-}
-
-
-function money(value){
-  const n = Number(value || 0);
-
-  return "₹" + n.toFixed(2);
-}
-
-
-/* =====================================================
-   SHOW ONLY
-===================================================== */
-
-function showOnly(sectionId){
-
-  const sections = [
+  const ids = [
     "homeSection",
     "tournamentsSection",
     "teamSection",
@@ -1619,1756 +1576,107 @@ function showOnly(sectionId){
     "contactSection"
   ];
 
-  sections.forEach(id => {
+  ids.forEach(function(id){
 
-    const section = $(id);
+    const el = document.getElementById(id);
 
-    if(!section) return;
-
-    if(id === sectionId){
-
-      section.classList.remove("hidden");
-
-    }else{
-
-      section.classList.add("hidden");
-
+    if(el){
+      el.classList.add("hidden");
     }
 
   });
 
-
-  if(sectionId === "homeSection"){
-    previousSection = "homeSection";
-  }
-
-
-  updateNav(sectionId);
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
 }
 
-
-/* =====================================================
-   NAV ACTIVE
-===================================================== */
-
-function updateNav(sectionId){
-
-  document.querySelectorAll(".nav-btn")
-    .forEach(btn => {
-      btn.classList.remove("active");
-    });
-
-
-  const map = {
-
-    homeSection:"navHome",
-
-    tournamentsSection:"navTournaments",
-
-    topPlayersSection:"navTopPlayers",
-
-    depositSection:"navWallet",
-
-    profileSection:"navProfile"
-
-  };
-
-
-  const navId = map[sectionId];
-
-  if(navId && $(navId)){
-    $(navId).classList.add("active");
-  }
-
-}
-
-
-/* =====================================================
-   HOME
-===================================================== */
 
 function goHome(){
 
-  showOnly("homeSection");
+  hideAllSections();
+
+  document
+    .getElementById("homeSection")
+    ?.classList.remove("hidden");
+
+  setActiveNav(0);
 
 }
 
 
-/* =====================================================
-   TEAM BACK
-===================================================== */
+function openTournaments(){
 
-function goBackFromTeam(){
+  hideAllSections();
 
-  if(previousSection){
+  document
+    .getElementById("tournamentsSection")
+    ?.classList.remove("hidden");
 
-    showOnly(previousSection);
+  setActiveNav(1);
 
-  }else{
-
-    showOnly("tournamentsSection");
-
-  }
-
-}
-
-
-/* =====================================================
-   LOGIN
-===================================================== */
-
-async function loginUser(){
-
-  const email =
-    $("email").value.trim();
-
-  const password =
-    $("password").value;
-
-
-  if(!email || !password){
-
-    setMessage(
-      "authMessage",
-      "Please enter email and password."
-    );
-
-    return;
-  }
-
-
-  setMessage(
-    "authMessage",
-    "Logging in..."
-  );
-
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-
-  if(error){
-
-    setMessage(
-      "authMessage",
-      error.message
-    );
-
-    return;
-  }
-
-
-  currentUser = data.user;
-
-  setMessage(
-    "authMessage",
-    "Login successful."
-  );
-
-
-  await startApp();
-
-}
-
-
-/* =====================================================
-   CREATE ACCOUNT
-===================================================== */
-
-async function createAccount(){
-
-  const email =
-    $("email").value.trim();
-
-  const password =
-    $("password").value;
-
-
-  if(!email || !password){
-
-    setMessage(
-      "authMessage",
-      "Please enter email and password."
-    );
-
-    return;
-  }
-
-
-  if(password.length < 6){
-
-    setMessage(
-      "authMessage",
-      "Password must be at least 6 characters."
-    );
-
-    return;
-  }
-
-
-  setMessage(
-    "authMessage",
-    "Creating account..."
-  );
-
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.auth.signUp({
-    email,
-    password
-  });
-
-
-  if(error){
-
-    setMessage(
-      "authMessage",
-      error.message
-    );
-
-    return;
-  }
-
-
-  if(data.user){
-
-    currentUser = data.user;
-
-    setMessage(
-      "authMessage",
-      "Account created successfully."
-    );
-
-    if(data.session){
-
-      await startApp();
-
-    }else{
-
-      setMessage(
-        "authMessage",
-        "Account created. Please verify your email, then login."
-      );
-
-    }
-
+  if(typeof loadTournaments === "function"){
+    loadTournaments();
   }
 
 }
 
 
-/* =====================================================
-   START APP
-===================================================== */
+function openTopPlayers(){
 
-async function startApp(){
+  hideAllSections();
 
-  if(!currentUser) return;
+  document
+    .getElementById("topPlayersSection")
+    ?.classList.remove("hidden");
 
-
-  $("loginSection")
-    .classList.add("hidden");
-
-
-  $("appSection")
-    .classList.remove("hidden");
-
-
-  $("bottomNav")
-    .classList.remove("hidden");
-
-
-  showOnly("homeSection");
-
-
-  const email =
-    currentUser.email || "User";
-
-
-  if($("profileEmail")){
-
-    $("profileEmail").textContent =
-      email;
-
-  }
-
-
-  await Promise.allSettled([
-
-    loadWallet(),
-
-    loadTournaments(),
-
-    loadMyTournaments(),
-
-    loadLeaderboard(),
-
-    loadProfileStats()
-
-  ]);
+  setActiveNav(2);
 
 }
 
 
-/* =====================================================
-   CHECK SESSION
-===================================================== */
+function openWallet(){
 
-async function checkSession(){
+  hideAllSections();
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.auth.getSession();
+  document
+    .getElementById("depositSection")
+    ?.classList.remove("hidden");
 
+  setActiveNav(3);
 
-  if(error){
-
-    console.error(error);
-
-    return;
-  }
+}
 
 
-  if(data &&
-     data.session &&
-     data.session.user){
+function openProfile(){
 
-    currentUser =
-      data.session.user;
+  hideAllSections();
 
-    await startApp();
+  document
+    .getElementById("profileSection")
+    ?.classList.remove("hidden");
 
-  }else{
+  setActiveNav(4);
 
-    currentUser = null;
-
-    $("loginSection")
-      .classList.remove("hidden");
-
-    $("appSection")
-      .classList.add("hidden");
-
-    $("bottomNav")
-      .classList.add("hidden");
-
+  if(typeof loadProfile === "function"){
+    loadProfile();
   }
 
 }
 
 
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-async function logoutUser(){
-
-  const {
-    error
-  } =
-  await supabaseClient.auth.signOut();
-
-
-  if(error){
-
-    setMessage(
-      "profileMessage",
-      error.message
-    );
-
-    return;
-  }
-
-
-  currentUser = null;
-
-
-  $("appSection")
-    .classList.add("hidden");
-
-
-  $("bottomNav")
-    .classList.add("hidden");
-
-
-  $("loginSection")
-    .classList.remove("hidden");
-
-
-  $("email").value = "";
-
-  $("password").value = "";
-
-  setMessage(
-    "authMessage",
-    "Logged out successfully."
-  );
-
-}
-
-
-/* =====================================================
-   WALLET
-===================================================== */
-
-async function loadWallet(){
-
-  if(!currentUser) return;
-
-
-  try{
-
-    const {
-      data,
-      error
-    } =
-    await supabaseClient
-      .from("profiles")
-      .select("wallet_balance")
-      .eq("id", currentUser.id)
-      .maybeSingle();
-
-
-    if(error){
-
-      console.error(
-        "Wallet error:",
-        error
-      );
-
-      return;
-    }
-
-
-    const balance =
-      Number(
-        data?.wallet_balance || 0
-      );
-
-
-    if($("walletBalance")){
-
-      $("walletBalance")
-        .textContent =
-        money(balance);
-
-    }
-
-
-    if($("profileBalance")){
-
-      $("profileBalance")
-        .textContent =
-        money(balance);
-
-    }
-
-  }catch(error){
-
-    console.error(error);
-
-  }
-
-}
-
-
-/* =====================================================
-   TOURNAMENTS
-===================================================== */
-
-async function loadTournaments(
-  filter = null
-){
-
-  const list =
-    $("tournamentList");
-
-
-  if(!list) return;
-
-
-  list.innerHTML =
-    "Loading tournaments...";
-
-
-  let query =
-    supabaseClient
-      .from("tournaments")
-      .select("*")
-      .order(
-        "created_at",
-        {ascending:false}
-      );
-
-
-  const {
-    data,
-    error
-  } = await query;
-
-
-  if(error){
-
-    list.innerHTML =
-      "Unable to load tournaments.";
-
-    console.error(error);
-
-    return;
-  }
-
-
-  let tournaments =
-    data || [];
-
-
-  if(filter){
-
-    tournaments =
-      tournaments.filter(t => {
-
-        const text =
-          (
-            (t.name || "") +
-            " " +
-            (t.game_mode || "") +
-            " " +
-            (t.mode || "") +
-            " " +
-            (t.category || "")
-          ).toLowerCase();
-
-
-        return text.includes(
-          filter.toLowerCase()
-        );
-
-      });
-
-  }
-
-
-  if(!tournaments.length){
-
-    list.innerHTML =
-      `<div class="message">
-        No tournaments available.
-      </div>`;
-
-    return;
-  }
-
-
-  list.innerHTML = "";
-
-
-  tournaments.forEach(tournament => {
-
-    const card =
-      document.createElement("div");
-
-
-    card.className =
-      "tournament";
-
-
-    const name =
-      tournament.name ||
-      tournament.title ||
-      "Tournament";
-
-
-    const entry =
-      Number(
-        tournament.entry_fee ||
-        tournament.entryFee ||
-        0
-      );
-
-
-    const prize =
-      tournament.prize_pool ||
-      tournament.prizePool ||
-      tournament.prize ||
-      0;
-
-
-    const mode =
-      tournament.game_mode ||
-      tournament.mode ||
-      "Free Fire";
-
-
-    const status =
-      tournament.status ||
-      "Open";
-
-
-    card.innerHTML = `
-
-      <div class="tournament-top">
-
-        <h3>
-          ${escapeHTML(name)}
-        </h3>
-
-        <span class="badge">
-          ${escapeHTML(String(status))}
-        </span>
-
-      </div>
-
-      <div class="trow">
-        <span>Game</span>
-        <b>${escapeHTML(String(mode))}</b>
-      </div>
-
-      <div class="trow">
-        <span>Entry Fee</span>
-        <b>₹${entry}</b>
-      </div>
-
-      <div class="trow">
-        <span>Prize Pool</span>
-        <b>₹${prize}</b>
-      </div>
-
-      <button
-        class="primary join"
-        type="button"
-      >
-        🏆 JOIN TOURNAMENT
-      </button>
-
-    `;
-
-
-    const joinButton =
-      card.querySelector(".join");
-
-
-    joinButton.addEventListener(
-      "click",
-      () => {
-
-        openTournament(tournament);
-
-      }
-    );
-
-
-    list.appendChild(card);
-
-  });
-
-}
-
-
-/* =====================================================
-   FILTER TOURNAMENTS
-===================================================== */
-
-async function filterTournaments(
-  filter
-){
-
-  previousSection =
-    "homeSection";
-
-
-  showOnly(
-    "tournamentsSection"
-  );
-
-
-  const subtitle =
-    $("tournamentSubtitle");
-
-
-  if(subtitle){
-
-    subtitle.textContent =
-      filter + " tournaments";
-
-  }
-
-
-  await loadTournaments(filter);
-
-}
-
-
-/* =====================================================
-   OPEN TOURNAMENT
-===================================================== */
-
-function openTournament(tournament){
-
-  currentTournament =
-    tournament;
-
-
-  const mode =
-    tournament.game_mode ||
-    tournament.mode ||
-    "";
-
-
-  const entry =
-    Number(
-      tournament.entry_fee ||
-      tournament.entryFee ||
-      0
-    );
-
-
-  const name =
-    tournament.name ||
-    tournament.title ||
-    "Tournament";
-
-
-  if($("teamTournamentInfo")){
-
-    $("teamTournamentInfo")
-      .textContent =
-      `${name} • Entry Fee ₹${entry} • ${mode}`;
-
-  }
-
-
-  previousSection =
-    "tournamentsSection";
-
-
-  showOnly("teamSection");
-
-}
-
-
-/* =====================================================
-   REGISTER TEAM
-===================================================== */
-
-async function registerTeam(){
-
-  if(!currentUser){
-
-    setMessage(
-      "teamMessage",
-      "Please login first."
-    );
-
-    return;
-  }
-
-
-  if(!currentTournament){
-
-    setMessage(
-      "teamMessage",
-      "Please select a tournament."
-    );
-
-    return;
-  }
-
-
-  const teamName =
-    $("teamName").value.trim();
-
-
-  const players = [
-
-    {
-      name:$("player1Name").value.trim(),
-      uid:$("player1UID").value.trim()
-    },
-
-    {
-      name:$("player2Name").value.trim(),
-      uid:$("player2UID").value.trim()
-    },
-
-    {
-      name:$("player3Name").value.trim(),
-      uid:$("player3UID").value.trim()
-    },
-
-    {
-      name:$("player4Name").value.trim(),
-      uid:$("player4UID").value.trim()
-    }
-
-  ];
-
-
-  if(!teamName){
-
-    setMessage(
-      "teamMessage",
-      "Enter team name."
-    );
-
-    return;
-  }
-
-
-  for(let i = 0; i < players.length; i++){
-
-    if(!players[i].name ||
-       !players[i].uid){
-
-      setMessage(
-        "teamMessage",
-        `Enter Player ${i + 1} name and UID.`
-      );
-
-      return;
-    }
-
-  }
-
-
-  const entryFee =
-    Number(
-      currentTournament.entry_fee ||
-      currentTournament.entryFee ||
-      0
-    );
-
-
-  setMessage(
-    "teamMessage",
-    "Checking wallet..."
-  );
-
-
-  const {
-    data:profile,
-    error:profileError
-  } =
-  await supabaseClient
-    .from("profiles")
-    .select("wallet_balance")
-    .eq("id", currentUser.id)
-    .maybeSingle();
-
-
-  if(profileError){
-
-    setMessage(
-      "teamMessage",
-      profileError.message
-    );
-
-    return;
-  }
-
-
-  const balance =
-    Number(
-      profile?.wallet_balance || 0
-    );
-
-
-  if(balance < entryFee){
-
-    setMessage(
-      "teamMessage",
-      `Insufficient wallet balance. Required ₹${entryFee}.`
-    );
-
-    return;
-  }
-
-
-  setMessage(
-    "teamMessage",
-    "Registering team..."
-  );
-
-
-  try{
-
-    const {
-      data,
-      error
-    } =
-    await supabaseClient
-      .from("teams")
-      .insert({
-
-        user_id:currentUser.id,
-
-        tournament_id:
-          currentTournament.id,
-
-        team_name:teamName,
-
-        player1_name:players[0].name,
-        player1_uid:players[0].uid,
-
-        player2_name:players[1].name,
-        player2_uid:players[1].uid,
-
-        player3_name:players[2].name,
-        player3_uid:players[2].uid,
-
-        player4_name:players[3].name,
-        player4_uid:players[3].uid
-
-      })
-      .select()
-      .single();
-
-
-    if(error){
-
-      throw error;
-
-    }
-
-
-    const newBalance =
-      balance - entryFee;
-
-
-    const {
-      error:updateError
-    } =
-    await supabaseClient
-      .from("profiles")
-      .update({
-        wallet_balance:newBalance
-      })
-      .eq(
-        "id",
-        currentUser.id
-      );
-
-
-    if(updateError){
-
-      throw updateError;
-
-    }
-
-
-    setMessage(
-      "teamMessage",
-      "🏆 Team registered successfully!"
-    );
-
-
-    await loadWallet();
-
-    await loadMyTournaments();
-
-
-    setTimeout(() => {
-
-      showOnly(
-        "myTournamentsSection"
-      );
-
-    },700);
-
-
-  }catch(error){
-
-    console.error(error);
-
-    setMessage(
-      "teamMessage",
-      error.message ||
-      "Unable to register team."
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   DEPOSIT
-===================================================== */
-
-async function submitDeposit(){
-
-  if(!currentUser){
-
-    setMessage(
-      "depositMessage",
-      "Please login first."
-    );
-
-    return;
-  }
-
-
-  const amount =
-    Number(
-      $("depositAmount").value
-    );
-
-
-  const utr =
-    $("depositUTR")
-      .value
-      .trim();
-
-
-  if(!amount || amount < 10){
-
-    setMessage(
-      "depositMessage",
-      "Minimum deposit is ₹10."
-    );
-
-    return;
-  }
-
-
-  if(!utr){
-
-    setMessage(
-      "depositMessage",
-      "Enter UTR / Transaction ID."
-    );
-
-    return;
-  }
-
-
-  setMessage(
-    "depositMessage",
-    "Submitting deposit..."
-  );
-
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("payments")
-    .insert({
-
-      user_id:currentUser.id,
-
-      amount:amount,
-
-      utr:utr,
-
-      type:"deposit",
-
-      status:"pending"
-
-    });
-
-
-  if(error){
-
-    console.error(error);
-
-    setMessage(
-      "depositMessage",
-      error.message
-    );
-
-    return;
-  }
-
-
-  $("depositAmount").value = "";
-
-  $("depositUTR").value = "";
-
-
-  setMessage(
-    "depositMessage",
-    "✅ Deposit submitted. Admin will verify it."
-  );
-
-}
-
-
-/* =====================================================
-   WITHDRAW
-===================================================== */
-
-async function submitWithdraw(){
-
-  if(!currentUser){
-
-    setMessage(
-      "withdrawMessage",
-      "Please login first."
-    );
-
-    return;
-  }
-
-
-  const amount =
-    Number(
-      $("withdrawAmount").value
-    );
-
-
-  const details =
-    $("withdrawUPI")
-      .value
-      .trim();
-
-
-  if(!amount || amount < 50){
-
-    setMessage(
-      "withdrawMessage",
-      "Minimum withdrawal is ₹50."
-    );
-
-    return;
-  }
-
-
-  if(!details){
-
-    setMessage(
-      "withdrawMessage",
-      "Enter UPI / Bank Details."
-    );
-
-    return;
-  }
-
-
-  setMessage(
-    "withdrawMessage",
-    "Checking wallet..."
-  );
-
-
-  const {
-    data:profile,
-    error:profileError
-  } =
-  await supabaseClient
-    .from("profiles")
-    .select("wallet_balance")
-    .eq("id",currentUser.id)
-    .maybeSingle();
-
-
-  if(profileError){
-
-    setMessage(
-      "withdrawMessage",
-      profileError.message
-    );
-
-    return;
-  }
-
-
-  const balance =
-    Number(
-      profile?.wallet_balance || 0
-    );
-
-
-  if(amount > balance){
-
-    setMessage(
-      "withdrawMessage",
-      "Insufficient wallet balance."
-    );
-
-    return;
-  }
-
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("withdrawals")
-    .insert({
-
-      user_id:currentUser.id,
-
-      amount:amount,
-
-      upi_details:details,
-
-      status:"pending"
-
-    });
-
-
-  if(error){
-
-    console.error(error);
-
-    setMessage(
-      "withdrawMessage",
-      error.message );
-    ge
-    );
-
-    return;
-  }
-
-
-  setMessage(
-    "withdrawMessage",
-    "✅ Withdrawal request submitted successfully. Admin will review it."
-  );
-
-
-  $("withdrawAmount").value = "";
-
-  $("withdrawUPI").value = "";
-
-
-  await loadWallet();
-
-}
-
-
-/* =====================================================
-   MY TOURNAMENTS
-===================================================== */
-
-async function loadMyTournaments(){
-
-  const list =
-    $("myTournamentList");
-
-
-  if(!list || !currentUser)
-    return;
-
-
-  list.innerHTML =
-    "Loading...";
-
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("teams")
-    .select("*")
-    .eq(
-      "user_id",
-      currentUser.id
-    )
-    .order(
-      "created_at",
-      {ascending:false}
-    );
-
-
-  if(error){
-
-    list.innerHTML =
-      `<div class="message">
-        ${escapeHTML(error.message)}
-      </div>`;
-
-    return;
-  }
-
-
-  if(!data || !data.length){
-
-    list.innerHTML =
-      `<div class="message">
-        No matches yet.
-      </div>`;
-
-    return;
-  }
-
-
-  list.innerHTML = "";
-
-
-  data.forEach(team => {
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "tournament";
-
-
-    card.innerHTML = `
-
-      <div class="tournament-top">
-
-        <h3>
-          ${escapeHTML(
-            team.team_name || "My Team"
-          )}
-        </h3>
-
-        <span class="badge">
-          JOINED
-        </span>
-
-      </div>
-
-      <div class="trow">
-        <span>Player 1</span>
-        <b>
-          ${escapeHTML(
-            team.player1_name || "-"
-          )}
-        </b>
-      </div>
-
-      <div class="trow">
-        <span>Player 2</span>
-        <b>
-          ${escapeHTML(
-            team.player2_name || "-"
-          )}
-        </b>
-      </div>
-
-      <div class="trow">
-        <span>Player 3</span>
-        <b>
-          ${escapeHTML(
-            team.player3_name || "-"
-          )}
-        </b>
-      </div>
-
-      <div class="trow">
-        <span>Player 4</span>
-        <b>
-          ${escapeHTML(
-            team.player4_name || "-"
-          )}
-        </b>
-      </div>
-
-    `;
-
-
-    list.appendChild(card);
-
-  });
-
-}
-
-
-/* =====================================================
-   PROFILE STATS
-===================================================== */
-
-async function loadProfileStats(){
-
-  if(!currentUser) return;
-
-
-  try{
-
-    const {
-      data,
-      error
-    } =
-    await supabaseClient
-      .from("teams")
-      .select("id")
-      .eq(
-        "user_id",
-        currentUser.id
-      );
-
-
-    if(!error && $("profileMatches")){
-
-      $("profileMatches")
-        .textContent =
-        data?.length || 0;
-
-    }
-
-
-  }catch(error){
-
-    console.error(error);
-
-  }
-
-
-  if($("profileWins")){
-
-    $("profileWins")
-      .textContent = "0";
-
-  }
-
-}
-
-
-/* =====================================================
-   LEADERBOARD / TOP PLAYERS
-===================================================== */
-
-async function loadLeaderboard(){
-
-  const list =
-    $("leaderboardList");
-
-
-  if(!list) return;
-
-
-  list.innerHTML =
-    "Loading...";
-
-
-  try{
-
-    const {
-      data,
-      error
-    } =
-    await supabaseClient
-      .from("profiles")
-      .select(
-        "id,username,wins"
-      )
-      .order(
-        "wins",
-        {ascending:false}
-      )
-      .limit(10);
-
-
-    if(error){
-
-      throw error;
-
-    }
-
-
-    if(!data || !data.length){
-
-      list.innerHTML =
-        `<div class="message">
-          No players yet.
-        </div>`;
-
-      return;
-    }
-
-
-    list.innerHTML = "";
-
-
-    data.forEach(
-      (player,index) => {
-
-        const row =
-          document.createElement("div");
-
-
-        row.className =
-          "leader";
-
-
-        row.innerHTML = `
-
-          <b>
-            #${index + 1}
-          </b>
-
-          <span>
-            ${escapeHTML(
-              player.username ||
-              "Player"
-            )}
-          </span>
-
-          <b>
-            ${Number(
-              player.wins || 0
-            )} Wins
-          </b>
-
-        `;
-
-
-        list.appendChild(row);
-
-      }
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-    list.innerHTML =
-      `<div class="message">
-        Unable to load top players.
-      </div>`;
-
-  }
-
-}
-
-
-/* =====================================================
-   COPY UPI
-===================================================== */
-
-function copyUPI(){
-
-  const upi =
-    $("upiId")?.textContent?.trim();
-
-
-  if(!upi) return;
-
-
-  navigator.clipboard
-    .writeText(upi)
-    .then(() => {
-
-      setMessage(
-        "depositMessage",
-        "✅ UPI ID copied."
-      );
-
-    })
-    .catch(() => {
-
-      setMessage(
-        "depositMessage",
-        "Unable to copy UPI ID."
+function setActiveNav(index){
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(function(btn, i){
+
+      btn.classList.toggle(
+        "active",
+        i === index
       );
 
     });
 
 }
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(value){
-
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-
-}
-
-
-/* =====================================================
-   BUTTON EVENTS
-===================================================== */
-$("loginButton")
-  ?.addEventListener(
-    "click",
-    loginUser
-  );
-
-
-$("signupButton")
-  ?.addEventListener(
-    "click",
-    createAccount
-  );
-
-
-$("logoutButton")
-  ?.addEventListener(
-    "click",
-    logoutUser
-  );
-
-
-$("registerTeamButton")
-  ?.addEventListener(
-    "click",
-    registerTeam
-  );
-
-
-$("submitDepositButton")
-  ?.addEventListener(
-    "click",
-    submitDeposit
-  );
-
-
-$("submitWithdrawButton")
-  ?.addEventListener(
-    "click",
-    submitWithdraw
-  );
-
-
-$("openTournamentsButton")
-  ?.addEventListener(
-    "click",
-    () => {
-
-      previousSection =
-        "homeSection";
-
-      showOnly(
-        "tournamentsSection"
-      );
-
-      loadTournaments();
-
-    }
-  );
-
-
-$("openDepositButton")
-  ?.addEventListener(
-    "click",
-    () => {
-
-      previousSection =
-        "homeSection";
-
-      showOnly(
-        "depositSection"
-      );
-
-    }
-  );
-
-
-$("openWithdrawButton")
-  ?.addEventListener(
-    "click",
-    () => {
-
-      previousSection =
-        "homeSection";
-
-      showOnly(
-        "withdrawSection"
-      );
-
-    }
-  );
-
-
-$("openProfileButton")
-  ?.addEventListener(
-    "click",
-    () => {
-
-      previousSection =
-        "homeSection";
-
-      showOnly(
-        "profileSection"
-      );
-
-      loadProfileStats();
-
-    }
-  );
-
-
-$("backDepositButton")
-  ?.addEventListener(
-    "click",
-    goHome
-  );
-
-
-$("backWithdrawButton")
-  ?.addEventListener(
-    "click",
-    goHome
-  );
-
-
-$("notificationButton")
-  ?.addEventListener(
-    "click",
-    () => {
-
-      alert(
-        "No new notifications."
-      );
-
-    }
-  );
-
-
-/* =====================================================
-   AUTH STATE
-===================================================== */
-
-supabaseClient.auth
-  .onAuthStateChange(
-    async (event, session) => {
-
-      if(session?.user){
-
-        currentUser =
-          session.user;
-
-        await startApp();
-
-      }
-
-    }
-  );
-
-
-/* =====================================================
-   START APP
-===================================================== */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
-    checkSession();
-
-  }
-);
 
 </script>
-
 </body>
 </html>
