@@ -1,32 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
-<meta
-  name="theme-color"
-  content="#050505"
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050505">
 <title>Elite FF Tournaments</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
 :root{
   --bg:#050505;
   --card:#111;
-  --card2:#181818;
   --gold:#f7c843;
   --gold2:#ffdf72;
-  --muted:#929292;
+  --muted:#888;
   --border:rgba(247,200,67,.25);
 }
 
@@ -34,32 +22,23 @@
   box-sizing:border-box;
 }
 
-html,
-body{
+html,body{
   margin:0;
   padding:0;
   min-height:100%;
+  background:#050505;
 }
 
 body{
   font-family:Arial,Helvetica,sans-serif;
   color:#fff;
   background:
-    radial-gradient(
-      circle at 10% 0%,
-      rgba(247,200,67,.13),
-      transparent 27%
-    ),
-    radial-gradient(
-      circle at 100% 20%,
-      rgba(247,200,67,.08),
-      transparent 30%
-    ),
+    radial-gradient(circle at 10% 0%,rgba(247,200,67,.12),transparent 27%),
+    radial-gradient(circle at 100% 20%,rgba(247,200,67,.08),transparent 30%),
     #050505;
 }
 
-button,
-input{
+button,input{
   font-family:inherit;
 }
 
@@ -79,126 +58,61 @@ button{
   padding:12px 12px 105px;
 }
 
-/* =====================================================
-   LOGIN
-===================================================== */
+/* LOGIN */
 
 .login-screen{
-  min-height:calc(100vh - 24px);
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:10px;
-  position:relative;
-  overflow:hidden;
-}
-
-.login-glow{
-  position:absolute;
-  width:300px;
-  height:300px;
-  border-radius:50%;
-  filter:blur(100px);
-  opacity:.2;
-}
-
-.glow1{
-  left:-150px;
-  top:-120px;
-  background:#f7c843;
-}
-
-.glow2{
-  right:-150px;
-  bottom:-120px;
-  background:#b88612;
+  padding:15px;
 }
 
 .login-card{
   width:100%;
   max-width:440px;
   padding:30px 20px;
-  position:relative;
-  z-index:2;
   text-align:center;
-
-  background:linear-gradient(
-    145deg,
-    #1c1c1c,
-    #070707
-  );
-
+  background:linear-gradient(145deg,#1c1c1c,#070707);
   border:1px solid rgba(247,200,67,.4);
   border-radius:26px;
-
-  box-shadow:
-    0 25px 80px rgba(0,0,0,.8),
-    0 0 45px rgba(247,200,67,.08);
+  box-shadow:0 25px 80px rgba(0,0,0,.8);
 }
 
 .logo-ring{
-  width:92px;
-  height:92px;
+  width:90px;
+  height:90px;
   margin:0 auto 15px;
-
   display:grid;
   place-items:center;
-
   border-radius:50%;
   border:2px solid var(--gold);
-
-  background:
-    radial-gradient(
-      circle,
-      #292929,
-      #050505 70%
-    );
-
+  background:#0b0b0b;
   font-size:42px;
-
-  box-shadow:
-    0 0 20px rgba(247,200,67,.6),
-    0 0 50px rgba(247,200,67,.15);
-
-  animation:pulse 2.5s infinite;
-}
-
-@keyframes pulse{
-  50%{
-    transform:scale(1.05);
-  }
 }
 
 .brand-title{
   font-size:22px;
   font-weight:900;
-  letter-spacing:.8px;
 }
 
 .brand-title b{
   color:var(--gold);
-  font-size:35px;
-  text-shadow:
-    0 0 15px rgba(247,200,67,.6);
+  font-size:34px;
 }
 
 .login-sub{
   margin:8px 0 22px;
   color:#aaa;
   font-size:12px;
-  font-weight:bold;
-  letter-spacing:1px;
 }
 
 .input-box{
   height:54px;
-
   display:flex;
   align-items:center;
-
   margin-top:12px;
   padding:0 13px;
-
   background:#0e0e0e;
   border:1px solid #303030;
   border-radius:13px;
@@ -206,32 +120,19 @@ button{
 
 .input-box span{
   width:30px;
-  font-size:19px;
 }
 
 .input-box input{
   width:100%;
   height:100%;
-
   border:0;
   outline:0;
-
   background:transparent;
   color:#fff;
-
-  padding:0 8px;
 }
 
 .input-box input::placeholder{
   color:#666;
-}
-
-.input-box:focus-within{
-  border-color:var(--gold);
-
-  box-shadow:
-    0 0 0 2px
-    rgba(247,200,67,.08);
 }
 
 .primary,
@@ -239,93 +140,54 @@ button{
 .danger{
   width:100%;
   padding:14px;
-
   margin-top:12px;
-
   border-radius:12px;
-
   font-weight:900;
 }
 
 .primary{
   color:#080808;
-
   border:0;
-
-  background:
-    linear-gradient(
-      135deg,
-      #ffe47d,
-      var(--gold),
-      #c59414
-    );
-
-  box-shadow:
-    0 8px 25px
-    rgba(247,200,67,.2);
+  background:linear-gradient(
+    135deg,
+    #ffe47d,
+    var(--gold),
+    #c59414
+  );
 }
 
 .secondary{
   color:#eee;
-
-  background:
-    linear-gradient(
-      135deg,
-      #292929,
-      #101010
-    );
-
+  background:#151515;
   border:1px solid #333;
 }
 
 .danger{
   color:#fff;
-
-  background:
-    linear-gradient(
-      135deg,
-      #8f2626,
-      #450b0b
-    );
-
+  background:linear-gradient(
+    135deg,
+    #8f2626,
+    #450b0b
+  );
   border:0;
 }
 
 .message{
   margin-top:10px;
   padding:10px;
-
   border-radius:9px;
-
   background:#111;
   color:#ddd;
-
   font-size:12px;
-  line-height:1.5;
-
   white-space:pre-wrap;
 }
 
-.login-footer{
-  margin-top:20px;
-
-  color:#555;
-
-  font-size:10px;
-  font-weight:bold;
-
-  letter-spacing:1px;
-}
-
-/* =====================================================
-   HEADER
-===================================================== */
+/* HEADER */
 
 .top-header{
   display:flex;
   align-items:center;
   justify-content:space-between;
-
   margin-bottom:12px;
 }
 
@@ -338,131 +200,69 @@ button{
 .brand-logo{
   width:48px;
   height:48px;
-
   display:grid;
   place-items:center;
-
   border-radius:50%;
   border:1px solid var(--gold);
-
   background:#101010;
-
   font-size:23px;
-
-  box-shadow:
-    0 0 18px
-    rgba(247,200,67,.2);
 }
 
 .brand-text strong{
   display:block;
-
   color:var(--gold);
-
   font-size:18px;
-  letter-spacing:1px;
 }
 
 .brand-text small{
   color:#777;
-
   font-size:9px;
-
   letter-spacing:2px;
 }
 
 .icon-btn{
   position:relative;
-
   width:46px;
   height:46px;
-
-  margin:0;
-  padding:0;
-
   border-radius:50%;
-
   border:1px solid #333;
-
   background:#111;
   color:#fff;
 }
 
 .dot{
   position:absolute;
-
   width:8px;
   height:8px;
-
   top:7px;
   right:7px;
-
   border-radius:50%;
-
   background:var(--gold);
 }
 
-/* =====================================================
-   HERO
-===================================================== */
+/* HERO */
 
 .hero{
-  position:relative;
-  overflow:hidden;
-
   padding:21px;
   margin-bottom:12px;
-
   border-radius:21px;
-
-  border:1px solid
-    rgba(247,200,67,.3);
-
+  border:1px solid rgba(247,200,67,.3);
   background:
     radial-gradient(
       circle at 88% 30%,
       rgba(247,200,67,.25),
       transparent 30%
     ),
-    linear-gradient(
-      135deg,
-      #191919,
-      #060606
-    );
-
-  box-shadow:
-    0 15px 40px
-    rgba(0,0,0,.5);
-}
-
-.hero:before{
-  content:"";
-
-  position:absolute;
-
-  width:180px;
-  height:180px;
-
-  right:-75px;
-  top:-80px;
-
-  border-radius:50%;
-
-  border:1px solid
-    rgba(247,200,67,.18);
+    linear-gradient(135deg,#191919,#060606);
 }
 
 .hero small{
   color:#aaa;
-
   font-weight:bold;
-
-  letter-spacing:1px;
 }
 
 .hero h1{
   margin:6px 0;
-
   font-size:28px;
 }
 
@@ -471,43 +271,23 @@ button{
 }
 
 .hero p{
-  max-width:420px;
-
   margin:0;
-
   color:#aaa;
-
   font-size:12px;
   line-height:1.5;
 }
 
-/* =====================================================
-   WALLET
-===================================================== */
+/* WALLET */
 
 .wallet{
   display:flex;
   align-items:center;
   justify-content:space-between;
-
   padding:18px;
   margin-bottom:15px;
-
   border-radius:18px;
-
-  border:1px solid
-    rgba(247,200,67,.35);
-
-  background:
-    linear-gradient(
-      135deg,
-      #242424,
-      #0b0b0b
-    );
-
-  box-shadow:
-    0 10px 30px
-    rgba(0,0,0,.45);
+  border:1px solid rgba(247,200,67,.35);
+  background:linear-gradient(135deg,#242424,#0b0b0b);
 }
 
 .wallet-label{
@@ -517,47 +297,28 @@ button{
 
 .wallet-value{
   margin-top:4px;
-
   color:var(--gold);
-
   font-size:30px;
   font-weight:900;
-
-  text-shadow:
-    0 0 15px
-    rgba(247,200,67,.2);
 }
 
 .wallet-icon{
   width:52px;
   height:52px;
-
   display:grid;
   place-items:center;
-
   border-radius:15px;
-
-  border:1px solid
-    rgba(247,200,67,.25);
-
-  background:
-    rgba(247,200,67,.08);
-
+  background:rgba(247,200,67,.08);
   font-size:25px;
 }
 
-/* =====================================================
-   SECTION TITLE
-===================================================== */
+/* TITLES */
 
 .section-title{
   display:flex;
   align-items:center;
-
   gap:8px;
-
   margin:18px 3px 10px;
-
   font-size:16px;
   font-weight:900;
 }
@@ -565,73 +326,38 @@ button{
 .section-title:before,
 .section-title:after{
   content:"";
-
   height:1px;
-
   flex:1;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      var(--gold)
-    );
+  background:linear-gradient(
+    90deg,
+    transparent,
+    var(--gold)
+  );
 }
 
 .section-title:after{
-  background:
-    linear-gradient(
-      90deg,
-      var(--gold),
-      transparent
-    );
+  background:linear-gradient(
+    90deg,
+    var(--gold),
+    transparent
+  );
 }
 
-/* =====================================================
-   QUICK ACTIONS
-===================================================== */
+/* QUICK */
 
 .quick-grid{
   display:grid;
-
-  grid-template-columns:
-    repeat(4,1fr);
-
+  grid-template-columns:repeat(4,1fr);
   gap:9px;
 }
 
 .quick{
   min-height:92px;
-
   padding:12px 8px;
-
   border-radius:15px;
-
   color:#fff;
-
-  text-align:center;
-
-  background:
-    linear-gradient(
-      145deg,
-      #1a1a1a,
-      #090909
-    );
-
+  background:linear-gradient(145deg,#1a1a1a,#090909);
   border:1px solid #292929;
-
-  transition:.2s;
-}
-
-.quick:hover{
-  transform:translateY(-2px);
-
-  border-color:
-    rgba(247,200,67,.5);
-
-  box-shadow:
-    0 8px 25px
-    rgba(247,200,67,.08);
 }
 
 .qicon{
@@ -646,96 +372,48 @@ button{
 
 .quick small{
   display:block;
-
   margin-top:3px;
-
   color:#777;
-
   font-size:9px;
 }
 
-/* =====================================================
-   GAME CARDS
-===================================================== */
+/* GAMES */
 
 .game-grid{
   display:grid;
-
-  grid-template-columns:
-    repeat(3,1fr);
-
+  grid-template-columns:repeat(3,1fr);
   gap:9px;
 }
 
 .game{
   position:relative;
   overflow:hidden;
-
   min-height:150px;
-
   display:flex;
   align-items:flex-end;
-
   padding:11px;
-
   border-radius:15px;
-
   color:#fff;
-
   border:1px solid #333;
-
-  background:
-    linear-gradient(
-      160deg,
-      #2a2a2a,
-      #080808
-    );
-
-  transition:.2s;
-}
-
-.game:hover{
-  transform:translateY(-3px);
-
-  border-color:var(--gold);
-
-  box-shadow:
-    0 10px 30px
-    rgba(247,200,67,.1);
-}
-
-.game:before{
-  content:"";
-
-  position:absolute;
-
-  inset:0;
-
-  background:
-    radial-gradient(
-      circle at 70% 25%,
-      rgba(247,200,67,.22),
-      transparent 34%
-    );
+  background:linear-gradient(
+    160deg,
+    #2a2a2a,
+    #080808
+  );
 }
 
 .game-art{
   position:absolute;
-
   inset:0;
-
   display:grid;
   place-items:center;
-
   font-size:55px;
 }
 
 .game-info{
   position:relative;
   z-index:2;
-
   width:100%;
-
   padding-top:70px;
 }
 
@@ -749,46 +427,25 @@ button{
   font-size:9px;
 }
 
-/* =====================================================
-   PANELS
-===================================================== */
+/* PANELS */
 
-.panel,
-.card{
+.panel{
   margin-top:14px;
-
   padding:16px;
-
   border-radius:18px;
-
-  background:
-    linear-gradient(
-      145deg,
-      #171717,
-      #080808
-    );
-
+  background:linear-gradient(145deg,#171717,#080808);
   border:1px solid var(--border);
-
-  box-shadow:
-    0 10px 30px
-    rgba(0,0,0,.35);
 }
 
-.panel-head,
-.section-header{
+.panel-head{
   display:flex;
-
   align-items:center;
   justify-content:space-between;
-
   gap:10px;
-
   margin-bottom:12px;
 }
 
-.panel-head h2,
-.section-header h2{
+.panel-head h2{
   margin:0;
   font-size:18px;
 }
@@ -797,26 +454,17 @@ button{
   color:#888;
 }
 
-.back,
-.back-button{
+.back{
   width:auto;
-
   margin:0;
-
   padding:9px 12px;
-
   border-radius:10px;
-
   color:#ddd;
-
   background:#191919;
-
   border:1px solid #333;
 }
 
-/* =====================================================
-   FORM
-===================================================== */
+/* FORM */
 
 .field{
   margin-top:11px;
@@ -824,171 +472,68 @@ button{
 
 .field label{
   display:block;
-
   margin-bottom:5px;
-
   color:#aaa;
-
   font-size:11px;
 }
 
 input{
   width:100%;
-
   padding:13px;
-
   border-radius:11px;
-
   background:#0c0c0c;
-
   color:#fff;
-
   border:1px solid #333;
-
   outline:0;
 }
 
 input:focus{
   border-color:var(--gold);
-
-  box-shadow:
-    0 0 0 2px
-    rgba(247,200,67,.08);
 }
 
-/* =====================================================
-   PAYMENT
-===================================================== */
-
-.payment-card,
-.payment{
-  padding:14px;
-
-  border-radius:14px;
-
-  background:#0d0d0d;
-
-  border:1px solid #292929;
-
-  margin-bottom:12px;
-}
-
-.payment-card h3{
-  margin-top:0;
-}
-
-.muted{
-  color:#888;
-  font-size:12px;
-}
-
-.upi-box,
-.upi{
-  display:flex;
-
-  align-items:center;
-
-  gap:8px;
-
-  margin-top:8px;
-}
-
-.upi-box span,
-.upi span{
-  flex:1;
-
-  padding:11px;
-
-  overflow:hidden;
-
-  border-radius:9px;
-
-  background:#171717;
-
-  color:var(--gold);
-
-  font-size:12px;
-}
-
-.copy-button,
-.copy{
-  width:auto;
-
-  margin:0;
-
-  padding:10px;
-}
-
-/* =====================================================
-   TOURNAMENT
-===================================================== */
+/* TOURNAMENT */
 
 .tournament{
   padding:15px;
-
   margin-top:10px;
-
   border-radius:15px;
-
-  background:
-    linear-gradient(
-      145deg,
-      #1a1a1a,
-      #080808
-    );
-
-  border:1px solid
-    rgba(247,200,67,.23);
+  background:linear-gradient(145deg,#1a1a1a,#080808);
+  border:1px solid rgba(247,200,67,.23);
 }
 
 .tournament-top{
   display:flex;
-
   justify-content:space-between;
-
   gap:8px;
 }
 
 .tournament h3{
   margin:0;
-
   color:var(--gold);
-
   font-size:16px;
 }
 
 .badge{
+  height:max-content;
   padding:5px 8px;
-
   border-radius:999px;
-
-  background:
-    rgba(247,200,67,.1);
-
+  background:rgba(247,200,67,.1);
   color:var(--gold);
-
   font-size:9px;
-
   font-weight:bold;
 }
 
 .trow{
   display:flex;
-
   justify-content:space-between;
-
   gap:8px;
-
   margin:8px 0;
-
   color:#999;
-
   font-size:11px;
 }
 
 .trow b{
   color:#eee;
-
   text-align:right;
 }
 
@@ -996,11 +541,9 @@ input:focus{
   margin-top:8px;
 }
 
-/* =====================================================
-   PROFILE
-===================================================== */
+/* PROFILE */
 
-.profile-box{
+.profile-card{
   padding:10px;
   text-align:center;
 }
@@ -1008,97 +551,40 @@ input:focus{
 .profile-avatar{
   width:70px;
   height:70px;
-
   margin:auto;
-
   display:grid;
   place-items:center;
-
   border-radius:50%;
-
   border:2px solid var(--gold);
-
   background:#111;
-
   font-size:32px;
-
-  box-shadow:
-    0 0 25px
-    rgba(247,200,67,.18);
 }
 
 .profile-email{
   margin-top:10px;
-
   color:#ddd;
-
   font-size:13px;
-
   word-break:break-all;
 }
 
-.profile-balance{
-  margin-top:15px;
-
-  padding:15px;
-
-  border-radius:14px;
-
-  background:#111;
-
-  border:1px solid #292929;
-}
-
-.profile-balance span{
-  display:block;
-
-  color:#888;
-
-  font-size:11px;
-}
-
-.profile-balance strong{
-  display:block;
-
-  margin-top:5px;
-
-  color:var(--gold);
-
-  font-size:25px;
-}
-
-/* =====================================================
-   STATS
-===================================================== */
-
 .stats{
   display:grid;
-
-  grid-template-columns:
-    repeat(3,1fr);
-
+  grid-template-columns:repeat(3,1fr);
   gap:8px;
-
   margin-top:15px;
 }
 
 .stat{
   padding:12px;
-
   border-radius:12px;
-
   background:#111;
-
   border:1px solid #292929;
-
   text-align:center;
 }
 
 .stat b{
   display:block;
-
   color:var(--gold);
-
   font-size:18px;
 }
 
@@ -1107,34 +593,22 @@ input:focus{
   font-size:9px;
 }
 
-/* =====================================================
-   LEADERBOARD
-===================================================== */
+/* LEADERBOARD */
 
 .leaderboard{
   display:flex;
-
   flex-direction:column;
-
   gap:8px;
 }
 
 .leader{
   display:grid;
-
-  grid-template-columns:
-    40px 1fr auto;
-
+  grid-template-columns:40px 1fr auto;
   align-items:center;
-
   gap:8px;
-
   padding:13px;
-
   border-radius:12px;
-
   background:#111;
-
   border:1px solid #292929;
 }
 
@@ -1142,125 +616,97 @@ input:focus{
   color:var(--gold);
 }
 
-/* =====================================================
-   CONTACT
-===================================================== */
+/* CONTACT */
 
 .contact-box{
   display:flex;
-
   flex-direction:column;
-
   gap:10px;
 }
 
 .contact-item{
   display:flex;
-
   align-items:center;
-
   gap:12px;
-
   padding:14px;
-
   border-radius:12px;
-
   background:#111;
-
   border:1px solid #292929;
 }
 
-.contact-item > span{
+.contact-item span{
   font-size:25px;
 }
 
-.contact-item p{
-  margin:5px 0 0;
-}
+/* PAYMENT */
 
-/* =====================================================
-   MY TOURNAMENT
-===================================================== */
-
-.my-match{
-  padding:13px;
-
-  margin-top:9px;
-
-  border-radius:13px;
-
-  background:#111;
-
+.payment{
+  padding:14px;
+  border-radius:14px;
+  background:#0d0d0d;
   border:1px solid #292929;
 }
 
-.my-match strong{
-  color:var(--gold);
+.muted{
+  color:#888;
+  font-size:12px;
 }
 
-/* =====================================================
-   BOTTOM NAV
-===================================================== */
+.upi{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:8px;
+}
+
+.upi span{
+  flex:1;
+  padding:11px;
+  overflow:hidden;
+  border-radius:9px;
+  background:#171717;
+  color:var(--gold);
+  font-size:12px;
+}
+
+.copy{
+  width:auto!important;
+  margin:0;
+  padding:10px;
+}
+
+/* NAV */
 
 .bottom-nav{
   position:fixed;
-
   z-index:1000;
-
   left:50%;
   bottom:8px;
-
   transform:translateX(-50%);
-
   width:calc(100% - 16px);
-
   max-width:740px;
-
   padding:7px;
-
   display:grid;
-
-  grid-template-columns:
-    repeat(5,1fr);
-
+  grid-template-columns:repeat(5,1fr);
   gap:3px;
-
-  border:1px solid
-    rgba(247,200,67,.25);
-
+  border:1px solid rgba(247,200,67,.25);
   border-radius:18px;
-
-  background:
-    rgba(10,10,10,.96);
-
+  background:rgba(10,10,10,.97);
   backdrop-filter:blur(15px);
-
-  box-shadow:
-    0 10px 35px
-    rgba(0,0,0,.75);
 }
 
 .nav-btn{
   height:58px;
-
   margin:0;
   padding:4px;
-
   display:flex;
-
   flex-direction:column;
-
   align-items:center;
   justify-content:center;
-
   gap:3px;
-
-  border:0!important;
-
-  color:#777!important;
-
-  background:transparent!important;
-
+  border:0;
+  color:#777;
+  background:transparent;
   border-radius:12px;
 }
 
@@ -1273,58 +719,20 @@ input:focus{
 }
 
 .nav-btn.active{
-  color:var(--gold)!important;
-
-  background:
-    rgba(247,200,67,.07)!important;
+  color:var(--gold);
+  background:rgba(247,200,67,.08);
 }
 
-/* =====================================================
-   ANIMATION
-===================================================== */
-
-.shine{
-  animation:
-    shine 3s ease-in-out infinite;
-}
-
-@keyframes shine{
-  50%{
-    filter:brightness(1.12);
-  }
-}
-
-.fade{
-  animation:
-    fade .25s ease;
-}
-
-@keyframes fade{
-  from{
-    opacity:0;
-    transform:translateY(5px);
-  }
-
-  to{
-    opacity:1;
-    transform:none;
-  }
-}
-
-/* =====================================================
-   MOBILE
-===================================================== */
+/* MOBILE */
 
 @media(max-width:560px){
 
   .quick-grid{
-    grid-template-columns:
-      repeat(2,1fr);
+    grid-template-columns:repeat(2,1fr);
   }
 
   .game-grid{
-    grid-template-columns:
-      repeat(2,1fr);
+    grid-template-columns:repeat(2,1fr);
   }
 
 }
@@ -1349,32 +757,17 @@ input:focus{
   }
 
 }
-
 </style>
 </head>
 
-
 <body>
 
-<div class="app">
-
-<!-- =====================================================
-     LOGIN
-===================================================== -->
-
-<section
-  id="loginSection"
-  class="login-screen"
->
-
-  <div class="login-glow glow1"></div>
-  <div class="login-glow glow2"></div>
+<!-- LOGIN IS OUTSIDE APP -->
+<section id="loginSection" class="login-screen">
 
   <div class="login-card">
 
-    <div class="logo-ring">
-      🎮
-    </div>
+    <div class="logo-ring">🎮</div>
 
     <div class="brand-title">
       ELITE <b>FF</b> TOURNAMENTS
@@ -1385,97 +778,59 @@ input:focus{
     </div>
 
     <div class="input-box">
-
       <span>📧</span>
-
       <input
         id="email"
         type="email"
         placeholder="Enter your Email"
         autocomplete="email"
       >
-
     </div>
 
     <div class="input-box">
-
       <span>🔐</span>
-
       <input
         id="password"
         type="password"
         placeholder="Enter your Password"
         autocomplete="current-password"
       >
-
     </div>
 
-    <button
-      id="loginButton"
-      class="primary"
-      type="button"
-    >
+    <button id="loginButton" class="primary" type="button">
       ⚡ LOGIN
     </button>
 
-    <button
-      id="signupButton"
-      class="secondary"
-      type="button"
-    >
+    <button id="signupButton" class="secondary" type="button">
       🚀 CREATE ACCOUNT
     </button>
 
-    <div
-      id="authMessage"
-      class="message"
-    ></div>
-
-    <div class="login-footer">
-      🏆 COMPETE • ⚔️ DOMINATE • 💰 WIN
-    </div>
+    <div id="authMessage" class="message"></div>
 
   </div>
 
 </section>
 
 
-<!-- =====================================================
-     MAIN HOME
-===================================================== -->
+<!-- APP STARTS HERE -->
+<div id="appSection" class="app hidden">
 
-<section
-  id="homeSection"
-  class="hidden"
->
+<!-- HEADER -->
 
 <header class="top-header">
 
   <div class="brand">
 
-    <div class="brand-logo">
-      🎮
-    </div>
+    <div class="brand-logo">🎮</div>
 
     <div class="brand-text">
-
-      <strong>
-        ELITE FF
-      </strong>
-
-      <small>
-        TOURNAMENTS
-      </small>
-
+      <strong>ELITE FF</strong>
+      <small>TOURNAMENTS</small>
     </div>
 
   </div>
 
-  <button
-    id="notificationButton"
-    class="icon-btn"
-    type="button"
-  >
+  <button id="notificationButton" class="icon-btn">
     🔔
     <i class="dot"></i>
   </button>
@@ -1483,261 +838,200 @@ input:focus{
 </header>
 
 
-<!-- HERO -->
+<!-- ALL APP SECTIONS -->
 
-<div class="hero shine">
+<section id="homeSection">
 
-  <small>
-    WELCOME TO
-  </small>
+  <div class="hero">
 
-  <h1>
-    ELITE FF
-    <span>
-      TOURNAMENTS
-    </span>
-  </h1>
+    <small>WELCOME TO</small>
 
-  <p>
-    Play, compete and win big.
-    Join your favorite Free Fire tournament
-    and dominate the battlefield.
-  </p>
+    <h1>
+      ELITE FF
+      <span>TOURNAMENTS</span>
+    </h1>
 
-</div>
-
-
-<!-- WALLET -->
-
-<div class="wallet">
-
-  <div>
-
-    <div class="wallet-label">
-      WALLET BALANCE
-    </div>
-
-    <div
-      id="walletBalance"
-      class="wallet-value"
-    >
-      ₹0.00
-    </div>
+    <p>
+      Play, compete and win big.
+      Join your favorite Free Fire tournament
+      and dominate the battlefield.
+    </p>
 
   </div>
 
-  <div class="wallet-icon">
-    💰
-  </div>
 
-</div>
+  <div class="wallet">
 
+    <div>
+      <div class="wallet-label">
+        WALLET BALANCE
+      </div>
 
-<!-- QUICK ACTIONS -->
-
-<div class="section-title">
-  QUICK ACTIONS
-</div>
-
-<div class="quick-grid">
-
-  <button
-    class="quick"
-    id="openTournamentsButton"
-    type="button"
-  >
-
-    <div class="qicon">
-      🏆
+      <div id="walletBalance" class="wallet-value">
+        ₹0.00
+      </div>
     </div>
 
-    <b>
-      Matches
-    </b>
-
-    <small>
-      Join tournaments
-    </small>
-
-  </button>
-
-
-  <button
-    class="quick"
-    id="openDepositButton"
-    type="button"
-  >
-
-    <div class="qicon">
+    <div class="wallet-icon">
       💰
     </div>
 
-    <b>
-      Deposit
-    </b>
-
-    <small>
-      Add money
-    </small>
-
-  </button>
+  </div>
 
 
-  <button
-    class="quick"
-    id="openWithdrawButton"
-    type="button"
-  >
-
-    <div class="qicon">
-      💸
-    </div>
-
-    <b>
-      Withdraw
-    </b>
-
-    <small>
-      Get winnings
-    </small>
-
-  </button>
+  <div class="section-title">
+    QUICK ACTIONS
+  </div>
 
 
-  <button
-    class="quick"
-    id="openProfileButton"
-    type="button"
-  >
+  <div class="quick-grid">
 
-    <div class="qicon">
-      👤
-    </div>
-
-    <b>
-      Profile
-    </b>
-
-    <small>
-      My account
-    </small>
-
-</button>
-
-</div>
-    
+    <button
+      class="quick"
+      id="openTournamentsButton"
+      type="button"
+    >
+      <div class="qicon">🏆</div>
+      <b>Matches</b>
+      <small>Join tournaments</small>
+    </button>
 
 
-<!-- =========================
-     ESPORTS GAMES
-========================= -->
-
-<div class="section-title">
-  ESPORTS GAMES
-</div>
-
-<div class="game-grid">
-
-  <button
-    class="game"
-    type="button"
-    onclick="filterTournaments('Battle Royale')"
-  >
-    <div class="game-art">🤡</div>
-
-    <div class="game-info">
-      <b>BATTLE ROYALE ›</b>
-      <small>Solo / Squad</small>
-    </div>
-  </button>
+    <button
+      class="quick"
+      id="openDepositButton"
+      type="button"
+    >
+      <div class="qicon">💰</div>
+      <b>Deposit</b>
+      <small>Add money</small>
+    </button>
 
 
-  <button
-    class="game"
-    type="button"
-    onclick="filterTournaments('Clash Squad')"
-  >
-    <div class="game-art">🎮</div>
-
-    <div class="game-info">
-      <b>CLASH SQUAD ›</b>
-      <small>4 VS 4</small>
-    </div>
-  </button>
+    <button
+      class="quick"
+      id="openWithdrawButton"
+      type="button"
+    >
+      <div class="qicon">💸</div>
+      <b>Withdraw</b>
+      <small>Get winnings</small>
+    </button>
 
 
-  <button
-    class="game"
-    type="button"
-    onclick="filterTournaments('Lone Wolf')"
-  >
-    <div class="game-art">👹</div>
+    <button
+      class="quick"
+      id="openProfileButton"
+      type="button"
+    >
+      <div class="qicon">👤</div>
+      <b>Profile</b>
+      <small>My account</small>
+    </button>
 
-    <div class="game-info">
-      <b>LONE WOLF ›</b>
-      <small>1 VS 1</small>
-    </div>
-  </button>
-
-
-  <button
-    class="game"
-    type="button"
-    onclick="filterTournaments('BR Survival')"
-  >
-    <div class="game-art">🥷</div>
-
-    <div class="game-info">
-      <b>BR SURVIVAL ›</b>
-      <small>Survival</small>
-    </div>
-  </button>
+  </div>
 
 
-  <button
-    class="game"
-    type="button"
-    onclick="filterTournaments('Clash Squad 2.0')"
-  >
-    <div class="game-art">🐰</div>
-
-    <div class="game-info">
-      <b>CLASH SQUAD 2.0 ›</b>
-      <small>Premium</small>
-    </div>
-  </button>
+  <div class="section-title">
+    ESPORTS GAMES
+  </div>
 
 
-  <button
-    class="game"
-    type="button"
-    onclick="filterTournaments('Lone Wolf 2.0')"
-  >
-    <div class="game-art">😈</div>
+  <div class="game-grid">
 
-    <div class="game-info">
-      <b>LONE WOLF 2.0 ›</b>
-      <small>Premium</small>
-    </div>
-  </button>
+    <button
+      class="game"
+      type="button"
+      onclick="filterTournaments('Battle Royale')"
+    >
+      <div class="game-art">🤡</div>
+      <div class="game-info">
+        <b>BATTLE ROYALE ›</b>
+        <small>Solo / Squad</small>
+      </div>
+    </button>
 
-</div>
+
+    <button
+      class="game"
+      type="button"
+      onclick="filterTournaments('Clash Squad')"
+    >
+      <div class="game-art">🎮</div>
+      <div class="game-info">
+        <b>CLASH SQUAD ›</b>
+        <small>4 VS 4</small>
+      </div>
+    </button>
 
 
-<!-- =========================
-     TOURNAMENTS
-========================= -->
+    <button
+      class="game"
+      type="button"
+      onclick="filterTournaments('Lone Wolf')"
+    >
+      <div class="game-art">👹</div>
+      <div class="game-info">
+        <b>LONE WOLF ›</b>
+        <small>1 VS 1</small>
+      </div>
+    </button>
+
+
+    <button
+      class="game"
+      type="button"
+      onclick="filterTournaments('BR Survival')"
+    >
+      <div class="game-art">🥷</div>
+      <div class="game-info">
+        <b>BR SURVIVAL ›</b>
+        <small>Survival</small>
+      </div>
+    </button>
+
+
+    <button
+      class="game"
+      type="button"
+      onclick="filterTournaments('Clash Squad 2.0')"
+    >
+      <div class="game-art">🐰</div>
+      <div class="game-info">
+        <b>CLASH SQUAD 2.0 ›</b>
+        <small>Premium</small>
+      </div>
+    </button>
+
+
+    <button
+      class="game"
+      type="button"
+      onclick="filterTournaments('Lone Wolf 2.0')"
+    >
+      <div class="game-art">😈</div>
+      <div class="game-info">
+        <b>LONE WOLF 2.0 ›</b>
+        <small>Premium</small>
+      </div>
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- TOURNAMENTS -->
 
 <section
   id="tournamentsSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
 
     <div>
       <h2>🏆 Tournaments</h2>
-
       <small id="tournamentSubtitle">
         Available matches
       </small>
@@ -1754,19 +1048,17 @@ input:focus{
   </div>
 
   <div id="tournamentList">
-  <h2 style="color:red;">TEST TOURNAMENT</h2>
+    Loading...
   </div>
 
 </section>
 
 
-<!-- =========================
-     TEAM REGISTER
-========================= -->
+<!-- TEAM -->
 
 <section
   id="teamSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
@@ -1779,7 +1071,7 @@ input:focus{
     <button
       class="back"
       type="button"
-      onclick="showPanel('tournamentsSection')"
+      onclick="goBackFromTeam()"
     >
       ← Back
     </button>
@@ -1791,85 +1083,50 @@ input:focus{
     class="message"
   ></div>
 
+
   <div class="field">
     <label>TEAM NAME</label>
-    <input
-      id="teamName"
-      type="text"
-      placeholder="Enter Team Name"
-    >
+    <input id="teamName" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 1 NAME</label>
-    <input
-      id="player1Name"
-      type="text"
-      placeholder="Player Name"
-    >
+    <input id="player1Name" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 1 UID</label>
-    <input
-      id="player1UID"
-      type="text"
-      placeholder="Free Fire UID"
-    >
+    <input id="player1UID" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 2 NAME</label>
-    <input
-      id="player2Name"
-      type="text"
-      placeholder="Player Name"
-    >
+    <input id="player2Name" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 2 UID</label>
-    <input
-      id="player2UID"
-      type="text"
-      placeholder="Free Fire UID"
-    >
+    <input id="player2UID" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 3 NAME</label>
-    <input
-      id="player3Name"
-      type="text"
-      placeholder="Player Name"
-    >
+    <input id="player3Name" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 3 UID</label>
-    <input
-      id="player3UID"
-      type="text"
-      placeholder="Free Fire UID"
-    >
+    <input id="player3UID" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 4 NAME</label>
-    <input
-      id="player4Name"
-      type="text"
-      placeholder="Player Name"
-    >
+    <input id="player4Name" type="text">
   </div>
 
   <div class="field">
     <label>PLAYER 4 UID</label>
-    <input
-      id="player4UID"
-      type="text"
-      placeholder="Free Fire UID"
-    >
+    <input id="player4UID" type="text">
   </div>
 
   <button
@@ -1880,21 +1137,16 @@ input:focus{
     🏆 REGISTER TEAM & JOIN
   </button>
 
-  <div
-    id="teamMessage"
-    class="message"
-  ></div>
+  <div id="teamMessage" class="message"></div>
 
 </section>
 
 
-<!-- =========================
-     DEPOSIT
-========================= -->
+<!-- DEPOSIT -->
 
 <section
   id="depositSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
@@ -1914,15 +1166,14 @@ input:focus{
 
   </div>
 
+
   <div class="payment">
 
-    <div class="payment-title">
-      💳 Payment Details
-    </div>
+    <b>💳 Payment Details</b>
 
-    <div class="muted">
+    <p class="muted">
       UPI se payment karein:
-    </div>
+    </p>
 
     <div class="upi">
 
@@ -1940,32 +1191,29 @@ input:focus{
 
     </div>
 
-    <p class="muted">
-      Payment ke baad amount aur UTR / Transaction ID enter karein.
-    </p>
-
   </div>
+
 
   <div class="field">
     <label>AMOUNT</label>
-
     <input
       id="depositAmount"
       type="number"
       min="10"
-      placeholder="Amount (Minimum ₹10)"
+      placeholder="Minimum ₹10"
     >
   </div>
 
+
   <div class="field">
     <label>UTR / TRANSACTION ID</label>
-
     <input
       id="depositUTR"
       type="text"
       placeholder="UTR / Transaction ID"
     >
   </div>
+
 
   <button
     id="submitDepositButton"
@@ -1975,21 +1223,16 @@ input:focus{
     💰 SUBMIT DEPOSIT
   </button>
 
-  <div
-    id="depositMessage"
-    class="message"
-  ></div>
+  <div id="depositMessage" class="message"></div>
 
 </section>
 
 
-<!-- =========================
-     WITHDRAW
-========================= -->
+<!-- WITHDRAW -->
 
 <section
   id="withdrawSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
@@ -2009,6 +1252,7 @@ input:focus{
 
   </div>
 
+
   <div class="field">
     <label>WITHDRAW AMOUNT</label>
 
@@ -2016,9 +1260,10 @@ input:focus{
       id="withdrawAmount"
       type="number"
       min="50"
-      placeholder="Amount (Minimum ₹50)"
+      placeholder="Minimum ₹50"
     >
   </div>
+
 
   <div class="field">
     <label>UPI / BANK DETAILS</label>
@@ -2030,6 +1275,7 @@ input:focus{
     >
   </div>
 
+
   <button
     id="submitWithdrawButton"
     class="primary"
@@ -2038,21 +1284,16 @@ input:focus{
     💸 SUBMIT WITHDRAWAL
   </button>
 
-  <div
-    id="withdrawMessage"
-    class="message"
-  ></div>
+  <div id="withdrawMessage" class="message"></div>
 
 </section>
 
 
-<!-- =========================
-     MY TOURNAMENTS
-========================= -->
+<!-- MY TOURNAMENTS -->
 
 <section
   id="myTournamentsSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
@@ -2063,9 +1304,9 @@ input:focus{
     </div>
 
     <button
-      id="backMyTournamentButton"
       class="back"
       type="button"
+      onclick="goHome()"
     >
       ← Back
     </button>
@@ -2073,19 +1314,17 @@ input:focus{
   </div>
 
   <div id="myTournamentList">
-    ⏳ Loading...
+    No matches yet.
   </div>
 
 </section>
 
 
-<!-- =========================
-     PROFILE
-========================= -->
+<!-- PROFILE -->
 
 <section
   id="profileSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
@@ -2096,14 +1335,15 @@ input:focus{
     </div>
 
     <button
-      id="backProfileButton"
       class="back"
       type="button"
+      onclick="goHome()"
     >
       ← Back
     </button>
 
   </div>
+
 
   <div class="profile-card">
 
@@ -2118,126 +1358,127 @@ input:focus{
       User
     </div>
 
+
     <div class="stats">
 
       <div class="stat">
-        <b id="profileBalance">
-          ₹0
-        </b>
+        <b id="profileBalance">₹0</b>
         <small>Wallet</small>
       </div>
 
       <div class="stat">
-        <b id="profileMatches">
-          0
-        </b>
+
+        <b id="profileMatches">0</b>
         <small>Matches</small>
       </div>
 
       <div class="stat">
-        <b>Elite</b>
-        <small>Player</small>
+        <b id="profileWins">0</b>
+        <small>Wins</small>
       </div>
 
     </div>
 
-    <button
-      id="logoutButton"
-      class="danger"
-      type="button"
-    >
-      🚪 LOGOUT
-    </button>
-
   </div>
+
+  <button
+    id="logoutButton"
+    class="danger"
+    type="button"
+  >
+    🚪 LOGOUT
+  </button>
+
+  <div id="profileMessage" class="message"></div>
 
 </section>
 
 
-<!-- =========================
-     TOP PLAYERS
-========================= -->
+<!-- TOP PLAYERS -->
 
 <section
   id="topPlayersSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
 
     <div>
-      <h2>🏆 Top Players</h2>
+      <h2>👑 Top Players</h2>
       <small>Elite FF leaderboard</small>
     </div>
 
     <button
-      id="backTopPlayersButton"
       class="back"
       type="button"
+      onclick="goHome()"
     >
       ← Back
     </button>
 
   </div>
 
-  <div class="tournament">
-
-    <div class="trow">
-      <b>🥇 Elite Player</b>
-      <strong>₹10,000</strong>
-    </div>
-
-    <div class="trow">
-      <b>🥈 Pro Player</b>
-      <strong>₹7,500</strong>
-    </div>
-
-    <div class="trow">
-      <b>🥉 FF Champion</b>
-      <strong>₹5,000</strong>
-    </div>
-
+  <div id="leaderboardList" class="leaderboard">
+    Loading...
   </div>
 
 </section>
 
 
-<!-- =========================
-     CONTACT
-========================= -->
+<!-- CONTACT -->
 
 <section
   id="contactSection"
-  class="panel hidden fade"
+  class="panel hidden"
 >
 
   <div class="panel-head">
 
     <div>
       <h2>📞 Contact Us</h2>
-      <small>Elite FF Support</small>
+      <small>Need help?</small>
     </div>
 
     <button
-      id="backContactButton"
       class="back"
       type="button"
+      onclick="goHome()"
     >
       ← Back
     </button>
 
   </div>
 
-  <div class="tournament">
+  <div class="contact-box">
 
-    <div class="trow">
-      <span>📧 Email</span>
-      <b>support@eliteff.com</b>
+    <div class="contact-item">
+      <span>📱</span>
+      <div>
+        <b>WhatsApp Support</b>
+        <small class="muted">
+          Contact admin for help
+        </small>
+      </div>
     </div>
 
-    <div class="trow">
-      <span>💬 WhatsApp</span>
-      <b>Contact Admin</b>
+    <div class="contact-item">
+      <span>💬</span>
+      <div>
+        <b>Telegram Support</b>
+        <small class="muted">
+          Join our support channel
+        </small>
+      </div>
+    </div>
+
+    <div class="contact-item">
+      <span>📢</span>
+      <div>
+        <b>Elite FF Tournaments</b>
+        <small class="muted">
+          Tournament updates & announcements
+        </small>
+      </div>
     </div>
 
   </div>
@@ -2245,40 +1486,45 @@ input:focus{
 </section>
 
 
-<!-- =========================
-     GOLD BOTTOM NAV
-========================= -->
+<!-- BOTTOM NAV -->
 
-<nav class="bottom-nav">
+<nav
+  id="bottomNav"
+  class="bottom-nav hidden"
+>
 
   <button
+    id="navHome"
     class="nav-btn active"
     type="button"
-    onclick="showOnly(null)"
+    onclick="showOnly('homeSection')"
   >
     <span>🏠</span>
     <small>Home</small>
   </button>
 
   <button
+    id="navTournaments"
     class="nav-btn"
     type="button"
     onclick="showOnly('tournamentsSection')"
   >
-    <span>🎮</span>
+    <span>🏆</span>
     <small>Matches</small>
   </button>
 
   <button
+    id="navTopPlayers"
     class="nav-btn"
     type="button"
     onclick="showOnly('topPlayersSection')"
   >
-    <span>🏆</span>
-    <small>Top Players</small>
+    <span>👑</span>
+    <small>Players</small>
   </button>
 
   <button
+    id="navWallet"
     class="nav-btn"
     type="button"
     onclick="showOnly('depositSection')"
@@ -2288,6 +1534,7 @@ input:focus{
   </button>
 
   <button
+    id="navProfile"
     class="nav-btn"
     type="button"
     onclick="showOnly('profileSection')"
@@ -2298,12 +1545,8 @@ input:focus{
 
 </nav>
 
-</section>
+</div>
 
-
-<!-- =========================
-     JAVASCRIPT
-========================= -->
 
 <script>
 
@@ -2312,154 +1555,167 @@ input:focus{
 ===================================================== */
 
 const SUPABASE_URL =
-  "https://yenhkcditizmcekjeswy.supabase.co";
+  "YOUR_SUPABASE_URL";
 
-const SUPABASE_KEY =
-  "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+const SUPABASE_ANON_KEY =
+  "YOUR_SUPABASE_ANON_KEY";
 
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_KEY
+    SUPABASE_ANON_KEY
   );
 
+
+/* =====================================================
+   GLOBAL VARIABLES
+===================================================== */
+
 let currentUser = null;
+let currentTournament = null;
+let previousSection = "homeSection";
 
 
 /* =====================================================
    HELPERS
 ===================================================== */
 
-function $(id) {
+function $(id){
   return document.getElementById(id);
 }
 
-function setMessage(id, text) {
+
+function setMessage(id, text){
   const el = $(id);
 
-  if (el) {
-    el.textContent = text;
+  if(el){
+    el.textContent = text || "";
   }
 }
 
+
+function money(value){
+  const n = Number(value || 0);
+
+  return "₹" + n.toFixed(2);
+}
+
+
 /* =====================================================
-   SHOW ONLY SECTION
+   SHOW ONLY
 ===================================================== */
 
-function showOnly(sectionId) {
+function showOnly(sectionId){
 
   const sections = [
     "homeSection",
     "tournamentsSection",
-    "topPlayersSection",
+    "teamSection",
     "depositSection",
     "withdrawSection",
+    "myTournamentsSection",
     "profileSection",
-    "walletSection",
-    "matchesSection",
-    "myTournamentsSection"
+    "topPlayersSection",
+    "contactSection"
   ];
 
-  sections.forEach(function(id) {
+  sections.forEach(id => {
 
     const section = $(id);
 
-    if (!section) return;
+    if(!section) return;
 
-    if (id === sectionId) {
-      section.style.display = "block";
-    } else {
-      section.style.display = "none";
+    if(id === sectionId){
+
+      section.classList.remove("hidden");
+
+    }else{
+
+      section.classList.add("hidden");
+
     }
 
   });
 
 
-  /* Home */
-  if (sectionId === null) {
-
-    const home = $("homeSection");
-
-    if (home) {
-      home.style.display = "block";
-    }
-
+  if(sectionId === "homeSection"){
+    previousSection = "homeSection";
   }
 
 
-  /* Load data when section opens */
+  updateNav(sectionId);
 
-  if (sectionId === "walletSection") {
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
-    if (typeof loadWallet === "function") {
-      loadWallet();
-    }
-
-  }
-
-
-  if (sectionId === "matchesSection") {
-
-    if (typeof loadMyMatches === "function") {
-      loadMyMatches();
-    }
-
-  }
+}
 
 
-  if (sectionId === "topPlayersSection") {
+/* =====================================================
+   NAV ACTIVE
+===================================================== */
 
-    if (typeof loadTopPlayers === "function") {
-      loadTopPlayers();
-    }
+function updateNav(sectionId){
 
-  }
+  document.querySelectorAll(".nav-btn")
+    .forEach(btn => {
+      btn.classList.remove("active");
+    });
 
 
-  if (sectionId === "myTournamentsSection") {
+  const map = {
 
-    if (typeof loadMyTournaments === "function") {
-      loadMyTournaments();
-    }
+    homeSection:"navHome",
 
+    tournamentsSection:"navTournaments",
+
+    topPlayersSection:"navTopPlayers",
+
+    depositSection:"navWallet",
+
+    profileSection:"navProfile"
+
+  };
+
+
+  const navId = map[sectionId];
+
+  if(navId && $(navId)){
+    $(navId).classList.add("active");
   }
 
 }
 
 
-
 /* =====================================================
-   BOTTOM NAV
+   HOME
 ===================================================== */
 
-function updateBottomNav(sectionId) {
+function goHome(){
 
-  const buttons =
-    document.querySelectorAll(".nav-btn");
+  showOnly("homeSection");
 
-  buttons.forEach(function(btn) {
-    btn.classList.remove("active");
-  });
+}
 
-  if (sectionId === "tournamentsSection") {
-    buttons[1]?.classList.add("active");
+
+/* =====================================================
+   TEAM BACK
+===================================================== */
+
+function goBackFromTeam(){
+
+  if(previousSection){
+
+    showOnly(previousSection);
+
+  }else{
+
+    showOnly("tournamentsSection");
+
   }
 
-  else if (sectionId === "topPlayersSection") {
-    buttons[2]?.classList.add("active");
-  }
-
-  else if (sectionId === "depositSection") {
-    buttons[3]?.classList.add("active");
-  }
-
-  else if (sectionId === "profileSection") {
-    buttons[4]?.classList.add("active");
-  }
-
-  else {
-    buttons[0]?.classList.add("active");
-  }
 }
 
 
@@ -2467,1452 +1723,149 @@ function updateBottomNav(sectionId) {
    LOGIN
 ===================================================== */
 
-$("loginButton")?.addEventListener(
-  "click",
-  async function() {
+async function loginUser(){
 
-    const email =
-      $("email")?.value.trim();
+  const email =
+    $("email").value.trim();
 
-    const password =
-      $("password")?.value;
+  const password =
+    $("password").value;
 
-    if (!email || !password) {
 
-      setMessage(
-        "authMessage",
-        "⚠️ Email aur password enter karein."
-      );
-
-      return;
-    }
+  if(!email || !password){
 
     setMessage(
       "authMessage",
-      "⏳ Logging in..."
+      "Please enter email and password."
     );
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-    if (error) {
-
-      setMessage(
-        "authMessage",
-        "❌ Login failed: " + error.message
-      );
-
-      return;
-    }
-
-    currentUser = data.user;
-
-    setMessage(
-      "authMessage",
-      "✅ Login successful!"
-    );
-
-    openApp();
+    return;
   }
-);
+
+
+  setMessage(
+    "authMessage",
+    "Logging in..."
+  );
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+
+  if(error){
+
+    setMessage(
+      "authMessage",
+      error.message
+    );
+
+    return;
+  }
+
+
+  currentUser = data.user;
+
+  setMessage(
+    "authMessage",
+    "Login successful."
+  );
+
+
+  await startApp();
+
+}
 
 
 /* =====================================================
    CREATE ACCOUNT
 ===================================================== */
 
-$("signupButton")?.addEventListener(
-  "click",
-  async function() {
+async function createAccount(){
 
-    const email =
-      $("email")?.value.trim();
+  const email =
+    $("email").value.trim();
 
-    const password =
-      $("password")?.value;
+  const password =
+    $("password").value;
 
-    if (!email || !password) {
 
-      setMessage(
-        "authMessage",
-        "⚠️ Email aur password enter karein."
-      );
-
-      return;
-    }
-
-    if (password.length < 6) {
-
-      setMessage(
-        "authMessage",
-        "⚠️ Password minimum 6 characters ka hona chahiye."
-      );
-
-      return;
-    }
+  if(!email || !password){
 
     setMessage(
       "authMessage",
-      "⏳ Account create ho raha hai..."
-    );
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.signUp({
-        email: email,
-        password: password
-      });
-
-    if (error) {
-
-      setMessage(
-        "authMessage",
-        "❌ Signup failed: " + error.message
-      );
-
-      return;
-    }
-
-    if (data.session) {
-
-      currentUser = data.user;
-
-      setMessage(
-        "authMessage",
-        "✅ Account created successfully!"
-      );
-
-      openApp();
-
-    } else {
-
-      setMessage(
-        "authMessage",
-        "✅ Account created. Email verification required ho sakti hai."
-      );
-    }
-  }
-);
-
-
-/* =====================================================
-   OPEN APP
-===================================================== */
-
-function openApp() {
-
-  $("loginSection")?.classList.add("hidden");
-
-  $("homeSection")?.classList.remove("hidden");
-
-  showOnly(null);
-
-  loadProfile();
-  loadWallet();
-}
-
-
-/* =====================================================
-   SESSION CHECK
-===================================================== */
-
-async function checkSession() {
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.getSession();
-
-    if (error) {
-      console.error("Session error:", error);
-      return;
-    }
-
-    if (data.session?.user) {
-
-      currentUser =
-        data.session.user;
-
-      openApp();
-
-    } else {
-
-      currentUser = null;
-
-      $("loginSection")?.classList.remove("hidden");
-      $("homeSection")?.classList.add("hidden");
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Session check error:",
-      error
-    );
-
-  }
-}
-
-
-/* =====================================================
-   AUTH STATE
-===================================================== */
-
-supabaseClient.auth.onAuthStateChange(
-  function(event, session) {
-
-    currentUser =
-      session?.user || null;
-
-    if (session?.user) {
-
-      $("loginSection")?.classList.add("hidden");
-      $("homeSection")?.classList.remove("hidden");
-
-      loadProfile();
-      loadWallet();
-
-    } else {
-
-      $("loginSection")?.classList.remove("hidden");
-      $("homeSection")?.classList.add("hidden");
-
-    }
-
-  }
-);
-
-
-/* =====================================================
-   PROFILE
-===================================================== */
-
-function loadProfile() {
-
-  if (!currentUser) return;
-
-  const email =
-    currentUser.email || "User";
-
-  if ($("profileEmail")) {
-    $("profileEmail").textContent = email;
-  }
-
-}
-
-
-/* =====================================================
-   WALLET
-===================================================== */
-
-async function loadWallet() {
-
-  if (!currentUser) return;
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("profiles")
-        .select("wallet_balance")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-    if (error) {
-
-      console.error(
-        "Wallet error:",
-        error
-      );
-
-      return;
-    }
-
-    const balance =
-      Number(
-        data?.wallet_balance || 0
-      );
-
-    if ($("walletBalance")) {
-
-      $("walletBalance").textContent =
-        "₹" + balance.toFixed(2);
-
-    }
-
-    if ($("profileBalance")) {
-
-      $("profileBalance").textContent =
-        "₹" + balance.toFixed(2);
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Wallet load error:",
-      error
-    );
-
-  }
-}
-
-
-/* =====================================================
-   PROFILE BUTTON
-===================================================== */
-
-$("openProfileButton")?.addEventListener(
-  "click",
-  function() {
-
-    showOnly("profileSection");
-
-    loadProfile();
-    loadWallet();
-
-  }
-);
-
-
-/* =====================================================
-   TOURNAMENTS BUTTON
-===================================================== */
-
-$("openTournamentsButton")?.addEventListener(
-  "click",
-  function() {
-
-    showOnly("tournamentsSection");
-
-    loadTournaments();
-
-  }
-);
-
-
-/* =====================================================
-   DEPOSIT BUTTON
-===================================================== */
-
-$("openDepositButton")?.addEventListener(
-  "click",
-  function() {
-
-    showOnly("depositSection");
-
-  }
-);
-
-
-/* =====================================================
-   WITHDRAW BUTTON
-===================================================== */
-
-$("openWithdrawButton")?.addEventListener(
-  "click",
-  function() {
-
-    showOnly("withdrawSection");
-
-  }
-);
-
-
-/* =====================================================
-   LOAD TOURNAMENTS
-===================================================== */
-
-async function loadTournaments(filter = null) {
-
-  const list =
-    $("tournamentList");
-
-  const subtitle =
-    $("tournamentSubtitle");
-
-  if (!list) return;
-
-  list.innerHTML =
-    "⏳ Loading tournaments...";
-
-  try {
-
-    let query =
-      supabaseClient
-        .from("tournaments")
-        .select(`
-          id,
-          name,
-          sport,
-          description,
-          entry_fee,
-          prize_pool,
-          max_teams,
-          status,
-          starts_at
-        `)
-        .order(
-          "starts_at",
-          {
-            ascending:true
-          }
-        );
-
-    if (filter) {
-
-      query =
-        query.eq(
-          "sport",
-          filter
-        );
-
-    }
-
-    const {
-      data,
-      error
-    } = await query;
-
-    if (error) {
-
-      console.error(
-        "TOURNAMENT ERROR:",
-        error
-      );
-
-      list.innerHTML =
-        "❌ Tournaments load nahi ho pa rahe.";
-
-      return;
-    }
-
-    if (!data || data.length === 0) {
-
-      list.innerHTML =
-        "📭 Abhi koi tournament available nahi hai.";
-
-      if (subtitle) {
-
-        subtitle.textContent =
-          filter
-            ? filter + " mein koi tournament nahi mila."
-            : "Available matches";
-
-      }
-
-      return;
-    }
-
-    if (subtitle) {
-
-      subtitle.textContent =
-        filter
-          ? filter + " tournaments"
-          : "Available matches";
-
-    }
-
-
-    list.innerHTML =
-      data.map(function(tournament) {
-
-        const date =
-          tournament.starts_at
-            ? new Date(
-                tournament.starts_at
-              ).toLocaleString(
-                "en-IN",
-                {
-                  dateStyle:"medium",
-                  timeStyle:"short"
-                }
-              )
-            : "Time not set";
-
-
-        return `
-          <div class="tournament">
-
-            <div class="tournament-top">
-
-              <div>
-                <h3>
-                  🏆 ${escapeHTML(
-                    tournament.name ||
-                    "Elite Tournament"
-                  )}
-                </h3>
-
-                <div class="muted">
-                  ${escapeHTML(
-                    tournament.sport || "Free Fire"
-                  )}
-                </div>
-              </div>
-
-              <span class="badge">
-                ${escapeHTML(
-                  tournament.status ||
-                  "OPEN"
-                )}
-              </span>
-
-            </div>
-
-
-            <div class="trow">
-              <span>💰 Prize Pool</span>
-              <b>
-                ₹${Number(
-                  tournament.prize_pool || 0
-                )}
-              </b>
-            </div>
-
-
-            <div class="trow">
-              <span>🎟 Entry Fee</span>
-              <b>
-                ₹${Number(
-                  tournament.entry_fee || 0
-                )}
-              </b>
-            </div>
-
-
-            <div class="trow">
-              <span>👥 Max Teams</span>
-              <b>
-                ${Number(
-                  tournament.max_teams || 0
-                )}
-              </b>
-            </div>
-
-
-            <div class="trow">
-              <span>🕐 Starts</span>
-              <b>
-                ${date}
-              </b>
-            </div>
-
-
-            ${
-              tournament.description
-              ? `
-                <div
-                  class="muted"
-                  style="margin-top:10px"
-                >
-                  ${escapeHTML(
-                    tournament.description
-                  )}
-                </div>
-              `
-              : ""
-            }
-
-
-            <button
-              class="primary join"
-              type="button"
-              onclick="joinTournament('${tournament.id}')"
-            >
-              🎮 JOIN TOURNAMENT
-            </button>
-
-          </div>
-        `;
-
-      }).join("");
-
-
-  } catch (error) {
-
-    console.error(
-      "Tournament load error:",
-      error
-    );
-
-    list.innerHTML =
-      "❌ Something went wrong.";
-
-  }
-
-}
-
-
-/* =====================================================
-   HTML SAFE
-===================================================== */
-
-function escapeHTML(value) {
-
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-/* =====================================================
-   FILTER
-===================================================== */
-
-function filterTournaments(sport) {
-
-  showOnly("tournamentsSection");
-
-  loadTournaments(sport);
-
-}
-
-
-/* =====================================================
-   JOIN TOURNAMENT
-===================================================== */
-
-async function joinTournament(tournamentId) {
-
-  if (!currentUser) {
-
-    alert(
-      "⚠️ Pehle login karein."
+      "Please enter email and password."
     );
 
     return;
   }
 
-  try {
 
-    const {
-      data: tournament,
-      error: tournamentError
-    } =
-      await supabaseClient
-        .from("tournaments")
-        .select(`
-          id,
-          name,
-          entry_fee,
-          max_teams,
-          status
-        `)
-        .eq(
-          "id",
-          tournamentId
-        )
-        .single();
-
-    if (tournamentError) {
-
-      alert(
-        "❌ Tournament details nahi mil rahi."
-      );
-
-      console.error(
-        tournamentError
-      );
-
-      return;
-    }
-
-
-    if (
-      tournament.status &&
-      !["open","active","OPEN","ACTIVE"]
-        .includes(tournament.status)
-    ) {
-
-      alert(
-        "⚠️ Ye tournament abhi open nahi hai."
-      );
-
-      return;
-    }
-
-
-    const fee =
-      Number(
-        tournament.entry_fee || 0
-      );
-
-
-    if (fee > 0) {
-
-      const {
-        data: profile,
-        error: profileError
-      } =
-        await supabaseClient
-          .from("profiles")
-          .select("wallet_balance")
-          .eq(
-            "id",
-            currentUser.id
-          )
-          .maybeSingle();
-
-      if (profileError) {
-
-        alert(
-          "❌ Wallet check nahi ho saka."
-        );
-
-        return;
-      }
-
-      const balance =
-        Number(
-          profile?.wallet_balance || 0
-        );
-
-      if (balance < fee) {
-
-        alert(
-          "⚠️ Wallet balance kam hai.\n\n" +
-          "Entry Fee: ₹" + fee +
-          "\nWallet: ₹" + balance
-        );
-
-        showOnly(
-          "depositSection"
-        );
-
-        return;
-      }
-
-    }
-
-
-    $("teamTournamentInfo").innerHTML =
-      `
-        <b>🏆 ${
-          escapeHTML(
-            tournament.name
-          )
-        }</b><br>
-        Entry Fee: ₹${fee}
-      `;
-
-    window.selectedTournamentId =
-      tournamentId;
-
-    showOnly(
-      "teamSection"
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "JOIN ERROR:",
-      error
-    );
-
-    alert(
-      "❌ Something went wrong."
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   REGISTER TEAM
-===================================================== */
-
-$("registerTeamButton")?.addEventListener(
-  "click",
-  async function() {
-
-    if (!currentUser) {
-
-      setMessage(
-        "teamMessage",
-        "⚠️ Pehle login karein."
-      );
-
-      return;
-    }
-
-    const tournamentId =
-      window.selectedTournamentId;
-
-    if (!tournamentId) {
-
-      setMessage(
-        "teamMessage",
-        "⚠️ Tournament select nahi hua."
-      );
-
-      return;
-    }
-
-
-    const teamName =
-      $("teamName")?.value.trim();
-
-    const player1Name =
-      $("player1Name")?.value.trim();
-
-    const player1UID =
-      $("player1UID")?.value.trim();
-
-    if (
-      !teamName ||
-      !player1Name ||
-      !player1UID
-    ) {
-
-      setMessage(
-        "teamMessage",
-        "⚠️ Team name aur Player 1 details zaroori hain."
-      );
-
-      return;
-    }
-
+  if(password.length < 6){
 
     setMessage(
-      "teamMessage",
-      "⏳ Team register ho rahi hai..."
+      "authMessage",
+      "Password must be at least 6 characters."
     );
 
-
-    try {
-
-      /*
-       * IMPORTANT:
-       * Yahan tumhari existing Supabase
-       * registrations/teams schema ke according
-       * insert karna hoga.
-       *
-       * Isliye fake success nahi dikhaya ja raha.
-       */
-
-      setMessage(
-        "teamMessage",
-        "⚠️ Team form ready hai. Supabase table columns verify karke registration insert connect karein."
-      );
-
-    } catch (error) {
-
-      console.error(
-        "TEAM ERROR:",
-        error
-      );
-
-      setMessage(
-        "teamMessage",
-        "❌ Team registration failed."
-      );
-
-    }
-
-  }
-);
-
-
-/* =====================================================
-   DEPOSIT
-===================================================== */
-
-$("submitDepositButton")?.addEventListener(
-  "click",
-  async function() {
-
-    if (!currentUser) {
-
-      setMessage(
-        "depositMessage",
-        "⚠️ Pehle login karein."
-      );
-
-      return;
-    }
-
-
-    const amount =
-      Number(
-        $("depositAmount")?.value
-      );
-
-    const utr =
-      $("depositUTR")
-        ?.value
-        .trim();
-
-
-    if (!amount || amount < 10) {
-
-      setMessage(
-        "depositMessage",
-        "⚠️ Minimum deposit ₹10 hai."
-      );
-
-      return;
-    }
-
-
-    if (!utr) {
-
-      setMessage(
-        "depositMessage",
-        "⚠️ UTR / Transaction ID enter karein."
-      );
-
-      return;
-    }
-
-
-    setMessage(
-      "depositMessage",
-      "⏳ Deposit request submit ho rahi hai..."
-    );
-
-
-    try {
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("payments")
-          .insert({
-            user_id: currentUser.id,
-            amount: amount,
-            utr: utr,
-            status: "pending"
-          });
-
-
-      if (error) {
-
-        console.error(
-          "DEPOSIT ERROR:",
-          error
-        );
-
-        setMessage(
-          "depositMessage",
-          "❌ Deposit submit nahi hua: " +
-          error.message
-        );
-
-        return;
-      }
-
-
-      setMessage(
-        "depositMessage",
-        "✅ Deposit request submit ho gayi. Admin verification ke baad wallet update hoga."
-      );
-
-
-      if ($("depositAmount")) {
-        $("depositAmount").value = "";
-      }
-
-      if ($("depositUTR")) {
-        $("depositUTR").value = "";
-      }
-
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-      setMessage(
-        "depositMessage",
-        "❌ Something went wrong."
-      );
-
-    }
-
-  }
-);
-
-
-/* =====================================================
-   WITHDRAW
-===================================================== */
-
-$("submitWithdrawButton")?.addEventListener(
-  "click",
-  async function() {
-
-    if (!currentUser) {
-
-      setMessage(
-        "withdrawMessage",
-        "⚠️ Pehle login karein."
-      );
-
-      return;
-    }
-
-
-    const amount =
-      Number(
-        $("withdrawAmount")?.value
-      );
-
-    const upi =
-      $("withdrawUPI")
-        ?.value
-        .trim();
-
-
-    if (!amount || amount < 50) {
-
-      setMessage(
-        "withdrawMessage",
-        "⚠️ Minimum withdrawal ₹50 hai."
-      );
-
-      return;
-    }
-
-
-    if (!upi) {
-
-      setMessage(
-        "withdrawMessage",
-        "⚠️ UPI ID / Bank details enter karein."
-      );
-
-      return;
-    }
-
-
-    setMessage(
-      "withdrawMessage",
-      "⏳ Withdrawal request submit ho rahi hai..."
-    );
-
-
-    try {
-
-      const {
-        data: profile,
-        error: profileError
-      } =
-        await supabaseClient
-          .from("profiles")
-          .select("wallet_balance")
-          .eq(
-            "id",
-            currentUser.id
-          )
-          .maybeSingle();
-
-
-     if (profileError) {
-
-      console.error("Profile error:", profileError);
-
-      setMessage(
-        "withdrawMessage",
-        "❌ Wallet balance check nahi ho saka."
-      );
-
-      return;
-    }
-
-
-    if (!profile) {
-
-      setMessage(
-        "withdrawMessage",
-        "❌ Profile nahi mili."
-      );
-
-      return;
-    }
-
-
-    const walletBalance =
-      Number(profile.wallet_balance || 0);
-
-
-    if (amount > walletBalance) {
-
-      setMessage(
-        "withdrawMessage",
-        "❌ Wallet mein itna balance nahi hai."
-      );
-
-      return;
-    }
-
-
-    /*
-      Withdrawal request create karo.
-      Admin baad mein approve/reject karega.
-    */
-
-    const {
-      data: withdrawal,
-      error: withdrawalError
-    } =
-      await supabaseClient
-        .from("withdrawals")
-        .insert([
-          {
-            user_id: currentUser.id,
-            amount: amount,
-            upi_id: upi,
-            status: "pending"
-          }
-        ])
-        .select()
-        .single();
-
-
-    if (withdrawalError) {
-
-      console.error(
-        "Withdrawal error:",
-        withdrawalError
-      );
-
-      setMessage(
-        "withdrawMessage",
-        "❌ Withdrawal request submit nahi hui."
-      );
-
-      return;
-    }
-
-
-    setMessage(
-      "withdrawMessage",
-      "✅ Withdrawal request submit ho gayi. Admin approval ka wait karein."
-    );
-
-
-    /*
-      Form clear
-    */
-
-    if ($("withdrawAmount")) {
-      $("withdrawAmount").value = "";
-    }
-
-    if ($("withdrawUPI")) {
-      $("withdrawUPI").value = "";
-    }
-
-
-    /*
-      Wallet refresh
-    */
-
-    if (typeof loadWallet === "function") {
-      await loadWallet();
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Withdraw exception:",
-      error
-    );
-
-    setMessage(
-      "withdrawMessage",
-      "❌ Kuch error aa gaya. Dobara try karein."
-    );
-  }
-
-});
-
-    /* =====================================================
-   MY TOURNAMENTS
-===================================================== */
-
-async function loadMyTournaments() {
-
-  if (!currentUser) {
     return;
   }
 
-  const container =
-    $("myTournamentsList");
 
-  if (!container) {
+  setMessage(
+    "authMessage",
+    "Creating account..."
+  );
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+
+
+  if(error){
+
+    setMessage(
+      "authMessage",
+      error.message
+    );
+
     return;
   }
 
-  container.innerHTML =
-    `<div class="loading">⏳ Loading...</div>`;
 
-  try {
+  if(data.user){
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("registrations")
-        .select(`
-          *,
-          tournaments (
-            id,
-            name,
-            entry_fee,
-            prize_pool,
-            status,
-            date,
-            time
-          )
-        `)
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .order(
-          "created_at",
-          { ascending: false }
-        );
+    currentUser = data.user;
 
-
-    if (error) {
-
-      console.error(
-        "My tournaments error:",
-        error
-      );
-
-      container.innerHTML =
-        `<div class="empty">
-          ❌ Tournaments load nahi ho sake.
-        </div>`;
-
-      return;
-    }
-
-
-    if (!data || data.length === 0) {
-
-      container.innerHTML =
-        `<div class="empty">
-          🎮 Aapne abhi koi tournament join nahi kiya.
-        </div>`;
-
-      return;
-    }
-
-
-    container.innerHTML = "";
-
-
-    data.forEach(function(registration) {
-
-      const tournament =
-        registration.tournaments || {};
-
-
-      const card =
-        document.createElement("div");
-
-      card.className =
-        "tournament-card";
-
-
-      card.innerHTML = `
-
-        <div class="tournament-card-header">
-
-          <h3>
-            ${tournament.name || "Tournament"}
-          </h3>
-
-          <span class="status">
-            ${registration.status || "pending"}
-          </span>
-
-        </div>
-
-
-        <div class="tournament-info">
-
-          <div>
-            💰 Entry Fee
-            <strong>
-              ₹${tournament.entry_fee || 0}
-            </strong>
-          </div>
-
-          <div>
-            🏆 Prize Pool
-            <strong>
-              ₹${tournament.prize_pool || 0}
-            </strong>
-          </div>
-
-          <div>
-            📅 Date
-            <strong>
-                            ${tournament.date || "-"}
-            </strong>
-          </div>
-
-          <div>
-            ⏰ Time
-            <strong>
-              ${tournament.time || "-"}
-            </strong>
-          </div>
-
-        </div>
-
-      `;
-
-
-      card.addEventListener(
-        "click",
-        function() {
-
-          if (
-            typeof showTournamentDetails === "function"
-          ) {
-            showTournamentDetails(
-              tournament.id
-            );
-          }
-
-        }
-      );
-
-
-      container.appendChild(card);
-
-    });
-
-
-  } catch (error) {
-
-    console.error(
-      "My tournaments exception:",
-      error
+    setMessage(
+      "authMessage",
+      "Account created successfully."
     );
 
-    container.innerHTML =
-      `<div class="empty">
-        ❌ Kuch error aa gaya.
-      </div>`;
+    if(data.session){
 
-  }
+      await startApp();
 
-}
+    }else{
 
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-$("logoutButton")?.addEventListener(
-  "click",
-  async function() {
-
-    try {
-
-      await supabaseClient.auth.signOut();
-
-      currentUser = null;
-
-      showOnly(null);
-
-    } catch (error) {
-
-      console.error(
-        "Logout error:",
-        error
+      setMessage(
+        "authMessage",
+        "Account created. Please verify your email, then login."
       );
 
     }
-
-  }
-);
-
-
-/* =====================================================
-   CHECK SESSION
-===================================================== */
-
-async function checkSession() {
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.getSession();
-
-    if (error) {
-
-      console.error(
-        "Session error:",
-        error
-      );
-
-      return;
-    }
-
-
-    if (
-      data?.session?.user
-    ) {
-
-      currentUser =
-        data.session.user;
-
-      if (
-        typeof startApp === "function"
-      ) {
-
-        await startApp();
-
-      }
-
-    } else {
-
-      currentUser = null;
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Check session error:",
-      error
-    );
 
   }
 
@@ -3923,10 +1876,1499 @@ async function checkSession() {
    START APP
 ===================================================== */
 
-checkSession();
-  </script>
+async function startApp(){
 
-</body> 
-</html>            
-          
+  if(!currentUser) return;
 
+
+  $("loginSection")
+    .classList.add("hidden");
+
+
+  $("appSection")
+    .classList.remove("hidden");
+
+
+  $("bottomNav")
+    .classList.remove("hidden");
+
+
+  showOnly("homeSection");
+
+
+  const email =
+    currentUser.email || "User";
+
+
+  if($("profileEmail")){
+
+    $("profileEmail").textContent =
+      email;
+
+  }
+
+
+  await Promise.allSettled([
+
+    loadWallet(),
+
+    loadTournaments(),
+
+    loadMyTournaments(),
+
+    loadLeaderboard(),
+
+    loadProfileStats()
+
+  ]);
+
+}
+
+
+/* =====================================================
+   CHECK SESSION
+===================================================== */
+
+async function checkSession(){
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient.auth.getSession();
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+  }
+
+
+  if(data &&
+     data.session &&
+     data.session.user){
+
+    currentUser =
+      data.session.user;
+
+    await startApp();
+
+  }else{
+
+    currentUser = null;
+
+    $("loginSection")
+      .classList.remove("hidden");
+
+    $("appSection")
+      .classList.add("hidden");
+
+    $("bottomNav")
+      .classList.add("hidden");
+
+  }
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logoutUser(){
+
+  const {
+    error
+  } =
+  await supabaseClient.auth.signOut();
+
+
+  if(error){
+
+    setMessage(
+      "profileMessage",
+      error.message
+    );
+
+    return;
+  }
+
+
+  currentUser = null;
+
+
+  $("appSection")
+    .classList.add("hidden");
+
+
+  $("bottomNav")
+    .classList.add("hidden");
+
+
+  $("loginSection")
+    .classList.remove("hidden");
+
+
+  $("email").value = "";
+
+  $("password").value = "";
+
+  setMessage(
+    "authMessage",
+    "Logged out successfully."
+  );
+
+}
+
+
+/* =====================================================
+   WALLET
+===================================================== */
+
+async function loadWallet(){
+
+  if(!currentUser) return;
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient
+      .from("profiles")
+      .select("wallet_balance")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+
+
+    if(error){
+
+      console.error(
+        "Wallet error:",
+        error
+      );
+
+      return;
+    }
+
+
+    const balance =
+      Number(
+        data?.wallet_balance || 0
+      );
+
+
+    if($("walletBalance")){
+
+      $("walletBalance")
+        .textContent =
+        money(balance);
+
+    }
+
+
+    if($("profileBalance")){
+
+      $("profileBalance")
+        .textContent =
+        money(balance);
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
+
+
+/* =====================================================
+   TOURNAMENTS
+===================================================== */
+
+async function loadTournaments(
+  filter = null
+){
+
+  const list =
+    $("tournamentList");
+
+
+  if(!list) return;
+
+
+  list.innerHTML =
+    "Loading tournaments...";
+
+
+  let query =
+    supabaseClient
+      .from("tournaments")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      );
+
+
+  const {
+    data,
+    error
+  } = await query;
+
+
+  if(error){
+
+    list.innerHTML =
+      "Unable to load tournaments.";
+
+    console.error(error);
+
+    return;
+  }
+
+
+  let tournaments =
+    data || [];
+
+
+  if(filter){
+
+    tournaments =
+      tournaments.filter(t => {
+
+        const text =
+          (
+            (t.name || "") +
+            " " +
+            (t.game_mode || "") +
+            " " +
+            (t.mode || "") +
+            " " +
+            (t.category || "")
+          ).toLowerCase();
+
+
+        return text.includes(
+          filter.toLowerCase()
+        );
+
+      });
+
+  }
+
+
+  if(!tournaments.length){
+
+    list.innerHTML =
+      `<div class="message">
+        No tournaments available.
+      </div>`;
+
+    return;
+  }
+
+
+  list.innerHTML = "";
+
+
+  tournaments.forEach(tournament => {
+
+    const card =
+      document.createElement("div");
+
+
+    card.className =
+      "tournament";
+
+
+    const name =
+      tournament.name ||
+      tournament.title ||
+      "Tournament";
+
+
+    const entry =
+      Number(
+        tournament.entry_fee ||
+        tournament.entryFee ||
+        0
+      );
+
+
+    const prize =
+      tournament.prize_pool ||
+      tournament.prizePool ||
+      tournament.prize ||
+      0;
+
+
+    const mode =
+      tournament.game_mode ||
+      tournament.mode ||
+      "Free Fire";
+
+
+    const status =
+      tournament.status ||
+      "Open";
+
+
+    card.innerHTML = `
+
+      <div class="tournament-top">
+
+        <h3>
+          ${escapeHTML(name)}
+        </h3>
+
+        <span class="badge">
+          ${escapeHTML(String(status))}
+        </span>
+
+      </div>
+
+      <div class="trow">
+        <span>Game</span>
+        <b>${escapeHTML(String(mode))}</b>
+      </div>
+
+      <div class="trow">
+        <span>Entry Fee</span>
+        <b>₹${entry}</b>
+      </div>
+
+      <div class="trow">
+        <span>Prize Pool</span>
+        <b>₹${prize}</b>
+      </div>
+
+      <button
+        class="primary join"
+        type="button"
+      >
+        🏆 JOIN TOURNAMENT
+      </button>
+
+    `;
+
+
+    const joinButton =
+      card.querySelector(".join");
+
+
+    joinButton.addEventListener(
+      "click",
+      () => {
+
+        openTournament(tournament);
+
+      }
+    );
+
+
+    list.appendChild(card);
+
+  });
+
+}
+
+
+/* =====================================================
+   FILTER TOURNAMENTS
+===================================================== */
+
+async function filterTournaments(
+  filter
+){
+
+  previousSection =
+    "homeSection";
+
+
+  showOnly(
+    "tournamentsSection"
+  );
+
+
+  const subtitle =
+    $("tournamentSubtitle");
+
+
+  if(subtitle){
+
+    subtitle.textContent =
+      filter + " tournaments";
+
+  }
+
+
+  await loadTournaments(filter);
+
+}
+
+
+/* =====================================================
+   OPEN TOURNAMENT
+===================================================== */
+
+function openTournament(tournament){
+
+  currentTournament =
+    tournament;
+
+
+  const mode =
+    tournament.game_mode ||
+    tournament.mode ||
+    "";
+
+
+  const entry =
+    Number(
+      tournament.entry_fee ||
+      tournament.entryFee ||
+      0
+    );
+
+
+  const name =
+    tournament.name ||
+    tournament.title ||
+    "Tournament";
+
+
+  if($("teamTournamentInfo")){
+
+    $("teamTournamentInfo")
+      .textContent =
+      `${name} • Entry Fee ₹${entry} • ${mode}`;
+
+  }
+
+
+  previousSection =
+    "tournamentsSection";
+
+
+  showOnly("teamSection");
+
+}
+
+
+/* =====================================================
+   REGISTER TEAM
+===================================================== */
+
+async function registerTeam(){
+
+  if(!currentUser){
+
+    setMessage(
+      "teamMessage",
+      "Please login first."
+    );
+
+    return;
+  }
+
+
+  if(!currentTournament){
+
+    setMessage(
+      "teamMessage",
+      "Please select a tournament."
+    );
+
+    return;
+  }
+
+
+  const teamName =
+    $("teamName").value.trim();
+
+
+  const players = [
+
+    {
+      name:$("player1Name").value.trim(),
+      uid:$("player1UID").value.trim()
+    },
+
+    {
+      name:$("player2Name").value.trim(),
+      uid:$("player2UID").value.trim()
+    },
+
+    {
+      name:$("player3Name").value.trim(),
+      uid:$("player3UID").value.trim()
+    },
+
+    {
+      name:$("player4Name").value.trim(),
+      uid:$("player4UID").value.trim()
+    }
+
+  ];
+
+
+  if(!teamName){
+
+    setMessage(
+      "teamMessage",
+      "Enter team name."
+    );
+
+    return;
+  }
+
+
+  for(let i = 0; i < players.length; i++){
+
+    if(!players[i].name ||
+       !players[i].uid){
+
+      setMessage(
+        "teamMessage",
+        `Enter Player ${i + 1} name and UID.`
+      );
+
+      return;
+    }
+
+  }
+
+
+  const entryFee =
+    Number(
+      currentTournament.entry_fee ||
+      currentTournament.entryFee ||
+      0
+    );
+
+
+  setMessage(
+    "teamMessage",
+    "Checking wallet..."
+  );
+
+
+  const {
+    data:profile,
+    error:profileError
+  } =
+  await supabaseClient
+    .from("profiles")
+    .select("wallet_balance")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+
+  if(profileError){
+
+    setMessage(
+      "teamMessage",
+      profileError.message
+    );
+
+    return;
+  }
+
+
+  const balance =
+    Number(
+      profile?.wallet_balance || 0
+    );
+
+
+  if(balance < entryFee){
+
+    setMessage(
+      "teamMessage",
+      `Insufficient wallet balance. Required ₹${entryFee}.`
+    );
+
+    return;
+  }
+
+
+  setMessage(
+    "teamMessage",
+    "Registering team..."
+  );
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient
+      .from("teams")
+      .insert({
+
+        user_id:currentUser.id,
+
+        tournament_id:
+          currentTournament.id,
+
+        team_name:teamName,
+
+        player1_name:players[0].name,
+        player1_uid:players[0].uid,
+
+        player2_name:players[1].name,
+        player2_uid:players[1].uid,
+
+        player3_name:players[2].name,
+        player3_uid:players[2].uid,
+
+        player4_name:players[3].name,
+        player4_uid:players[3].uid
+
+      })
+      .select()
+      .single();
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    const newBalance =
+      balance - entryFee;
+
+
+    const {
+      error:updateError
+    } =
+    await supabaseClient
+      .from("profiles")
+      .update({
+        wallet_balance:newBalance
+      })
+      .eq(
+        "id",
+        currentUser.id
+      );
+
+
+    if(updateError){
+
+      throw updateError;
+
+    }
+
+
+    setMessage(
+      "teamMessage",
+      "🏆 Team registered successfully!"
+    );
+
+
+    await loadWallet();
+
+    await loadMyTournaments();
+
+
+    setTimeout(() => {
+
+      showOnly(
+        "myTournamentsSection"
+      );
+
+    },700);
+
+
+  }catch(error){
+
+    console.error(error);
+
+    setMessage(
+      "teamMessage",
+      error.message ||
+      "Unable to register team."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   DEPOSIT
+===================================================== */
+
+async function submitDeposit(){
+
+  if(!currentUser){
+
+    setMessage(
+      "depositMessage",
+      "Please login first."
+    );
+
+    return;
+  }
+
+
+  const amount =
+    Number(
+      $("depositAmount").value
+    );
+
+
+  const utr =
+    $("depositUTR")
+      .value
+      .trim();
+
+
+  if(!amount || amount < 10){
+
+    setMessage(
+      "depositMessage",
+      "Minimum deposit is ₹10."
+    );
+
+    return;
+  }
+
+
+  if(!utr){
+
+    setMessage(
+      "depositMessage",
+      "Enter UTR / Transaction ID."
+    );
+
+    return;
+  }
+
+
+  setMessage(
+    "depositMessage",
+    "Submitting deposit..."
+  );
+
+
+  const {
+    error
+  } =
+  await supabaseClient
+    .from("payments")
+    .insert({
+
+      user_id:currentUser.id,
+
+      amount:amount,
+
+      utr:utr,
+
+      type:"deposit",
+
+      status:"pending"
+
+    });
+
+
+  if(error){
+
+    console.error(error);
+
+    setMessage(
+      "depositMessage",
+      error.message
+    );
+
+    return;
+  }
+
+
+  $("depositAmount").value = "";
+
+  $("depositUTR").value = "";
+
+
+  setMessage(
+    "depositMessage",
+    "✅ Deposit submitted. Admin will verify it."
+  );
+
+}
+
+
+/* =====================================================
+   WITHDRAW
+===================================================== */
+
+async function submitWithdraw(){
+
+  if(!currentUser){
+
+    setMessage(
+      "withdrawMessage",
+      "Please login first."
+    );
+
+    return;
+  }
+
+
+  const amount =
+    Number(
+      $("withdrawAmount").value
+    );
+
+
+  const details =
+    $("withdrawUPI")
+      .value
+      .trim();
+
+
+  if(!amount || amount < 50){
+
+    setMessage(
+      "withdrawMessage",
+      "Minimum withdrawal is ₹50."
+    );
+
+    return;
+  }
+
+
+  if(!details){
+
+    setMessage(
+      "withdrawMessage",
+      "Enter UPI / Bank Details."
+    );
+
+    return;
+  }
+
+
+  setMessage(
+    "withdrawMessage",
+    "Checking wallet..."
+  );
+
+
+  const {
+    data:profile,
+    error:profileError
+  } =
+  await supabaseClient
+    .from("profiles")
+    .select("wallet_balance")
+    .eq("id",currentUser.id)
+    .maybeSingle();
+
+
+  if(profileError){
+
+    setMessage(
+      "withdrawMessage",
+      profileError.message
+    );
+
+    return;
+  }
+
+
+  const balance =
+    Number(
+      profile?.wallet_balance || 0
+    );
+
+
+  if(amount > balance){
+
+    setMessage(
+      "withdrawMessage",
+      "Insufficient wallet balance."
+    );
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+  await supabaseClient
+    .from("withdrawals")
+    .insert({
+
+      user_id:currentUser.id,
+
+      amount:amount,
+
+      upi_details:details,
+
+      status:"pending"
+
+    });
+
+
+  if(error){
+
+    console.error(error);
+
+    setMessage(
+      "withdrawMessage",
+      error.message );
+    ge
+    );
+
+    return;
+  }
+
+
+  setMessage(
+    "withdrawMessage",
+    "✅ Withdrawal request submitted successfully. Admin will review it."
+  );
+
+
+  $("withdrawAmount").value = "";
+
+  $("withdrawUPI").value = "";
+
+
+  await loadWallet();
+
+}
+
+
+/* =====================================================
+   MY TOURNAMENTS
+===================================================== */
+
+async function loadMyTournaments(){
+
+  const list =
+    $("myTournamentList");
+
+
+  if(!list || !currentUser)
+    return;
+
+
+  list.innerHTML =
+    "Loading...";
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .from("teams")
+    .select("*")
+    .eq(
+      "user_id",
+      currentUser.id
+    )
+    .order(
+      "created_at",
+      {ascending:false}
+    );
+
+
+  if(error){
+
+    list.innerHTML =
+      `<div class="message">
+        ${escapeHTML(error.message)}
+      </div>`;
+
+    return;
+  }
+
+
+  if(!data || !data.length){
+
+    list.innerHTML =
+      `<div class="message">
+        No matches yet.
+      </div>`;
+
+    return;
+  }
+
+
+  list.innerHTML = "";
+
+
+  data.forEach(team => {
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "tournament";
+
+
+    card.innerHTML = `
+
+      <div class="tournament-top">
+
+        <h3>
+          ${escapeHTML(
+            team.team_name || "My Team"
+          )}
+        </h3>
+
+        <span class="badge">
+          JOINED
+        </span>
+
+      </div>
+
+      <div class="trow">
+        <span>Player 1</span>
+        <b>
+          ${escapeHTML(
+            team.player1_name || "-"
+          )}
+        </b>
+      </div>
+
+      <div class="trow">
+        <span>Player 2</span>
+        <b>
+          ${escapeHTML(
+            team.player2_name || "-"
+          )}
+        </b>
+      </div>
+
+      <div class="trow">
+        <span>Player 3</span>
+        <b>
+          ${escapeHTML(
+            team.player3_name || "-"
+          )}
+        </b>
+      </div>
+
+      <div class="trow">
+        <span>Player 4</span>
+        <b>
+          ${escapeHTML(
+            team.player4_name || "-"
+          )}
+        </b>
+      </div>
+
+    `;
+
+
+    list.appendChild(card);
+
+  });
+
+}
+
+
+/* =====================================================
+   PROFILE STATS
+===================================================== */
+
+async function loadProfileStats(){
+
+  if(!currentUser) return;
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient
+      .from("teams")
+      .select("id")
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
+
+    if(!error && $("profileMatches")){
+
+      $("profileMatches")
+        .textContent =
+        data?.length || 0;
+
+    }
+
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+
+  if($("profileWins")){
+
+    $("profileWins")
+      .textContent = "0";
+
+  }
+
+}
+
+
+/* =====================================================
+   LEADERBOARD / TOP PLAYERS
+===================================================== */
+
+async function loadLeaderboard(){
+
+  const list =
+    $("leaderboardList");
+
+
+  if(!list) return;
+
+
+  list.innerHTML =
+    "Loading...";
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient
+      .from("profiles")
+      .select(
+        "id,username,wins"
+      )
+      .order(
+        "wins",
+        {ascending:false}
+      )
+      .limit(10);
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    if(!data || !data.length){
+
+      list.innerHTML =
+        `<div class="message">
+          No players yet.
+        </div>`;
+
+      return;
+    }
+
+
+    list.innerHTML = "";
+
+
+    data.forEach(
+      (player,index) => {
+
+        const row =
+          document.createElement("div");
+
+
+        row.className =
+          "leader";
+
+
+        row.innerHTML = `
+
+          <b>
+            #${index + 1}
+          </b>
+
+          <span>
+            ${escapeHTML(
+              player.username ||
+              "Player"
+            )}
+          </span>
+
+          <b>
+            ${Number(
+              player.wins || 0
+            )} Wins
+          </b>
+
+        `;
+
+
+        list.appendChild(row);
+
+      }
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    list.innerHTML =
+      `<div class="message">
+        Unable to load top players.
+      </div>`;
+
+  }
+
+}
+
+
+/* =====================================================
+   COPY UPI
+===================================================== */
+
+function copyUPI(){
+
+  const upi =
+    $("upiId")?.textContent?.trim();
+
+
+  if(!upi) return;
+
+
+  navigator.clipboard
+    .writeText(upi)
+    .then(() => {
+
+      setMessage(
+        "depositMessage",
+        "✅ UPI ID copied."
+      );
+
+    })
+    .catch(() => {
+
+      setMessage(
+        "depositMessage",
+        "Unable to copy UPI ID."
+      );
+
+    });
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================================
+   BUTTON EVENTS
+===================================================== */
+$("loginButton")
+  ?.addEventListener(
+    "click",
+    loginUser
+  );
+
+
+$("signupButton")
+  ?.addEventListener(
+    "click",
+    createAccount
+  );
+
+
+$("logoutButton")
+  ?.addEventListener(
+    "click",
+    logoutUser
+  );
+
+
+$("registerTeamButton")
+  ?.addEventListener(
+    "click",
+    registerTeam
+  );
+
+
+$("submitDepositButton")
+  ?.addEventListener(
+    "click",
+    submitDeposit
+  );
+
+
+$("submitWithdrawButton")
+  ?.addEventListener(
+    "click",
+    submitWithdraw
+  );
+
+
+$("openTournamentsButton")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      previousSection =
+        "homeSection";
+
+      showOnly(
+        "tournamentsSection"
+      );
+
+      loadTournaments();
+
+    }
+  );
+
+
+$("openDepositButton")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      previousSection =
+        "homeSection";
+
+      showOnly(
+        "depositSection"
+      );
+
+    }
+  );
+
+
+$("openWithdrawButton")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      previousSection =
+        "homeSection";
+
+      showOnly(
+        "withdrawSection"
+      );
+
+    }
+  );
+
+
+$("openProfileButton")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      previousSection =
+        "homeSection";
+
+      showOnly(
+        "profileSection"
+      );
+
+      loadProfileStats();
+
+    }
+  );
+
+
+$("backDepositButton")
+  ?.addEventListener(
+    "click",
+    goHome
+  );
+
+
+$("backWithdrawButton")
+  ?.addEventListener(
+    "click",
+    goHome
+  );
+
+
+$("notificationButton")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      alert(
+        "No new notifications."
+      );
+
+    }
+  );
+
+
+/* =====================================================
+   AUTH STATE
+===================================================== */
+
+supabaseClient.auth
+  .onAuthStateChange(
+    async (event, session) => {
+
+      if(session?.user){
+
+        currentUser =
+          session.user;
+
+        await startApp();
+
+      }
+
+    }
+  );
+
+
+/* =====================================================
+   START APP
+===================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    checkSession();
+
+  }
+);
+
+</script>
+
+</body>
+</html>
