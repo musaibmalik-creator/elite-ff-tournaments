@@ -2019,35 +2019,6 @@ async function loadTournaments(filter = null) {
   }
 
 }
-// =====================================================
-// OPEN TEAM REGISTRATION
-// =====================================================
-
-function openTeamRegistration(tournamentId) {
-
-  const teamSection =
-    document.getElementById("teamSection");
-
-  if (!teamSection) {
-    console.error("teamSection not found");
-    return;
-  }
-
-  // Save selected tournament
-  window.selectedTournamentId = tournamentId;
-
-  // Show team registration screen
-  showOnly("teamSection");
-
-  // Load tournament information
-  const info =
-    document.getElementById("teamTournamentInfo");
-
-  if (info) {
-    info.textContent =
-      "Tournament selected. Enter your team and player details.";
-  }
-}
 
 /* =====================================================
    HTML ESCAPE
