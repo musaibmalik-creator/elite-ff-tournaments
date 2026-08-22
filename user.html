@@ -1850,7 +1850,6 @@ function updateBottomNav(sectionId) {
 
 }
 
-
 /* =====================================================
    TOURNAMENTS
 ===================================================== */
@@ -1865,10 +1864,8 @@ async function loadTournaments(filter = null) {
 
   if (!list) return;
 
-
   list.innerHTML =
     "⏳ Loading tournaments...";
-
 
   try {
 
@@ -1890,17 +1887,14 @@ async function loadTournaments(filter = null) {
           ascending: true
         });
 
-
     if (filter) {
       query = query.eq("sport", filter);
     }
-
 
     const {
       data,
       error
     } = await query;
-
 
     if (error) {
 
@@ -1910,9 +1904,7 @@ async function loadTournaments(filter = null) {
         "⚠️ Tournaments load nahi ho pa rahe.";
 
       return;
-
     }
-
 
     if (!data || data.length === 0) {
 
@@ -1920,9 +1912,7 @@ async function loadTournaments(filter = null) {
         "📭 Abhi koi tournament available nahi hai.";
 
       return;
-
     }
-
 
     if (subtitle) {
 
@@ -1930,9 +1920,7 @@ async function loadTournaments(filter = null) {
         filter
           ? filter + " tournaments"
           : "Available matches";
-
     }
-
 
     list.innerHTML =
       data.map(function(t) {
@@ -1945,7 +1933,6 @@ async function loadTournaments(filter = null) {
                   timeStyle: "short"
                 })
             : "Time not set";
-
 
         return `
 
@@ -1963,36 +1950,30 @@ async function loadTournaments(filter = null) {
 
             </div>
 
-
             <div class="trow">
               <span>Game</span>
               <b>${escapeHTML(t.sport || "Free Fire")}</b>
             </div>
-
 
             <div class="trow">
               <span>Entry Fee</span>
               <b>₹${t.entry_fee ?? 0}</b>
             </div>
 
-
             <div class="trow">
               <span>Prize Pool</span>
               <b>₹${t.prize_pool ?? 0}</b>
             </div>
-
 
             <div class="trow">
               <span>Max Teams</span>
               <b>${t.max_teams ?? 0}</b>
             </div>
 
-
             <div class="trow">
               <span>Starts</span>
               <b>${escapeHTML(date)}</b>
             </div>
-
 
             <button
               class="primary join"
@@ -2019,6 +2000,10 @@ async function loadTournaments(filter = null) {
   }
 
 }
+
+
+        
+
 
 /* =====================================================
    HTML ESCAPE
