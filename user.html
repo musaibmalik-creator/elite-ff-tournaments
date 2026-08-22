@@ -2040,17 +2040,9 @@ function filterTournaments(sport) {
 
 function openTeamRegistration(id) {
 
+  alert("JOIN BUTTON WORKING: " + id);
+
   selectedTournamentId = id;
-
-  const info =
-    document.getElementById("teamTournamentInfo");
-
-  if (info) {
-
-    info.textContent =
-      "Tournament selected. Team details enter karein.";
-
-  }
 
   showOnly("teamSection");
 
