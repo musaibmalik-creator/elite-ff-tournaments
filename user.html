@@ -2758,7 +2758,13 @@ document.addEventListener("DOMContentLoaded", function () {
       showOnly("profileSection");
       loadProfile();
     });
-
+  // REGISTER TEAM
+  document
+    .getElementById("registerTeamButton")
+    ?.addEventListener(
+      "click",
+      registerTeamAndJoin
+    );
     
   
   // Session check
