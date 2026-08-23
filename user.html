@@ -2518,56 +2518,51 @@ document
    QUICK BUTTONS
 ===================================================== */
 
-document
-  .getElementById("openTournamentsButton")
-  ?.addEventListener(
-    "click",
-    function() {
+document.addEventListener("DOMContentLoaded", function () {
+
+  // TOURNAMENTS
+  document
+    .getElementById("openTournamentsButton")
+    ?.addEventListener("click", function () {
 
       showOnly("tournamentsSection");
-
       loadTournaments();
 
-    }
-  );
+    });
 
 
-document
-  .getElementById("openDepositButton")
-  ?.addEventListener(
-    "click",
-    function() {
+  // DEPOSIT
+  document
+    .getElementById("openDepositButton")
+    ?.addEventListener("click", function () {
 
       showOnly("depositSection");
 
-    }
-  );
+    });
 
 
-document
-  .getElementById("openWithdrawButton")
-  ?.addEventListener(
-    "click",
-    function() {
+  // WITHDRAW
+  document
+    .getElementById("openWithdrawButton")
+    ?.addEventListener("click", function () {
 
       showOnly("withdrawSection");
 
-    }
-  );
+    });
 
 
-document
-  .getElementById("openProfileButton")
-  ?.addEventListener(
-    "click",
-    function() {
+  // PROFILE
+  document
+    .getElementById("openProfileButton")
+    ?.addEventListener("click", function () {
 
       showOnly("profileSection");
-
       loadProfile();
 
-    }
-  );
+    });
+
+});
+
 
 
 /* =====================================================
