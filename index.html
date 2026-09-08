@@ -4487,22 +4487,41 @@ window.approveDeposit = async function(id){
   const { error: approveError } =
     await supabase
       .from("deposits")
-      .update({
-        status: "approved"
-      })
-      .eq("id", id)
-      .eq("status", "pending");
+/* =====================================================
+   APPROVE DEPOSIT + CREDIT WALLET
+===================================================== */
 
-  if(approveError){
-    alert(
-      "Deposit approval error: " +
-      approveError.message
-    );
+window.approveDeposit = async function(id){
+
+  if(!confirm(
+    "Approve this deposit and add amount to wallet?"
+  )){
     return;
   }
 
+  const { data, error } = await supabase
+    .rpc("approve_deposit_and_credit_wallet", {
+      p_deposit_id: id
+    });
+
+  if(error){
+    console.error("Approve Deposit Error:", error);
+
+    alert(
+      "Approve Error: " +
+      error.message
+    );
+
+    return;
+  }
+
+  console.log("Deposit approved:", data);
+
+  const amount = Number(data?.amount || 0);
+  const newBalance = Number(data?.new_balance || 0);
+
   alert(
-    "Deposit approved! ✅\n\n" +
+    "Deposit approved successfully! ✅\n\n" +
     "Added: ₹" +
     amount.toFixed(2) +
     "\n\n" +
