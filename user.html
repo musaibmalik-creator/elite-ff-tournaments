@@ -2582,103 +2582,176 @@ async function submitWithdraw(){
 
 
 /* ================================
-   LOGIN
+   NEW LOGIN SYSTEM
 ================================ */
 
-async function loginUser(){
+async function loginUser() {
 
-  alert("LOGIN FUNCTION CHAL RAHA HAI");
-  
-  const email =
-    document.getElementById("email")
-    ?.value.trim();
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const messageBox = document.getElementById("authMessage");
+  const loginButton = document.getElementById("loginButton");
 
-  const password =
-    document.getElementById("password")
-    ?.value;
+  const email = emailInput ? emailInput.value.trim() : "";
+  const password = passwordInput ? passwordInput.value : "";
 
-
-  if(!email || !password){
-
-    setMessage(
-      "authMessage",
-      "⚠️ Email aur password enter karein."
-    );
-
+  // Check fields
+  if (!email) {
+    if (messageBox) {
+      messageBox.textContent = "⚠️ Email enter karein.";
+    }
     return;
-
   }
 
-
-  const button =
-    document.getElementById(
-      "loginButton"
-    );
-
-
-  if(button){
-
-    button.disabled = true;
-
-    button.textContent =
-      "⏳ LOGGING IN...";
-
+  if (!password) {
+    if (messageBox) {
+      messageBox.textContent = "⚠️ Password enter karein.";
+    }
+    return;
   }
 
+  // Loading
+  if (loginButton) {
+    loginButton.disabled = true;
+    loginButton.textContent = "⏳ LOGGING IN...";
+  }
 
-  try{
+  if (messageBox) {
+    messageBox.textContent = "⏳ Login ho raha hai...";
+  }
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth
-        .signInWithPassword({
-          email,
-          password
-        });
+  try {
 
+    // Supabase check
+    if (!window.supabase) {
+      throw new Error(
+        "Supabase library load nahi hui. Internet check karein."
+      );
+    }
 
-    if(error) throw error;
+    if (!supabaseClient) {
+      throw new Error(
+        "Supabase connection initialize nahi hua."
+      );
+    }
 
+    // LOGIN
+    const result =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
 
-    currentUser =
-      data.user ||
-      data.session?.user ||
-      null;
+    const data = result.data;
+    const error = result.error;
 
+    if (error) {
+      throw error;
+    }
 
-    if(currentUser){
+    // User save
+    if (data && data.user) {
 
-      openApp();
+      currentUser = data.user;
+
+      if (messageBox) {
+        messageBox.textContent =
+          "✅ Login successful!";
+      }
+
+      // Open app
+      document
+        .getElementById("loginSection")
+        ?.classList.add("hidden");
+
+      document
+        .getElementById("appSection")
+        ?.classList.remove("hidden");
+
+      // Home show
+      showOnly(null);
+
+      // Wallet load
+      if (typeof loadWallet === "function") {
+        loadWallet();
+      }
+
+      // Profile load
+      if (typeof loadProfile === "function") {
+        loadProfile();
+      }
+
+    } else {
+
+      throw new Error(
+        "Login hua lekin user data nahi mila."
+      );
 
     }
 
-  }
-  catch(error){
+  } catch (error) {
 
-    setMessage(
-      "authMessage",
-      "❌ " + error.message
-    );
+    console.error("LOGIN ERROR:", error);
 
-  }
-  finally{
+    if (messageBox) {
+      messageBox.textContent =
+        "❌ Login failed: " +
+        (error.message || "Unknown error");
+    }
 
-    if(button){
+  } finally {
 
-      button.disabled = false;
-
-      button.textContent =
-        "⚡ LOGIN";
-
+    if (loginButton) {
+      loginButton.disabled = false;
+      loginButton.textContent = "⚡ LOGIN";
     }
 
   }
-
 }
 
 
+/* ================================
+   LOGIN BUTTON
+================================ */
+
+function setupLoginButton() {
+
+  const loginButton =
+    document.getElementById("loginButton");
+
+  if (!loginButton) {
+    console.error("❌ loginButton nahi mila.");
+    return;
+  }
+
+  // Purane handler ko hatao
+  loginButton.onclick = null;
+
+  // Naya handler
+  loginButton.onclick = function () {
+    loginUser();
+  };
+
+  console.log("✅ Login button connected.");
+}
+
+
+/* ================================
+   START LOGIN SYSTEM
+================================ */
+
+if (document.readyState === "loading") {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    setupLoginButton
+  );
+
+} else {
+
+  setupLoginButton();
+
+}
 /* ================================
    SIGN UP
 ================================ */
