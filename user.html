@@ -537,6 +537,8 @@ button{
 <button
   id="signupButton"
   class="btn btnDark"
+  type="button"
+  onclick="signupUser()"
 >
   SIGN UP
 </button>
@@ -1153,18 +1155,18 @@ button{
           </div>
 
         </div>
-
-
-        <button
-          id="logoutButton"
-          class="btn btnDark"
-        >
-          LOGOUT
-        </button>
-
+<button
+  id="logoutButton"
+  class="btn btnDark"
+  type="button"
+  onclick="logoutUser()"
+>
+  LOGOUT
+</button>
       </div>
 
     </div>
+        
 
 
     <!-- ================= TOP PLAYERS ================= -->
@@ -1258,17 +1260,12 @@ Wallet
 </button>
 
 <button
-
-class="navBtn"
-
-data-section="profileSection"
-
-onclick="showOnly('profileSection')"
-
-<span class="navlcon"> </span>
-
-Profile
-
+  class="navBtn"
+  data-section="profileSection"
+  onclick="showOnly('profileSection')"
+>
+  <span class="navIcon">👤</span>
+  Profile
 </button>
 
 </div>
