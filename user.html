@@ -1249,94 +1249,68 @@ button{
         data-section="depositSection"
         onclick="showOnly('depositSection')"
       >
-                Deposit
-      </button>
+        <span class="navicon"> </span>
 
-      <button
-        class="navBtn"
-        data-section="withdrawSection"
-        onclick="showOnly('withdrawSection')"
-      >
-        <span class="navIcon">💸</span>
-        Withdraw
-      </button>
+Wallet
 
-      <button
-        class="navBtn"
-        data-section="myTournamentsSection"
-        onclick="showOnly('myTournamentsSection')"
-      >
-        <span class="navIcon">🏆</span>
-        My Tournaments
-      </button>
+</button>
 
-      <button
-        class="navBtn"
-        data-section="profileSection"
-        onclick="showOnly('profileSection')"
-      >
-        <span class="navIcon">👤</span>
-        Profile
-      </button>
+<button
 
-      <button
-        class="navBtn"
-        data-section="contactSection"
-        onclick="showOnly('contactSection')"
-      >
-        <span class="navIcon">📞</span>
-        Contact
-      </button>
+class="navBtn"
 
-    </div>
-  </nav>
+data-section="profileSection"
+
+onclick="showOnly('profileSection')"
+
+<span class="navlcon"> </span>
+
+Profile
+
+</button>
+
+</div>
+
+</nav>
+
 </section>
 
-
-<!-- =========================
-     JAVASCRIPT
-========================= -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
-const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+  <script>
+const SUPABASE_URL =
+  "https://yenhkcditizmcekjeswy.supabase.co";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const SUPABASE_KEY =
+  "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 let currentUser = null;
 let selectedTournamentId = null;
 
 
-/* =========================
-   MESSAGE
-========================= */
-function setMessage(id, text, type = "") {
+/* MESSAGE */
+function setMessage(id, text) {
   const el = document.getElementById(id);
-
-  if (!el) return;
-
-  el.textContent = text;
-  el.className = "message " + type;
+  if (el) el.textContent = text;
 }
 
 
-/* =========================
-   SHOW SECTION
-========================= */
+/* SHOW SECTION */
 function showOnly(sectionId) {
 
-  document.querySelectorAll(".appSection").forEach(section => {
-    section.style.display = "none";
+  document.querySelectorAll(".section").forEach(section => {
+    section.classList.remove("active");
   });
 
   const target = document.getElementById(sectionId);
 
   if (target) {
-    target.style.display = "block";
+    target.classList.add("active");
   }
 
   document.querySelectorAll(".navBtn").forEach(btn => {
@@ -1369,39 +1343,27 @@ function showOnly(sectionId) {
 }
 
 
-/* =========================
-   OPEN APP
-========================= */
-async function openApp() {
-
-  document.getElementById("loginSection").style.display = "none";
-  document.getElementById("appSection").style.display = "block";
-
-  showOnly("homeSection");
-
-  await loadProfile();
-  await loadTournaments();
-}
-
-
-/* =========================
-   LOGIN
-========================= */
+/* LOGIN */
 async function loginUser() {
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
 
   if (!email || !password) {
     setMessage(
       "authMessage",
-      "Email aur password dono enter karo.",
-      "error"
+      "Email aur password enter karo."
     );
     return;
   }
 
-  setMessage("authMessage", "Login ho raha hai...");
+  setMessage(
+    "authMessage",
+    "Login ho raha hai..."
+  );
 
   const { data, error } =
     await supabaseClient.auth.signInWithPassword({
@@ -1410,41 +1372,43 @@ async function loginUser() {
     });
 
   if (error) {
-
     setMessage(
       "authMessage",
-      error.message,
-      "error"
+      error.message
     );
-
     return;
   }
 
   currentUser = data.user;
 
-  setMessage(
-    "authMessage",
-    "Login successful!",
-    "success"
-  );
+  document.getElementById(
+    "loginSection"
+  ).style.display = "none";
 
-  await openApp();
+  document.getElementById(
+    "appSection"
+  ).classList.remove("hidden");
+
+  showOnly("homeSection");
+
+  await loadWallet();
+  await loadProfile();
 }
 
 
-/* =========================
-   SIGNUP
-========================= */
+/* SIGN UP */
 async function signupUser() {
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
 
   if (!email || !password) {
     setMessage(
       "authMessage",
-      "Email aur password enter karo.",
-      "error"
+      "Email aur password enter karo."
     );
     return;
   }
@@ -1452,13 +1416,15 @@ async function signupUser() {
   if (password.length < 6) {
     setMessage(
       "authMessage",
-      "Password kam az kam 6 characters ka hona chahiye.",
-      "error"
+      "Password minimum 6 characters ka hona chahiye."
     );
     return;
   }
 
-  setMessage("authMessage", "Account create ho raha hai...");
+  setMessage(
+    "authMessage",
+    "Account create ho raha hai..."
+  );
 
   const { data, error } =
     await supabaseClient.auth.signUp({
@@ -1467,13 +1433,10 @@ async function signupUser() {
     });
 
   if (error) {
-
     setMessage(
       "authMessage",
-      error.message,
-      "error"
+      error.message
     );
-
     return;
   }
 
@@ -1481,85 +1444,95 @@ async function signupUser() {
 
     currentUser = data.user;
 
-    setMessage(
-      "authMessage",
-      "Account created successfully!",
-      "success"
-    );
+    document.getElementById(
+      "loginSection"
+    ).style.display = "none";
 
-    await openApp();
+    document.getElementById(
+      "appSection"
+    ).classList.remove("hidden");
+
+    showOnly("homeSection");
+
+    await loadWallet();
+    await loadProfile();
 
   } else {
 
     setMessage(
       "authMessage",
-      "Account create ho gaya. Ab email verify karke login karo.",
-      "success"
+      "Account created successfully. Ab login karo."
     );
   }
 }
 
 
-/* =========================
-   LOGOUT
-========================= */
+/* LOGOUT */
 async function logoutUser() {
 
   await supabaseClient.auth.signOut();
 
   currentUser = null;
 
-  document.getElementById("appSection").style.display = "none";
-  document.getElementById("loginSection").style.display = "block";
+  document.getElementById(
+    "appSection"
+  ).classList.add("hidden");
 
-  document.getElementById("email").value = "";
-  document.getElementById("password").value = "";
-
-  setMessage("authMessage", "Logout successful.", "success");
+  document.getElementById(
+    "loginSection"
+  ).style.display = "flex";
 }
 
 
-/* =========================
-   SESSION CHECK
-========================= */
+/* SESSION */
 async function checkSession() {
 
   const {
     data: { session }
   } = await supabaseClient.auth.getSession();
 
-  if (session && session.user) {
+  if (session) {
 
     currentUser = session.user;
 
-    await openApp();
+    document.getElementById(
+      "loginSection"
+    ).style.display = "none";
+
+    document.getElementById(
+      "appSection"
+    ).classList.remove("hidden");
+
+    showOnly("homeSection");
+
+    await loadWallet();
+    await loadProfile();
 
   } else {
 
-    document.getElementById("loginSection").style.display = "block";
-    document.getElementById("appSection").style.display = "none";
+    document.getElementById(
+      "loginSection"
+    ).style.display = "flex";
+
+    document.getElementById(
+      "appSection"
+    ).classList.add("hidden");
   }
 }
 
 
-/* =========================
-   AUTH STATE
-========================= */
+/* AUTH STATE */
 supabaseClient.auth.onAuthStateChange(
-  async (event, session) => {
+  (event, session) => {
 
-    if (session && session.user) {
-      currentUser = session.user;
-    } else {
-      currentUser = null;
-    }
+    currentUser =
+      session ? session.user : null;
+
   }
 );
 
 
-/* =========================
-   WALLET
-========================= */
+/* WALLET */
 async function loadWallet() {
 
   if (!currentUser) return;
@@ -1569,31 +1542,25 @@ async function loadWallet() {
   const { data: deposits } =
     await supabaseClient
       .from("payments")
-      .select("amount,status")
+      .select("amount")
       .eq("user_id", currentUser.id)
       .eq("status", "approved");
 
-  if (deposits) {
-
-    deposits.forEach(item => {
-      balance += Number(item.amount || 0);
-    });
-  }
+  (deposits || []).forEach(item => {
+    balance += Number(item.amount || 0);
+  });
 
 
   const { data: withdrawals } =
     await supabaseClient
       .from("withdrawals")
-      .select("amount,status")
+      .select("amount")
       .eq("user_id", currentUser.id)
       .eq("status", "approved");
 
-  if (withdrawals) {
-
-    withdrawals.forEach(item => {
-      balance -= Number(item.amount || 0);
-    });
-  }
+  (withdrawals || []).forEach(item => {
+    balance -= Number(item.amount || 0);
+  });
 
 
   const walletBalance =
@@ -1614,26 +1581,24 @@ async function loadWallet() {
 }
 
 
-/* =========================
-   PROFILE
-========================= */
+/* PROFILE */
 async function loadProfile() {
 
   if (!currentUser) return;
 
-  const emailEl =
+  const email =
     document.getElementById("profileEmail");
 
-  const uidEl =
+  const uid =
     document.getElementById("profileUID");
 
-  if (emailEl) {
-    emailEl.textContent =
-      currentUser.email || "No email";
+  if (email) {
+    email.textContent =
+           currentUser.email || "";
   }
 
-  if (uidEl) {
-    uidEl.textContent =
+  if (uid) {
+    uid.textContent =
       currentUser.id;
   }
 
@@ -1641,9 +1606,7 @@ async function loadProfile() {
 }
 
 
-/* =========================
-   TOURNAMENTS
-========================= */
+/* TOURNAMENTS */
 async function loadTournaments(filter = "all") {
 
   const list =
@@ -1652,100 +1615,73 @@ async function loadTournaments(filter = "all") {
   if (!list) return;
 
   list.innerHTML =
-    `<div class="loading">Loading tournaments...</div>`;
+    `<div class="empty">Loading tournaments...</div>`;
 
-
-  let query = supabaseClient
-    .from("tournaments")
-    .select(`
-      id,
-      name,
-      sport,
-      description,
-      entry_fee,
-      prize_pool,
-      max_teams,
-      status,
-      starts_at,
-      cs_mode
-    `)
-    .order("starts_at", {
-      ascending: true
-    });
-
+  let query =
+    supabaseClient
+      .from("tournaments")
+      .select(
+        "id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at,cs_mode"
+      )
+      .order("starts_at", {
+        ascending: true
+      });
 
   if (filter !== "all") {
-
     query = query.eq("sport", filter);
   }
 
-
-  const { data, error } = await query;
-
+  const { data, error } =
+    await query;
 
   if (error) {
-
     list.innerHTML =
-      `<div class="error">
+      `<div class="empty">
         ${escapeHTML(error.message)}
       </div>`;
-
     return;
   }
 
-
   if (!data || data.length === 0) {
-
     list.innerHTML =
       `<div class="empty">
         Abhi koi tournament available nahi hai.
       </div>`;
-
     return;
   }
 
-
-  list.innerHTML = data.map(tournament => {
+  list.innerHTML = data.map(t => {
 
     const date =
-      tournament.starts_at
-        ? new Date(tournament.starts_at).toLocaleString()
+      t.starts_at
+        ? new Date(t.starts_at).toLocaleString()
         : "Date not set";
-
 
     return `
       <div class="tournamentCard">
 
         <div class="tournamentTitle">
-          ${escapeHTML(tournament.name || "Tournament")}
+          ${escapeHTML(t.name || "Tournament")}
         </div>
 
-        <div class="tournamentMode">
-          ${escapeHTML(tournament.sport || "")}
-          ${tournament.cs_mode
-            ? " • " + escapeHTML(tournament.cs_mode)
+        <div class="tournamentInfo">
+          🎮 ${escapeHTML(t.sport || "")}
+          ${t.cs_mode
+            ? " • " + escapeHTML(t.cs_mode)
             : ""}
+          <br>
+          🎟 Entry: ₹${Number(t.entry_fee || 0)}
+          <br>
+          💰 Prize Pool: ₹${Number(t.prize_pool || 0)}
+          <br>
+          👥 Max Teams: ${Number(t.max_teams || 0)}
+          <br>
+          📅 ${escapeHTML(date)}
         </div>
-
-        <div class="tournamentInfo">
-          <span>💰 Prize: ₹${Number(tournament.prize_pool || 0)}</span>
-          <span>🎟 Entry: ₹${Number(tournament.entry_fee || 0)}</span>
-        </div>
-
-        <div class="tournamentInfo">
-          <span>👥 Max: ${Number(tournament.max_teams || 0)}</span>
-          <span>📅 ${escapeHTML(date)}</span>
-        </div>
-
-        <p>
-          ${escapeHTML(
-            tournament.description || "No description"
-          )}
-        </p>
 
         <button
-          class="primaryBtn"
-          onclick="openTeamRegistration('${tournament.id}')"
+          class="joinBtn"
+          onclick="openTeamRegistration('${t.id}')"
         >
           REGISTER TEAM & JOIN
         </button>
@@ -1757,23 +1693,24 @@ async function loadTournaments(filter = "all") {
 }
 
 
-/* =========================
-   FILTER
-========================= */
+/* FILTER TOURNAMENTS */
 function filterTournaments(filter) {
+
+  showOnly("tournamentsSection");
+
   loadTournaments(filter);
 }
 
 
-/* =========================
-   TEAM REGISTRATION
-========================= */
+/* OPEN TEAM REGISTRATION */
 function openTeamRegistration(id) {
 
   selectedTournamentId = id;
 
   const text =
-    document.getElementById("selectedTournamentText");
+    document.getElementById(
+      "selectedTournamentText"
+    );
 
   if (text) {
     text.textContent =
@@ -1783,7 +1720,7 @@ function openTeamRegistration(id) {
   showOnly("teamSection");
 }
 
-
+/* BACK FROM TEAM */
 function goBackFromTeam() {
 
   selectedTournamentId = null;
@@ -1792,79 +1729,42 @@ function goBackFromTeam() {
 }
 
 
-/* =========================
-   REGISTER TEAM
-========================= */
+/* REGISTER TEAM */
 async function registerTeam() {
 
   if (!currentUser) {
-
     setMessage(
       "teamMessage",
-      "Pehle login karo.",
-      "error"
+      "Pehle login karo."
     );
-
     return;
   }
-
 
   if (!selectedTournamentId) {
-
     setMessage(
       "teamMessage",
-      "Pehle tournament select karo.",
-      "error"
+      "Tournament select karo."
     );
-
     return;
   }
-
 
   const teamName =
     document.getElementById("teamName").value.trim();
 
-
   if (!teamName) {
-
     setMessage(
       "teamMessage",
-      "Team name enter karo.",
-      "error"
+      "Team name enter karo."
     );
-
     return;
   }
-
 
   setMessage(
     "teamMessage",
-    "Registration ho rahi hai..."
+    "Registration submit ho rahi hai..."
   );
 
-
-  const { data: existing } =
-    await supabaseClient
-      .from("tournament_entries")
-      .select("id")
-      .eq("tournament_id", selectedTournamentId)
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
-
-
-  if (existing) {
-
-    setMessage(
-      "teamMessage",
-      "Aap already is tournament mein registered ho.",
-      "error"
-    );
-
-    return;
-  }
-
-
-  const { data: team, error: teamError } =
+  const { data: team, error } =
     await supabaseClient
       .from("teams")
       .insert({
@@ -1875,18 +1775,13 @@ async function registerTeam() {
       .select()
       .single();
 
-
-  if (teamError) {
-
+  if (error) {
     setMessage(
       "teamMessage",
-      teamError.message,
-      "error"
+      error.message
     );
-
     return;
   }
-
 
   const { error: entryError } =
     await supabaseClient
@@ -1898,36 +1793,27 @@ async function registerTeam() {
         status: "pending"
       });
 
-
   if (entryError) {
-
     setMessage(
       "teamMessage",
-      entryError.message,
-      "error"
+      entryError.message
     );
-
     return;
   }
 
+  document.getElementById("teamName").value = "";
 
   setMessage(
     "teamMessage",
-    "✅ Team registration submit ho gayi.",
-    "success"
+    "✅ Team registration submit ho gayi."
   );
-
-  await loadWallet();
 }
 
 
-/* =========================
-   DEPOSIT
-========================= */
+/* DEPOSIT */
 async function submitDeposit() {
 
   if (!currentUser) return;
-
 
   const amount =
     Number(
@@ -1937,35 +1823,26 @@ async function submitDeposit() {
   const utr =
     document.getElementById("depositUTR").value.trim();
 
-
   if (amount < 10) {
-
     setMessage(
       "depositMessage",
-      "Minimum deposit ₹10 hai.",
-      "error"
+      "Minimum deposit ₹10 hai."
     );
-
     return;
   }
-
 
   if (!utr) {
-
     setMessage(
       "depositMessage",
-      "UTR number enter karo.",
-      "error"
+      "UTR number enter karo."
     );
-
     return;
   }
-
 
   const { error } =
     await supabaseClient
       .from("payments")
-      .insert({
+        .insert({
         user_id: currentUser.id,
         amount: amount,
         currency: "INR",
@@ -1973,38 +1850,28 @@ async function submitDeposit() {
         provider_payment_id: utr
       });
 
-
   if (error) {
-
     setMessage(
       "depositMessage",
-      error.message,
-      "error"
+      error.message
     );
-
     return;
   }
-
 
   document.getElementById("depositAmount").value = "";
   document.getElementById("depositUTR").value = "";
 
-
   setMessage(
     "depositMessage",
-    "✅ Deposit request submit ho gayi. Admin verification ke baad balance add hoga.",
-    "success"
+    "✅ Deposit request submit ho gayi."
   );
 }
 
 
-/* =========================
-   WITHDRAW
-========================= */
+/* WITHDRAW */
 async function submitWithdraw() {
 
   if (!currentUser) return;
-
 
   const amount =
     Number(
@@ -2014,76 +1881,55 @@ async function submitWithdraw() {
   const upi =
     document.getElementById("withdrawUPI").value.trim();
 
-
   if (amount < 50) {
-
     setMessage(
       "withdrawMessage",
-      "Minimum withdrawal ₹50 hai.",
-      "error"
+      "Minimum withdrawal ₹50 hai."
     );
-
     return;
   }
-
 
   if (!upi) {
-
     setMessage(
       "withdrawMessage",
-      "UPI ID enter karo.",
-      "error"
+      "UPI ID enter karo."
     );
-
     return;
   }
-
-
-  await loadWallet();
-
 
   const { data: deposits } =
     await supabaseClient
       .from("payments")
-      .select("amount,status")
+      .select("amount")
       .eq("user_id", currentUser.id)
       .eq("status", "approved");
-
 
   const { data: withdrawals } =
     await supabaseClient
       .from("withdrawals")
-      .select("amount,status")
+      .select("amount")
       .eq("user_id", currentUser.id)
       .eq("status", "approved");
 
-
   let balance = 0;
-
 
   (deposits || []).forEach(item => {
     balance += Number(item.amount || 0);
   });
 
-
   (withdrawals || []).forEach(item => {
     balance -= Number(item.amount || 0);
   });
 
-
   if (amount > balance) {
-
     setMessage(
       "withdrawMessage",
-      "Insufficient wallet balance.",
-      "error"
+      "Wallet balance insufficient hai."
     );
-
     return;
   }
 
-
-  const { error } =
+  const { error: withdrawError } =
     await supabaseClient
       .from("withdrawals")
       .insert({
@@ -2093,34 +1939,23 @@ async function submitWithdraw() {
         status: "pending"
       });
 
-
-  if (error) {
-
+  if (withdrawError) {
     setMessage(
       "withdrawMessage",
-      error.message,
-      "error"
+      withdrawError.message
     );
-
     return;
   }
-
 
   document.getElementById("withdrawAmount").value = "";
   document.getElementById("withdrawUPI").value = "";
 
-
   setMessage(
     "withdrawMessage",
-    "✅ Withdrawal request submit ho gayi. Admin verification ke baad payment process hoga.",
-    "success"
+    "✅ Withdrawal request submit ho gayi."
   );
 }
-
-
-/* =========================
-   MY TOURNAMENTS
-========================= */
+  /* MY TOURNAMENTS */
 async function loadMyTournaments() {
 
   const list =
@@ -2128,67 +1963,53 @@ async function loadMyTournaments() {
 
   if (!list || !currentUser) return;
 
-
   list.innerHTML =
-    `<div class="loading">Loading...</div>`;
-
+    `<div class="empty">Loading...</div>`;
 
   const { data, error } =
     await supabaseClient
       .from("tournament_entries")
-      .select(`
-        id,
-        tournament_id,
-        team_id,
-        status
-      `)
-      .eq("user_id", currentUser.id);
-
+      .select(
+        "id,tournament_id,team_id,status"
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
   if (error) {
-
     list.innerHTML =
-      `<div class="error">
+      `<div class="empty">
         ${escapeHTML(error.message)}
       </div>`;
-
     return;
   }
 
-
   if (!data || data.length === 0) {
-
     list.innerHTML =
       `<div class="empty">
         Aapne abhi kisi tournament mein join nahi kiya.
       </div>`;
-
     return;
   }
 
-
   let html = "";
-
 
   for (const entry of data) {
 
     const { data: tournament } =
       await supabaseClient
         .from("tournaments")
-        .select(`
-          id,
-          name,
-          sport,
-          entry_fee,
-          prize_pool,
-          starts_at
-        `)
-        .eq("id", entry.tournament_id)
+        .select(
+          "id,name,sport,entry_fee,prize_pool,starts_at"
+        )
+        .eq(
+          "id",
+          entry.tournament_id
+        )
         .maybeSingle();
 
-
     if (!tournament) continue;
-
 
     html += `
       <div class="tournamentCard">
@@ -2197,72 +2018,42 @@ async function loadMyTournaments() {
           ${escapeHTML(tournament.name)}
         </div>
 
-        <div>
+        <div class="tournamentInfo">
           🎮 ${escapeHTML(tournament.sport || "")}
-        </div>
-
-        <div>
+          <br>
           🎟 Entry: ₹${Number(tournament.entry_fee || 0)}
-        </div>
-
-        <div>
+          <br>
           💰 Prize: ₹${Number(tournament.prize_pool || 0)}
-        </div>
-
-        <div>
-          Status:
-          <strong>
-            ${escapeHTML(entry.status || "pending")}
-          </strong>
+          <br>
+          📌 Status:
+          ${escapeHTML(entry.status || "pending")}
         </div>
 
       </div>
     `;
   }
 
-
   list.innerHTML =
-    html || `<div class="empty">No tournaments found.</div>`;
+    html ||
+    `<div class="empty">
+      No tournaments found.
+    </div>`;
 }
 
 
-/* =========================
-   COPY UPI
-========================= */
-function copyUPI() {
-
-  const upi =
-    document.getElementById("adminUPI");
-
-  if (!upi) return;
-
-
-  navigator.clipboard.writeText(
-    upi.textContent.trim()
-  );
-
-
-  alert("UPI ID copied!");
-}
-
-
-/* =========================
-   ESCAPE HTML
-========================= */
+/* ESCAPE HTML */
 function escapeHTML(value) {
 
   return String(value ?? "")
     .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
+        .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
 
 
-/* =========================
-   BUTTON EVENTS
-========================= */
+/* BUTTON CONNECTIONS */
 document.addEventListener("DOMContentLoaded", () => {
 
   const loginButton =
@@ -2285,84 +2076,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   if (loginButton) {
-    loginButton.addEventListener(
-      "click",
-      loginUser
-    );
+    loginButton.onclick = loginUser;
   }
-
 
   if (signupButton) {
-    signupButton.addEventListener(
-      "click",
-      signupUser
-    );
+    signupButton.onclick = signupUser;
   }
-
 
   if (logoutButton) {
-    logoutButton.addEventListener(
-      "click",
-      logoutUser
-    );
+    logoutButton.onclick = logoutUser;
   }
-
 
   if (registerTeamButton) {
-    registerTeamButton.addEventListener(
-      "click",
-      registerTeam
-    );
+    registerTeamButton.onclick = registerTeam;
   }
-
 
   if (depositButton) {
-    depositButton.addEventListener(
-      "click",
-      submitDeposit
-    );
+    depositButton.onclick = submitDeposit;
   }
-
 
   if (withdrawButton) {
-    withdrawButton.addEventListener(
-      "click",
-      submitWithdraw
-    );
-  }
-
-
-  const notificationButton =
-    document.getElementById("notificationButton");
-
-
-  if (notificationButton) {
-
-    notificationButton.addEventListener(
-      "click",
-      () => {
-        alert("Abhi koi new notification nahi hai.");
-      }
-    );
-  }
-
-
-  const passwordInput =
-    document.getElementById("password");
-
-
-  if (passwordInput) {
-
-    passwordInput.addEventListener(
-      "keydown",
-      event => {
-
-        if (event.key === "Enter") {
-          loginUser();
-        }
-
-      }
-    );
+    withdrawButton.onclick = submitWithdraw;
   }
 
 
