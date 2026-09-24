@@ -617,6 +617,54 @@ button{
   </div>
 
 </section>
+  <!-- ==================================================
+     RESET PASSWORD SECTION
+================================================== -->
+
+<section id="resetPasswordSection" style="display:none;">
+
+  <div class="loginBox">
+
+    <div class="logo">
+      NEW PASSWORD
+    </div>
+
+    <div class="subLogo">
+      Apna new password set karo
+    </div>
+
+    <input
+      id="newPassword"
+      class="input"
+      type="password"
+      placeholder="New Password"
+      autocomplete="new-password"
+    >
+
+    <input
+      id="confirmPassword"
+      class="input"
+      type="password"
+      placeholder="Confirm Password"
+      autocomplete="new-password"
+    >
+
+    <button
+      class="btn btnGold"
+      type="button"
+      onclick="updatePassword()"
+    >
+      UPDATE PASSWORD
+    </button>
+
+    <div
+      id="resetPasswordMessage"
+      class="message"
+    ></div>
+
+  </div>
+
+</section>
 
 <!-- ==================================================
      APP SECTION
