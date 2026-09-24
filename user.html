@@ -1489,6 +1489,34 @@ async function updatePassword() {
 
   }, 1500);
 }
+  supabaseClient.auth.onAuthStateChange(
+  async (event, session) => {
+
+    if (event === "PASSWORD_RECOVERY") {
+
+      const loginSection =
+        document.getElementById("loginSection");
+
+      const forgotSection =
+        document.getElementById("forgotPasswordSection");
+
+      const resetSection =
+        document.getElementById("resetPasswordSection");
+
+      if (loginSection) {
+        loginSection.style.display = "none";
+      }
+
+      if (forgotSection) {
+        forgotSection.style.display = "none";
+      }
+
+      if (resetSection) {
+        resetSection.style.display = "block";
+      }
+    }
+  }
+);
   const message =
     document.getElementById("forgotPasswordMessage");
 
