@@ -563,6 +563,60 @@ button{
   </div>
 
 </section>
+  <!-- ==================================================
+     FORGOT PASSWORD SECTION
+================================================== -->
+
+<section id="forgotPasswordSection" style="display:none;">
+
+  <div class="loginBox">
+
+    <div class="logo">
+      RESET PASSWORD
+    </div>
+
+    <div class="subLogo">
+      Enter your registered email
+    </div>
+
+    <input
+      id="forgotPasswordEmail"
+      class="input"
+      type="email"
+      placeholder="Email"
+      autocomplete="email"
+    >
+
+    <button
+      class="btn btnGold"
+      type="button"
+      onclick="sendPasswordReset()"
+    >
+      SEND RESET LINK
+    </button>
+
+    <div
+      id="forgotPasswordMessage"
+      class="message"
+    ></div>
+
+    <button
+      type="button"
+      onclick="backToLogin()"
+      style="
+        background:none;
+        border:none;
+        color:#d4af37;
+        margin-top:12px;
+        cursor:pointer;
+      "
+    >
+      ← BACK TO LOGIN
+    </button>
+
+  </div>
+
+</section>
 
 <!-- ==================================================
      APP SECTION
@@ -1285,6 +1339,7 @@ Wallet
 </section>
 
 <script>
+  
 
 const SUPABASE_URL =
   "https://yenhkcditizmcekjeswy.supabase.co";
@@ -1300,7 +1355,66 @@ const supabaseClient =
 
 let currentUser = null;
 let selectedTournamentId = null;
+function showForgotPassword() {
+  const loginSection = document.getElementById("loginSection");
+  const forgotSection = document.getElementById("forgotPasswordSection");
 
+  if (loginSection) {
+    loginSection.style.display = "none";
+  }
+
+  if (forgotSection) {
+    forgotSection.style.display = "block";
+  }
+}
+
+function backToLogin() {
+  const loginSection = document.getElementById("loginSection");
+  const forgotSection = document.getElementById("forgotPasswordSection");
+
+  if (forgotSection) {
+    forgotSection.style.display = "none";
+  }
+
+  if (loginSection) {
+    loginSection.style.display = "block";
+  }
+}
+
+async function sendPasswordReset() {
+  const emailInput =
+    document.getElementById("forgotPasswordEmail");
+
+  const message =
+    document.getElementById("forgotPasswordMessage");
+
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    message.textContent = "Please enter your email.";
+    return;
+  }
+
+  message.textContent = "Sending reset link...";
+
+  const { error } =
+    await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo:
+          window.location.origin +
+          window.location.pathname
+      }
+    );
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  message.textContent =
+    "Reset link email par bhej diya gaya hai. Apna email check karo.";
+}
 
 /* MESSAGE */
 function setMessage(id, text) {
