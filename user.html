@@ -1432,7 +1432,63 @@ function backToLogin() {
 async function sendPasswordReset() {
   const emailInput =
     document.getElementById("forgotPasswordEmail");
+async function updatePassword() {
 
+  const newPassword =
+    document.getElementById("newPassword").value;
+
+  const confirmPassword =
+    document.getElementById("confirmPassword").value;
+
+  const message =
+    document.getElementById("resetPasswordMessage");
+
+  if (!newPassword || !confirmPassword) {
+    message.textContent =
+      "Dono password fields fill karo.";
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    message.textContent =
+      "Password minimum 6 characters ka hona chahiye.";
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    message.textContent =
+      "Passwords match nahi kar rahe.";
+    return;
+  }
+
+  message.textContent =
+    "Password update ho raha hai...";
+
+  const { error } =
+    await supabaseClient.auth.updateUser({
+      password: newPassword
+    });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  message.textContent =
+    "Password successfully update ho gaya. Ab login karo.";
+
+  setTimeout(() => {
+
+    document.getElementById(
+      "resetPasswordSection"
+    ).style.display = "none";
+
+    document.getElementById(
+      "loginSection"
+    ).style.display = "block";
+
+  }, 1500);
+}
   const message =
     document.getElementById("forgotPasswordMessage");
 
