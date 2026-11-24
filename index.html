@@ -1831,6 +1831,7 @@ if (openWithdrawalsButton) {
   );
 
 }
+  
   /* =========================================
    BACK FROM WITHDRAWALS
 ========================================= */
@@ -1856,6 +1857,61 @@ if (backWithdrawalsButton) {
   );
 
 }
+  
+/* =========================================
+   OPEN MATCH RESULTS
+========================================= */
+
+const openResultsButton =
+  $("openResultsButton");
+
+if (openResultsButton) {
+
+  openResultsButton.addEventListener(
+    "click",
+    async function() {
+
+      $("dashboard")
+        .classList
+        .add("hidden");
+
+      $("resultsSection")
+        .classList
+        .remove("hidden");
+
+      await loadMatchResults();
+
+    }
+  );
+
+}
+
+/* =========================================
+   BACK FROM MATCH RESULTS
+========================================= */
+
+const backResultsButton =
+  $("backResultsButton");
+
+if (backResultsButton) {
+
+  backResultsButton.addEventListener(
+    "click",
+    function() {
+
+      $("resultsSection")
+        .classList
+        .add("hidden");
+
+      $("dashboard")
+        .classList
+        .remove("hidden");
+
+    }
+  );
+
+}
+  
 
 /* =========================================
    APPROVE / REJECT BUTTONS
