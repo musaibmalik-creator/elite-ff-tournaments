@@ -1756,31 +1756,32 @@ async function updateWithdrawalStatus(
       ? "approve"
       : "reject";
 
-  const confirmed =
-    confirm(
-      `Are you sure you want to ${action} this withdrawal?`
-    );
+  const confirmed = confirm(
+    `Are you sure you want to ${action} this withdrawal?`
+  );
 
   if (!confirmed) return;
 
   const {
+    data,
     error
-  } = await supabase
-    .from("withdrawals")
-    .update({
-      status: newStatus
-    })
-    .eq("id", withdrawalId);
+  } = await supabase.rpc(
+    "admin_update_withdrawal_status",
+    {
+      p_withdrawal_id: withdrawalId,
+      p_new_status: newStatus
+    }
+  );
 
   if (error) {
 
     console.error(
-      "Withdrawal Update Error:",
+      "Withdrawal Error:",
       error
     );
 
     alert(
-      "Failed to update withdrawal."
+      "Withdrawal failed: " + error.message
     );
 
     return;
