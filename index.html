@@ -1809,11 +1809,12 @@ async function updateWithdrawalStatus(
 ) {
 
   let paymentDetails = "";
+  let rejectionReason = "";
 
   if (newStatus === "approved") {
 
     paymentDetails = prompt(
-      "UPI payment karne ke baad transaction UTR number enter karein:"
+      "UPI payment ke baad UTR number enter karein:"
     );
 
     if (paymentDetails === null) return;
@@ -1821,25 +1822,36 @@ async function updateWithdrawalStatus(
     paymentDetails = paymentDetails.trim();
 
     if (!paymentDetails) {
-      alert("UTR number enter karna zaroori hai.");
+      alert("UTR number zaroor enter karein.");
       return;
     }
 
   }
 
-  const action =
-    newStatus === "approved"
-      ? "approve"
-      : "reject";
+  if (newStatus === "rejected") {
+
+    rejectionReason = prompt(
+      "Withdrawal reject karne ki wajah likhein:"
+    );
+
+    if (rejectionReason === null) return;
+
+    rejectionReason = rejectionReason.trim();
+
+    if (!rejectionReason) {
+      alert("Rejection reason likhna zaroori hai.");
+      return;
+    }
+
+  }
 
   const confirmed = confirm(
-    `Are you sure you want to ${action} this withdrawal?`
+    `Are you sure you want to ${newStatus} this withdrawal?`
   );
 
   if (!confirmed) return;
 
   const {
-    data,
     error
   } = await supabase.rpc(
     "admin_update_withdrawal_status",
@@ -1850,36 +1862,34 @@ async function updateWithdrawalStatus(
   );
 
   if (error) {
-
-    console.error("Withdrawal Error:", error);
-
     alert("Withdrawal failed: " + error.message);
-
     return;
   }
 
-  if (newStatus === "approved") {
+  const updateData =
+    newStatus === "approved"
+      ? {
+          payment_details: paymentDetails,
+          rejection_reason: null
+        }
+      : {
+          rejection_reason: rejectionReason
+        };
 
-    const {
-      error: detailsError
-    } = await supabase
-      .from("withdrawals")
-      .update({
-        payment_details: paymentDetails
-      })
-      .eq("id", withdrawalId);
+  const {
+    error: detailsError
+  } = await supabase
+    .from("withdrawals")
+    .update(updateData)
+    .eq("id", withdrawalId);
 
-    if (detailsError) {
-
-      alert(
-        "Withdrawal approved, but UTR save failed: " +
-        detailsError.message
-      );
-
-      await loadWithdrawals();
-      return;
-    }
-
+  if (detailsError) {
+    alert(
+      "Status updated, but details save failed: " +
+      detailsError.message
+    );
+    await loadWithdrawals();
+    return;
   }
 
   alert(`Withdrawal ${newStatus} successfully.`);
@@ -1887,6 +1897,8 @@ async function updateWithdrawalStatus(
   await loadWithdrawals();
 
 }
+  
+
   
 
 
