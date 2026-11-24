@@ -1053,6 +1053,7 @@ button:disabled{
 
 
     <input
+    
     <!-- =====================================================
      TOURNAMENTS
 ===================================================== -->
@@ -2344,7 +2345,6 @@ async function createTournament(){
 
 }
 
-
 /* =====================================================
    LOAD TOURNAMENTS
 ===================================================== */
@@ -2407,6 +2407,7 @@ async function loadTournaments(){
       .join("");
 
 }
+
 
 /* =====================================================
    TOURNAMENT CARD
@@ -3050,73 +3051,57 @@ async function createPlayer(){
 
 async function loadPlayers(){
 
-  playerList.innerHTML =
-    "Loading team registrations...";
-
+  playerList.innerHTML = "Loading team registrations...";
 
   const { data: teams, error: teamError } =
     await supabase
       .from("teams")
       .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
+      .order("created_at", { ascending: false });
 
   if(teamError){
-
-    playerList.innerHTML =
-      "Team Error: " +
-      escapeHtml(teamError.message);
-
+    playerList.innerHTML = "Team Error: " + escapeHtml(teamError.message);
     return;
-
   }
-
 
   if(!teams || teams.length === 0){
-
-    playerList.innerHTML =
-      "No team registrations yet.";
-
+    playerList.innerHTML = "No team registrations yet.";
     return;
-
   }
 
+  const teamIds = teams.map(team => team.id);
+
+  const { data: players, error: playerError } =
+    await supabase
+      .from("players")
+      .select("*")
+      .in("team_id", teamIds);
+
+  if(playerError){
+    playerList.innerHTML = "Player Error: " + escapeHtml(playerError.message);
+    return;
+  }
 
   const { data: entries, error: entryError } =
     await supabase
       .from("tournament_entries")
-      .select("*");
-
+      .select("*")
+      .in("team_id", teamIds);
 
   if(entryError){
-
-    playerList.innerHTML =
-      "Entry Error: " +
-      escapeHtml(entryError.message);
-
+    playerList.innerHTML = "Entry Error: " + escapeHtml(entryError.message);
     return;
-
   }
-
 
   const { data: tournaments, error: tournamentError } =
     await supabase
       .from("tournaments")
       .select("id,name");
 
-
   if(tournamentError){
-
-    playerList.innerHTML =
-      "Tournament Error: " +
-      escapeHtml(tournamentError.message);
-
+    playerList.innerHTML = "Tournament Error: " + escapeHtml(tournamentError.message);
     return;
-
   }
-
 
   playerList.innerHTML = teams.map(team => {
 
@@ -3128,6 +3113,9 @@ async function loadPlayers(){
       t => t.id === team.tournament_id
     );
 
+    const teamPlayers = (players || []).filter(
+      p => p.team_id === team.id
+    );
 
     return `
 
@@ -3163,6 +3151,39 @@ async function loadPlayers(){
 
         </div>
 
+        <hr>
+
+        <h4>👥 Team Players</h4>
+
+        ${
+          teamPlayers.length > 0
+          ? teamPlayers.map((player, index) => `
+
+              <div class="info">
+
+                **Player ${index + 1}**
+
+                <br>
+
+                🎮 Name:
+                ${escapeHtml(player.name || "N/A")}
+
+                <br>
+
+                🆔 UID:
+                ${escapeHtml(player.uid || "N/A")}
+
+                <br>
+
+                📌 Status:
+                ${escapeHtml(player.status || "Pending")}
+
+              </div>
+
+            `).join("<br>")
+          : "<p>No player details found.</p>"
+        }
+
       </div>
 
     `;
@@ -3170,6 +3191,7 @@ async function loadPlayers(){
   }).join("");
 
 }
+          
 
 
 
