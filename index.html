@@ -1808,6 +1808,25 @@ async function updateWithdrawalStatus(
   newStatus
 ) {
 
+  let paymentDetails = "";
+
+  if (newStatus === "approved") {
+
+    paymentDetails = prompt(
+      "UPI payment karne ke baad transaction UTR number enter karein:"
+    );
+
+    if (paymentDetails === null) return;
+
+    paymentDetails = paymentDetails.trim();
+
+    if (!paymentDetails) {
+      alert("UTR number enter karna zaroori hai.");
+      return;
+    }
+
+  }
+
   const action =
     newStatus === "approved"
       ? "approve"
@@ -1832,25 +1851,44 @@ async function updateWithdrawalStatus(
 
   if (error) {
 
-    console.error(
-      "Withdrawal Error:",
-      error
-    );
+    console.error("Withdrawal Error:", error);
 
-    alert(
-      "Withdrawal failed: " + error.message
-    );
+    alert("Withdrawal failed: " + error.message);
 
     return;
   }
 
-  alert(
-    `Withdrawal ${newStatus} successfully.`
-  );
+  if (newStatus === "approved") {
+
+    const {
+      error: detailsError
+    } = await supabase
+      .from("withdrawals")
+      .update({
+        payment_details: paymentDetails
+      })
+      .eq("id", withdrawalId);
+
+    if (detailsError) {
+
+      alert(
+        "Withdrawal approved, but UTR save failed: " +
+        detailsError.message
+      );
+
+      await loadWithdrawals();
+      return;
+    }
+
+  }
+
+  alert(`Withdrawal ${newStatus} successfully.`);
 
   await loadWithdrawals();
 
 }
+  
+
 
 
 /* =====================================================
