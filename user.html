@@ -310,7 +310,29 @@ button{cursor:pointer}
 <div class="profileLabel">BALANCE</div>
 <div id="profileBalance" class="profileValue" style="color:#ffc107;font-weight:900">₹0</div>
 </div>
+<!-- REFERRAL SECTION -->
 
+<div style="background:#171717;border:1px solid #ffc107;border-radius:12px;padding:16px;margin:15px 0;">
+
+<h3 style="color:#ffc107;margin:0 0 8px;">REFER & EARN</h3>
+
+<p style="color:#aaa;font-size:13px;">
+Invite your friends to Elite FF Tournaments!
+</p>
+
+<input
+id="referralLink"
+type="text"
+readonly
+placeholder="Your referral link"
+style="width:100%;padding:12px;background:#222;color:white;border:1px solid #444;border-radius:8px;box-sizing:border-box;margin:10px 0;"
+>
+
+<button class="btn btnGold" onclick="generateReferralLink()">
+GENERATE & COPY LINK
+</button>
+
+</div>
 <h3 class="sectionTitle">PLAYER STATISTICS</h3>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0;">
