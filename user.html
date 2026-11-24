@@ -800,7 +800,7 @@ async function loadWallet(){
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
     .from("withdrawals")
-    .select("amount,upi_id,status,created_at")
+    .select("amount,upi_id,status,created_at,rejection_reason")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -902,59 +902,62 @@ async function loadWallet(){
     }
   }
 
-/* WITHDRAWAL HISTORY */
 
-if(withdrawHistory){
+  /* WITHDRAWAL HISTORY */
 
-  if(!withdrawals || withdrawals.length === 0){
+  if(withdrawHistory){
 
-    withdrawHistory.innerHTML =
-      '<p style="color:#aaa">No withdrawal history yet.</p>';
+    if(!withdrawals || withdrawals.length === 0){
 
-  }else{
+      withdrawHistory.innerHTML =
+        '<p style="color:#aaa">No withdrawal history yet.</p>';
 
-    withdrawHistory.innerHTML = withdrawals.map(item=>`
+    }else{
 
-      <div style="padding:12px;margin-bottom:10px;background:#171717;border:1px solid #333;border-radius:10px">
+      withdrawHistory.innerHTML = withdrawals.map(item=>`
 
-        <div style="display:flex;justify-content:space-between;gap:10px">
+        <div style="padding:12px;margin-bottom:10px;background:#171717;border:1px solid #333;border-radius:10px">
 
-          <strong style="color:#ffb74d">
-            - ₹${safe(Number(item.amount || 0).toFixed(2))}
-          </strong>
+          <div style="display:flex;justify-content:space-between;gap:10px">
 
-          <strong style="color:${statusColor(item.status)}">
-            ${safe((item.status || "pending").toUpperCase())}
-          </strong>
+            <strong style="color:#ffb74d">
+              - ₹${safe(Number(item.amount || 0).toFixed(2))}
+            </strong>
+
+            <strong style="color:${statusColor(item.status)}">
+              ${safe((item.status || "pending").toUpperCase())}
+            </strong>
+
+          </div>
+
+          <div style="color:#aaa;font-size:12px;margin-top:7px">
+            UPI: ${safe(item.upi_id || "Not available")}
+          </div>
+
+          ${
+            item.status === "rejected"
+              ? `
+                <div style="color:#ff6b6b;font-size:13px;margin-top:10px;padding:8px;background:#2a1717;border-radius:7px">
+                  <strong>Rejection Reason:</strong>
+                  ${safe(item.rejection_reason || "Reason not provided")}
+                </div>
+              `
+              : ""
+          }
+
+          <div style="color:#888;font-size:11px;margin-top:5px">
+            ${safe(dateFormat(item.created_at))}
+          </div>
 
         </div>
 
-        <div style="color:#aaa;font-size:12px;margin-top:7px">
-          UPI: ${safe(item.upi_id || "Not available")}
-        </div>
+      `).join("");
 
-        ${
-          item.status === "rejected"
-            ? `
-              <div style="color:#ff6b6b;font-size:13px;margin-top:10px;padding:8px;background:#2a1717;border-radius:7px">
-                <strong>Rejection Reason:</strong>
-                ${safe(item.rejection_reason || "Reason not provided")}
-              </div>
-            `
-            : ""
-        }
-
-        <div style="color:#888;font-size:11px;margin-top:5px">
-          ${safe(dateFormat(item.created_at))}
-        </div>
-
-      </div>
-
-    `).join("");
-
+    }
   }
+
 }
-  
+
 
 /* PROFILE */
 
