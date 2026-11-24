@@ -4178,6 +4178,17 @@ async function loadPayments(){
         <b>${escapeHtml(payment.status || "pending")}</b>
       </p>
 
+      ${
+        payment.status === "rejected"
+          ? `
+            <p style="color:#ff6b6b;background:#2a1717;padding:10px;border-radius:8px">
+              <strong>Rejection Reason:</strong><br>
+              ${escapeHtml(payment.rejection_reason || "Reason not provided")}
+            </p>
+          `
+          : ""
+      }
+
       <p>
         📅 Date:
         ${payment.created_at
@@ -4220,6 +4231,8 @@ async function loadPayments(){
   `).join("");
 
 }
+
+
 
                       
 
