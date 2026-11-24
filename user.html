@@ -751,43 +751,53 @@ document.getElementById("resetPasswordSection").style.display="flex";
 
 async function loadWallet(){
 
-if(!currentUser) return;
+  if(!currentUser) return;
 
-let balance=0;
+  let balance = 0;
 
-const {data:deposits,error:depositError}=await supabaseClient
-.from("payments")
-.select("amount")
-.eq("user_id",currentUser.id)
-.eq("status","approved");
+  const {data:deposits,error:depositError} =
+    await supabaseClient
+    .from("payments")
+    .select("amount")
+    .eq("user_id",currentUser.id)
+    .eq("status","approved");
 
-if(depositError){
-console.error("Deposit balance error:",depositError.message);
-}
+  if(depositError){
+    console.error("Deposit balance error:",depositError.message);
+    return;
+  }
 
-(deposits||[]).forEach(item=>{
-balance+=Number(item.amount||0);
-});
+  (deposits || []).forEach(item=>{
+    balance += Number(item.amount || 0);
+  });
 
-const {data:withdrawals,error:withdrawError}=await supabaseClient
-.from("withdrawals")
-.select("amount")
-.eq("user_id",currentUser.id)
-.eq("status","approved");
+  const {data:withdrawals,error:withdrawError} =
+    await supabaseClient
+    .from("withdrawals")
+    .select("amount")
+    .eq("user_id",currentUser.id)
+    .in("status",["pending","approved"]);
 
-if(withdrawError){
-console.error("Withdrawal balance error:",withdrawError.message);
-}
+  if(withdrawError){
+    console.error("Withdrawal balance error:",withdrawError.message);
+    return;
+  }
 
-(withdrawals||[]).forEach(item=>{
-balance-=Number(item.amount||0);
-});
+  (withdrawals || []).forEach(item=>{
+    balance -= Number(item.amount || 0);
+  });
 
-const walletBalance=document.getElementById("walletBalance");
-const profileBalance=document.getElementById("profileBalance");
+  const walletBalance =
+    document.getElementById("walletBalance");
 
-if(walletBalance) walletBalance.textContent="₹"+balance.toFixed(2);
-if(profileBalance) profileBalance.textContent="₹"+balance.toFixed(2);
+  const profileBalance =
+    document.getElementById("profileBalance");
+
+  if(walletBalance)
+    walletBalance.textContent = "₹" + balance.toFixed(2);
+
+  if(profileBalance)
+    profileBalance.textContent = "₹" + balance.toFixed(2);
 }
 
 /* PROFILE */
