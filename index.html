@@ -4294,48 +4294,52 @@ async function(id){
 window.rejectPayment =
 async function(id){
 
-  const confirmReject =
-    confirm(
-      "Reject this payment?"
-    );
+  const rejectionReason = prompt(
+    "Deposit reject karne ki wajah likhein:"
+  );
+
+  if(rejectionReason === null){
+    return;
+  }
+
+  if(!rejectionReason.trim()){
+    alert("Rejection reason likhna zaroori hai.");
+    return;
+  }
+
+  const confirmReject = confirm(
+    "Are you sure you want to reject this payment?"
+  );
 
   if(!confirmReject){
     return;
   }
 
-
   const { error } =
     await supabase
       .from("payments")
       .update({
-        status: "rejected"
+        status: "rejected",
+        rejection_reason: rejectionReason.trim()
       })
-      .eq(
-        "id",
-        id
-      );
-
+      .eq("id", id);
 
   if(error){
 
     alert(
-      "Reject Error: " +
-      error.message
+      "Reject Error: " + error.message
     );
 
     return;
-
   }
 
-
-  alert(
-    "Payment rejected! ❌"
-  );
-
+  alert("Payment rejected successfully! ❌");
 
   await loadPayments();
 
 };
+  
+
 
 
 /* =====================================================
