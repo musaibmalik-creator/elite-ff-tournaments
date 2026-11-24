@@ -1118,7 +1118,85 @@ button:disabled{
 </div>
 
 
+<!-- =====================================================
+     MATCH RESULTS
+===================================================== -->
+
+<div id="resultsSection" class="hidden">
+
+  <div class="card">
+
+    <div class="top">
+
+      <h1>🏆 Manage Match Results</h1>
+
+      <button
+        id="backResultsButton"
+        type="button"
+      >
+        ← Back
+      </button>
+
+    </div>
+
+    <h3>Enter Match Results</h3>
+
+    <label>Select Tournament</label>
+    <select id="resultTournament">
+      <option value="">Select Tournament</option>
+    </select>
+
+    <label>Select Player</label>
+    <select id="resultPlayer">
+      <option value="">Select Player</option>
+    </select>
+
+    <label>Player Kills</label>
     <input
+      type="number"
+      id="resultKills"
+      min="0"
+      placeholder="Enter total kills"
+    >
+
+    <label>Player Position</label>
+    <select id="resultPosition">
+      <option value="">Select Position</option>
+      <option value="1">1st Place</option>
+      <option value="2">2nd Place</option>
+      <option value="3">3rd Place</option>
+      <option value="4">4th Place</option>
+      <option value="5">Other</option>
+    </select>
+
+    <label>Prize Amount (₹)</label>
+    <input
+      type="number"
+      id="resultPrize"
+      min="0"
+      placeholder="Enter prize amount"
+    >
+
+    <button
+      id="saveResultButton"
+      type="button"
+    >
+      🏆 Save Match Result
+    </button>
+
+    <div id="resultMessage"></div>
+
+    <h3>Previous Match Results</h3>
+
+    <div id="resultsList">
+      Loading results...
+    </div>
+
+  </div>
+
+</div>
+  
+  
     
     <!-- =====================================================
      TOURNAMENTS
