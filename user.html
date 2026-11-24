@@ -428,7 +428,34 @@ CONTACT SUPPORT
 </section>
 
 <script>
+const supabaseClient = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
 
+/* REFERRAL LINK */
+
+async function generateReferralLink() {
+  const { data, error } = await supabaseClient.auth.getUser();
+
+  if (error || !data.user) {
+    alert("Please login first!");
+    return;
+  }
+
+  const link = window.location.origin +
+    "/signup.html?ref=" +
+    encodeURIComponent(data.user.id);
+
+  document.getElementById("referralLink").value = link;
+
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("Referral link copied successfully!");
+  } catch (e) {
+    alert("Your referral link is ready. Copy it from the box.");
+  }
+}
 /* SUPABASE */
 
 const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
