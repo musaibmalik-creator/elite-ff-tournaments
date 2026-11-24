@@ -3033,57 +3033,133 @@ async function createPlayer(){
 
 }
 
-
 /* =====================================================
-   LOAD PLAYERS
+   LOAD PLAYERS / TEAM REGISTRATIONS
 ===================================================== */
 
 async function loadPlayers(){
 
   playerList.innerHTML =
-    "Loading players...";
+    "Loading team registrations...";
 
 
-  const { data, error } =
+  const { data: teams, error: teamError } =
     await supabase
-      .from("players")
-      .select(`
-        *,
-        tournaments(name)
-      `)
-      .order(
-        "created_at",
-        { ascending:false }
-      );
+      .from("teams")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
 
 
-  if(error){
+  if(teamError){
 
     playerList.innerHTML =
-      "Error: " +
-      escapeHtml(error.message);
+      "Team Error: " +
+      escapeHtml(teamError.message);
 
     return;
 
   }
 
 
-  if(!data || data.length === 0){
+  if(!teams || teams.length === 0){
 
     playerList.innerHTML =
-      "No players registered yet.";
+      "No team registrations yet.";
 
     return;
 
   }
 
 
-  playerList.innerHTML =
-    data
-      .map(playerCard)
-      .join("");
+  const { data: entries, error: entryError } =
+    await supabase
+      .from("tournament_entries")
+      .select("*");
+
+
+  if(entryError){
+
+    playerList.innerHTML =
+      "Entry Error: " +
+      escapeHtml(entryError.message);
+
+    return;
+
+  }
+
+
+  const { data: tournaments, error: tournamentError } =
+    await supabase
+      .from("tournaments")
+      .select("id,name");
+
+
+  if(tournamentError){
+
+    playerList.innerHTML =
+      "Tournament Error: " +
+      escapeHtml(tournamentError.message);
+
+    return;
+
+  }
+
+
+  playerList.innerHTML = teams.map(team => {
+
+    const entry = (entries || []).find(
+      e => e.team_id === team.id
+    );
+
+    const tournament = (tournaments || []).find(
+      t => t.id === team.tournament_id
+    );
+
+
+    return `
+
+      <div class="player-card">
+
+        <h3>
+          🏆 ${escapeHtml(team.name || "Unnamed Team")}
+        </h3>
+
+        <div class="info">
+
+          🎮 Tournament:
+          ${escapeHtml(tournament?.name || "Unknown")}
+
+          <br>
+
+          👤 Captain ID:
+          ${escapeHtml(team.captain_id || "N/A")}
+
+          <br>
+
+          📌 Status:
+          ${escapeHtml(entry?.status || "Pending")}
+
+          <br>
+
+          📅 Registered:
+          ${escapeHtml(
+            team.created_at
+              ? new Date(team.created_at).toLocaleString()
+              : "N/A"
+          )}
+
+        </div>
+
+      </div>
+
+    `;
+
+  }).join("");
 
 }
+
 
 
 /* =====================================================
