@@ -1012,6 +1012,18 @@ button.disabled=false;
 button.textContent="SUBMIT DEPOSIT";
 
 if(error){
+
+if(error.code==="23505" &&
+error.message.includes("payments_unique_utr")){
+
+setMessage(
+"depositMessage",
+"❌ This UTR has already been used. Please enter a different UTR."
+);
+
+return;
+}
+
 setMessage("depositMessage",error.message);
 return;
 }
@@ -1019,7 +1031,11 @@ return;
 document.getElementById("depositAmount").value="";
 document.getElementById("depositUTR").value="";
 
-setMessage("depositMessage","✅ Deposit request submit ho gayi.");
+setMessage(
+"depositMessage",
+"✅ Deposit request submit ho gayi."
+);
+
 }
 
 /* WITHDRAW */
