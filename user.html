@@ -1307,7 +1307,7 @@ async function openTeamRegistration(id){
 }
 
 
-/* REGISTER TEAM */
+/* REGISTER TEAM + GENERATE INVITE CODES */
 
 async function registerTeam(){
 
@@ -1321,8 +1321,7 @@ async function registerTeam(){
     return;
   }
 
-  const teamName =
-    document.getElementById("teamName").value.trim();
+  const teamName = document.getElementById("teamName").value.trim();
 
   if(!teamName){
     setMessage("teamMessage","Team name enter karo.");
@@ -1331,7 +1330,7 @@ async function registerTeam(){
 
   setMessage("teamMessage","Checking tournament...");
 
-  const {data: tournament, error: tournamentError} =
+  const {data: tournament,error: tournamentError} =
     await supabaseClient
       .from("tournaments")
       .select("id,sport,name")
@@ -1344,41 +1343,30 @@ async function registerTeam(){
   }
 
   const totalPlayers = getPlayerCount(tournament.sport);
-
   const members = [];
 
-  for(let i = 1; i <= totalPlayers; i++){
+  for(let i=1; i<=totalPlayers; i++){
 
-    const name =
-      document.getElementById("player" + i + "Name").value.trim();
-
-    const uid =
-      document.getElementById("player" + i + "UID").value.trim();
+    const name = document.getElementById("player"+i+"Name").value.trim();
+    const uid = document.getElementById("player"+i+"UID").value.trim();
 
     if(!name || !uid){
-      setMessage(
-        "teamMessage",
-        "Player " + i + " ka Name aur UID enter karo."
-      );
+      setMessage("teamMessage","Player "+i+" ka Name aur UID enter karo.");
       return;
     }
 
-    members.push({
-      name: name,
-      uid: uid
-    });
-
+    members.push({name:name,uid:uid});
   }
 
   setMessage("teamMessage","Registering team...");
 
-  const {data: team, error: teamError} =
+  const {data: team,error: teamError} =
     await supabaseClient
       .from("teams")
       .insert({
-        tournament_id: selectedTournamentId,
-        captain_id: currentUser.id,
-        name: teamName
+        tournament_id:selectedTournamentId,
+        captain_id:currentUser.id,
+        name:teamName
       })
       .select()
       .single();
@@ -1392,10 +1380,10 @@ async function registerTeam(){
     await supabaseClient
       .from("tournament_entries")
       .insert({
-        tournament_id: selectedTournamentId,
-        team_id: team.id,
-        user_id: currentUser.id,
-        status: "pending"
+        tournament_id:selectedTournamentId,
+        team_id:team.id,
+        user_id:currentUser.id,
+        status:"pending"
       });
 
   if(entryError){
@@ -1404,12 +1392,12 @@ async function registerTeam(){
   }
 
   const playerRows = members.map(member => ({
-    team_id: team.id,
-    name: member.name,
-    team_name: teamName,
-    tournament_id: selectedTournamentId,
-    uid: member.uid,
-    status: "pending"
+    team_id:team.id,
+    name:member.name,
+    team_name:teamName,
+    tournament_id:selectedTournamentId,
+    uid:member.uid,
+    status:"pending"
   }));
 
   const {error: playerError} =
@@ -1418,29 +1406,85 @@ async function registerTeam(){
       .insert(playerRows);
 
   if(playerError){
-    setMessage(
-      "teamMessage",
-      "Team saved, but player details error: " +
-      playerError.message
-    );
+    setMessage("teamMessage","Team saved, but player details error: "+playerError.message);
     return;
   }
 
-  document.getElementById("teamName").value = "";
+  setMessage("teamMessage","Generating team invite codes...");
 
-  for(let i = 1; i <= totalPlayers; i++){
+  const {data: invites,error: inviteError} =
+    await supabaseClient.rpc(
+      "create_team_player_invites",
+      {p_team_id:team.id}
+    );
 
-    document.getElementById("player" + i + "Name").value = "";
-    document.getElementById("player" + i + "UID").value = "";
-
+  if(inviteError){
+    setMessage("teamMessage","Team registered, but invite error: "+inviteError.message);
+    return;
   }
 
-  setMessage(
-    "teamMessage",
-    "Team and all players registered successfully! ✅"
+  const inviteBox = document.getElementById("teamInviteBox");
+  const inviteList = document.getElementById("teamInviteList");
+
+  inviteList.innerHTML = invites.map((item,index) => `
+    <div class="infoBox" style="margin:10px 0;padding:12px;">
+      <b>${escapeHtml(item.player_name)}</b>
+      <p>Invite Code: <strong>${escapeHtml(item.invite_code)}</strong></p>
+    </div>
+  `).join("");
+
+  inviteBox.style.display = "block";
+
+  document.getElementById("teamName").value="";
+
+  for(let i=1;i<=totalPlayers;i++){
+    document.getElementById("player"+i+"Name").value="";
+    document.getElementById("player"+i+"UID").value="";
+  }
+
+  setMessage("teamMessage","Team registered and invite codes generated successfully! ✅");
+}
+
+
+/* CLAIM PLAYER SLOT */
+
+async function claimPlayerSlot(){
+
+  if(!currentUser){
+    setMessage("claimMessage","Pehle login karo.");
+    return;
+  }
+
+  const input = document.getElementById("playerInviteCode");
+  const code = input.value.trim();
+
+  if(!code){
+    setMessage("claimMessage","Invite code enter karo.");
+    return;
+  }
+
+  setMessage("claimMessage","Verifying invite code...");
+
+  const {data,error} = await supabaseClient.rpc(
+    "claim_player_invite",
+    {p_invite_code:code}
   );
 
+  if(error){
+    setMessage("claimMessage","Error: "+error.message);
+    return;
+  }
+
+  input.value="";
+
+  setMessage("claimMessage","Player slot successfully linked to your account! ✅");
+
+  if(typeof loadProfile === "function"){
+    await loadProfile();
+  }
 }
+  
+
   
 
 /* COPY UPI */
