@@ -212,40 +212,40 @@ button{cursor:pointer}
 <!-- TEAM -->
 
 <div id="teamSection" class="section">
+
 <h2 class="sectionTitle">Team Registration</h2>
 
 <div class="formBox">
-<div id="selectedTournamentText" class="infoBox">Tournament select karein.</div>
 
-<input id="teamName" class="input" placeholder="Team Name">
-
-<div class="playerBox">
-<div class="playerTitle">Player 1</div>
-<input id="player1Name" class="input" placeholder="Free Fire Name">
-<input id="player1UID" class="input" placeholder="Free Fire UID">
+<div id="selectedTournamentText" class="infoBox">
+Tournament select karein.
 </div>
 
-<div class="playerBox">
-<div class="playerTitle">Player 2</div>
-<input id="player2Name" class="input" placeholder="Free Fire Name">
-<input id="player2UID" class="input" placeholder="Free Fire UID">
-</div>
+<input
+id="teamName"
+class="input"
+placeholder="Team Name"
+>
 
-<div class="playerBox">
-<div class="playerTitle">Player 3</div>
-<input id="player3Name" class="input" placeholder="Free Fire Name">
-<input id="player3UID" class="input" placeholder="Free Fire UID">
-</div>
+<div id="playersContainer"></div>
 
-<div class="playerBox">
-<div class="playerTitle">Player 4</div>
-<input id="player4Name" class="input" placeholder="Free Fire Name">
-<input id="player4UID" class="input" placeholder="Free Fire UID">
-</div>
+<button
+id="registerTeamButton"
+class="btn btnGold"
+onclick="registerTeam()"
+>
+REGISTER TEAM & JOIN
+</button>
 
-<button id="registerTeamButton" class="btn btnGold" onclick="registerTeam()">REGISTER TEAM & JOIN</button>
-<button class="btn btnDark" onclick="showOnly('tournamentsSection')">← BACK</button>
+<button
+class="btn btnDark"
+onclick="showOnly('tournamentsSection')"
+>
+← BACK
+</button>
+
 <div id="teamMessage" class="message"></div>
+
 </div>
 </div>
 
