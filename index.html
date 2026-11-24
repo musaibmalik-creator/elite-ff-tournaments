@@ -1189,9 +1189,8 @@ button:disabled{
 
 </div>
 
-
 <!-- =====================================================
-     PLAYERS
+     PLAYERS / TEAM REGISTRATIONS
 ===================================================== -->
 
 <div
@@ -1203,7 +1202,7 @@ button:disabled{
 
     <div class="top">
 
-      <h2>👥 Players</h2>
+      <h2>👥 Team Management</h2>
 
       <button
         id="backPlayersButton"
@@ -1215,9 +1214,7 @@ button:disabled{
 
     </div>
 
-    <h3 id="playerFormTitle">
-      ➕ Add Player
-    </h3>
+    <h3>➕ Manual Player Entry</h3>
 
     <input
       id="playerName"
@@ -1264,17 +1261,31 @@ button:disabled{
 
   <div class="card">
 
-    <h2>
-      All Players
-    </h2>
+    <div class="top">
+
+      <h2>🏆 All Team Registrations</h2>
+
+      <button
+        type="button"
+        onclick="loadPlayers()"
+      >
+        🔄 Refresh
+      </button>
+
+    </div>
+
+    <p>
+      Yahan User App se register hui saari teams show hongi.
+    </p>
 
     <div id="playerList">
-      Loading...
+      Loading team registrations...
     </div>
 
   </div>
 
 </div>
+
 
 
 <!-- =====================================================
