@@ -1091,7 +1091,7 @@ const {data:withdrawals,error:withdrawError}=await supabaseClient
 .from("withdrawals")
 .select("amount")
 .eq("user_id",currentUser.id)
-.eq("status","approved");
+.in("status",["pending","approved"]);
 
 if(withdrawError){
 button.disabled=false;
