@@ -2183,12 +2183,14 @@ $("backButton")
   }
 );
 
-
 /* =====================================================
    TOURNAMENT FORM
 ===================================================== */
 
 function getTournamentForm(){
+
+  const selectedMode =
+    $("tournamentSport").value;
 
   return {
 
@@ -2198,14 +2200,12 @@ function getTournamentForm(){
         .trim(),
 
     sport:
-      $("tournamentSport")
-        .value
-        .trim() ||
-      "Free Fire",
+      selectedMode,
 
     cs_mode:
-      $("csMode")
-        .value,
+      selectedMode.startsWith("cs_")
+        ? selectedMode.replace("cs_", "")
+        : null,
 
     description:
       $("tournamentDescription")
@@ -2241,6 +2241,7 @@ function getTournamentForm(){
   };
 
 }
+
 
 
 /* =====================================================
@@ -2396,12 +2397,25 @@ async function loadTournaments(){
 
 }
 
-
 /* =====================================================
    TOURNAMENT CARD
 ===================================================== */
 
 function tournamentCard(t){
+
+  const modeNames = {
+    cs_1v1: "CS 1v1",
+    cs_2v2: "CS 2v2",
+    cs_4v4: "CS 4v4",
+    br_solo: "BR Solo",
+    br_duo: "BR Duo",
+    br_squad: "BR Squad",
+    lone_wolf: "Lone Wolf"
+  };
+
+  const selectedMode =
+    modeNames[t.sport] || t.sport || "Free Fire";
+
 
   return `
 
@@ -2409,65 +2423,42 @@ function tournamentCard(t){
 
       <span class="badge">
         ${escapeHtml(
-          t.status ||
-          "Tournament"
+          t.status || "Tournament"
         )}
       </span>
 
       <h3>
         🏆
         ${escapeHtml(
-          t.name ||
-          "Unnamed Tournament"
+          t.name || "Unnamed Tournament"
         )}
       </h3>
 
       <div class="info">
 
-        🎮 Sport:
-        ${escapeHtml(
-          t.sport ||
-          "Free Fire"
-        )}
-
-        <br>
-
-        🎮 CS Mode:
-        ${escapeHtml(
-          t.cs_mode ||
-          "1v1"
-        )}
+        🎮 Mode:
+        ${escapeHtml(selectedMode)}
 
         <br>
 
         💰 Entry Fee:
-        ₹${escapeHtml(
-          t.entry_fee ??
-          0
-        )}
+        ₹${escapeHtml(t.entry_fee ?? 0)}
 
         <br>
 
         🏆 Prize Pool:
-        ₹${escapeHtml(
-          t.prize_pool ??
-          0
-        )}
+        ₹${escapeHtml(t.prize_pool ?? 0)}
 
         <br>
 
         👥 Max Teams:
-        ${escapeHtml(
-          t.max_teams ??
-          0
-        )}
+        ${escapeHtml(t.max_teams ?? 0)}
 
         <br>
 
         📝 Description:
         ${escapeHtml(
-          t.description ||
-          "No description"
+          t.description || "No description"
         )}
 
         <br>
@@ -2475,14 +2466,11 @@ function tournamentCard(t){
         📅 Starts:
         ${escapeHtml(
           t.starts_at
-            ? new Date(
-                t.starts_at
-              ).toLocaleString()
+            ? new Date(t.starts_at).toLocaleString()
             : "Not set"
         )}
 
       </div>
-
 
       <button
         type="button"
@@ -2490,7 +2478,6 @@ function tournamentCard(t){
       >
         ✏️ Edit
       </button>
-
 
       <button
         class="danger"
@@ -2521,7 +2508,7 @@ async function(id){
   await supabase
     .from("tournaments")
     .select("*")
-    .eq("id",id)
+    .eq("id", id)
     .single();
 
 
@@ -2529,8 +2516,7 @@ async function(id){
 
     showMessage(
       $("tournamentMessage"),
-      "Edit Error: " +
-      error.message
+      "Edit Error: " + error.message
     );
 
     return;
@@ -2538,69 +2524,58 @@ async function(id){
   }
 
 
-  editingTournamentId =
-    id;
+  editingTournamentId = id;
 
 
-  $("formTitle")
-    .textContent =
+  $("formTitle").textContent =
     "✏️ Edit Tournament";
 
 
-  $("saveTournamentButton")
-    .textContent =
+  $("saveTournamentButton").textContent =
     "Update Tournament";
 
 
   $("cancelEditButton")
-    .classList.remove(
-      "hidden"
-    );
+    .classList.remove("hidden");
 
 
   $("tournamentName").value =
     data.name || "";
 
 
+  const savedMode =
+    data.sport || "cs_1v1";
+
+
   $("tournamentSport").value =
-    data.sport ||
-    "Free Fire";
-
-
-  $("csMode").value =
-    data.cs_mode ||
-    "1v1";
+    savedMode;
 
 
   $("tournamentDescription").value =
-    data.description ||
-    "";
+    data.description || "";
 
 
   $("entryFee").value =
-    data.entry_fee ??
-    0;
+    data.entry_fee ?? 0;
 
 
   $("prizePool").value =
-    data.prize_pool ??
-    0;
+    data.prize_pool ?? 0;
 
 
   $("maxTeams").value =
-    data.max_teams ??
-    8;
+    data.max_teams ?? 8;
 
 
   $("tournamentStatus").value =
-    data.status ||
-    "registration_open";
+    data.status || "registration_open";
+
 
   $("startsAt").value =
     data.starts_at
       ? new Date(data.starts_at)
           .toISOString()
-          .slice(0,16)
+          .slice(0, 16)
       : "";
 
 
@@ -2612,15 +2587,25 @@ async function(id){
 };
 
 
+
 /* =====================================================
    UPDATE TOURNAMENT
 ===================================================== */
 
 async function updateTournament(){
 
-  const v =
-    getTournamentForm();
+  const v = getTournamentForm();
 
+  if(!editingTournamentId){
+
+    showMessage(
+      $("tournamentMessage"),
+      "No tournament selected for editing."
+    );
+
+    return;
+
+  }
 
   if(!v.name){
 
@@ -2633,42 +2618,44 @@ async function updateTournament(){
 
   }
 
-
   showMessage(
     $("tournamentMessage"),
     "Updating tournament..."
   );
 
-
-  const { error } =
-    await supabase
-      .from("tournaments")
-      .update(v)
-      .eq(
-        "id",
-        editingTournamentId
-      );
-
+  const { data, error } = await supabase
+    .from("tournaments")
+    .update(v)
+    .eq("id", editingTournamentId)
+    .select();
 
   if(error){
 
     showMessage(
       $("tournamentMessage"),
-      "Update Error: " +
-      error.message
+      "Update Error: " + error.message
     );
 
     return;
 
   }
 
+  if(!data || data.length === 0){
+
+    showMessage(
+      $("tournamentMessage"),
+      "Tournament was not updated. Check permissions."
+    );
+
+    return;
+
+  }
 
   showMessage(
     $("tournamentMessage"),
     "Tournament updated successfully! ✅",
     true
   );
-
 
   resetTournamentForm();
 
@@ -2693,7 +2680,6 @@ $("cancelEditButton")
     }
   );
 
-
 /* =====================================================
    RESET TOURNAMENT FORM
 ===================================================== */
@@ -2714,9 +2700,7 @@ function resetTournamentForm(){
 
 
   $("cancelEditButton")
-    .classList.add(
-      "hidden"
-    );
+    .classList.add("hidden");
 
 
   $("tournamentName").value =
@@ -2724,11 +2708,7 @@ function resetTournamentForm(){
 
 
   $("tournamentSport").value =
-    "Free Fire";
-
-
-  $("csMode").value =
-    "1v1";
+    "cs_1v1";
 
 
   $("tournamentDescription").value =
@@ -2755,6 +2735,7 @@ function resetTournamentForm(){
     "";
 
 }
+
 
 
 /* =====================================================
