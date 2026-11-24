@@ -3916,149 +3916,113 @@ $("backPaymentsButton").addEventListener(
   }
 );
 
-
 /* =====================================================
    LOAD PAYMENTS
 ===================================================== */
 
 async function loadPayments(){
 
-  const paymentsList =
-    $("paymentsList");
+  const paymentsList = $("paymentsList");
 
+  paymentsList.innerHTML = "Loading payments...";
 
-  paymentsList.innerHTML =
-    "Loading payments...";
-
-
-  const { data, error } =
-    await supabase
-      .from("payments")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      );
-
+  const { data, error } = await supabase
+    .from("payments")
+    .select("*")
+    .order("created_at", {
+      ascending: false
+    });
 
   if(error){
 
     paymentsList.innerHTML =
-      "Payment Error: " +
-      escapeHtml(
-        error.message
-      );
+      "Payment Error: " + escapeHtml(error.message);
 
     return;
-
   }
-
 
   if(!data || data.length === 0){
 
-    paymentsList.innerHTML =
-      "No payments found.";
+    paymentsList.innerHTML = "No payments found.";
 
     return;
-
   }
 
+  paymentsList.innerHTML = data.map(payment => `
 
-  paymentsList.innerHTML =
-    data
-      .map(payment => `
+    <div class="tournament-card">
 
-        <div class="tournament-card">
+      <h3>💳 Payment</h3>
 
-          <h3>
-            💳 Payment
-          </h3>
+      <p>
+        💰 Amount:
+        ₹${Number(payment.amount || 0).toFixed(2)}
+      </p>
 
-          <p>
-            💰 Amount:
-            ₹${Number(
-              payment.amount || 0
-            ).toFixed(2)}
-          </p>
+      <p>
+        🔢 UTR:
+        ${escapeHtml(payment.provider_payment_id || "-")}
+      </p>
 
-          <p>
-            🔢 UTR:
-                        ${escapeHtml(
-              payment.utr || "-"
-            )}
-          </p>
+      <p>
+        👤 User ID:
+        ${escapeHtml(payment.user_id || "-")}
+      </p>
 
-          <p>
-            👤 User ID:
-            ${escapeHtml(
-              payment.user_id || "-"
-            )}
-          </p>
+      <p>
+        🏆 Tournament ID:
+        ${escapeHtml(payment.tournament_id || "-")}
+      </p>
 
-          <p>
-            🏆 Tournament ID:
-            ${escapeHtml(
-              payment.tournament_id || "-"
-            )}
-          </p>
+      <p>
+        📌 Status:
+        <b>${escapeHtml(payment.status || "pending")}</b>
+      </p>
 
-          <p>
-            📌 Status:
-            <b>
-              ${escapeHtml(
-                payment.status || "pending"
-              )}
-            </b>
-          </p>
+      <p>
+        📅 Date:
+        ${payment.created_at
+          ? new Date(payment.created_at).toLocaleString()
+          : "-"
+        }
+      </p>
 
-          <p>
-            📅 Date:
-            ${payment.created_at
-              ? new Date(
-                  payment.created_at
-                ).toLocaleString()
-              : "-"
-            }
-          </p>
+      ${
+        payment.status === "pending"
+          ? `
+            <button
+              type="button"
+              onclick="approvePayment('${payment.id}')"
+            >
+              ✅ Approve
+            </button>
 
-          ${
-            payment.status === "pending"
-              ? `
-                <button
-                  type="button"
-                  onclick="approvePayment('${payment.id}')"
-                >
-                  ✅ Approve
-                </button>
+            <button
+              type="button"
+              class="danger"
+              onclick="rejectPayment('${payment.id}')"
+            >
+              ❌ Reject
+            </button>
+          `
+          : `
+            <p>
+              ${
+                payment.status === "approved"
+                  ? "🟢 Payment Approved"
+                  : "🔴 Payment Rejected"
+              }
+            </p>
+          `
+      }
 
-                <button
-                  type="button"
-                  class="danger"
-                  onclick="rejectPayment('${payment.id}')"
-                >
-                  ❌ Reject
-                </button>
-              `
-              : `
-                <p>
-                  ${
-                    payment.status === "approved"
-                      ? "🟢 Payment Approved"
-                      : "🔴 Payment Rejected"
-                  }
-                </p>
-              `
-          }
+    </div>
 
-        </div>
-
-      `)
-      .join("");
+  `).join("");
 
 }
 
+                      
 
 /* =====================================================
    APPROVE PAYMENT
