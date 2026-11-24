@@ -321,6 +321,36 @@ onclick="showOnly('tournamentsSection')"
 <div class="profileLabel">BALANCE</div>
 <div id="profileBalance" class="profileValue" style="color:#ffc107;font-weight:900">₹0</div>
 </div>
+
+
+<!-- FREE FIRE UID -->
+
+<div class="profileRow">
+  <div class="profileLabel">FREE FIRE UID</div>
+  <div id="profileUID" class="profileValue">Not Added</div>
+</div>
+
+<div style="margin:15px 0;">
+  <input
+    id="ffUidInput"
+    type="text"
+    inputmode="numeric"
+    placeholder="Enter your Free Fire UID"
+    style="width:100%;padding:12px;background:#222;color:white;border:1px solid #444;border-radius:8px;box-sizing:border-box;"
+  >
+
+  <button
+    class="btn btnGold"
+    type="button"
+    onclick="saveFFUID()"
+  >
+    SAVE FREE FIRE UID
+  </button>
+
+  <div id="ffUidMessage"></div>
+</div>
+  
+  
 <!-- REFERRAL SECTION -->
 
 <div style="background:#171717;border:1px solid #ffc107;border-radius:12px;padding:16px;margin:15px 0;">
@@ -974,26 +1004,84 @@ if(depositHistory){
 
 async function loadProfile(){
 
-if(!currentUser) return;
+  if(!currentUser) return;
 
-const email=document.getElementById("profileEmail");
-const uid=document.getElementById("profileUID");
+  const email = document.getElementById("profileEmail");
+  const uid = document.getElementById("profileUID");
+  const uidInput = document.getElementById("ffUidInput");
 
-if(email) email.textContent=currentUser.email||"";
-if(uid) uid.textContent=currentUser.id;
+  if(email){
+    email.textContent = currentUser.email || "";
+  }
 
-await loadWallet();
+  await loadWallet();
 
-const {count,error} = await supabaseClient
-.from("tournament_entries")
-.select("id",{count:"exact",head:true})
-.eq("user_id",currentUser.id);
+  const {data: profile, error: profileError} =
+    await supabaseClient
+      .from("profiles")
+      .select("ff_uid")
+      .eq("id", currentUser.id)
+      .maybeSingle();
 
-if(!error){
-const joined=document.getElementById("profileJoined");
-if(joined) joined.textContent=count||0;
+  if(!profileError){
+
+    if(uid){
+      uid.textContent = profile?.ff_uid || "Not Added";
+    }
+
+    if(uidInput){
+      uidInput.value = profile?.ff_uid || "";
+    }
+
+  }
+
+  const {count, error} = await supabaseClient
+    .from("tournament_entries")
+    .select("id", {count:"exact", head:true})
+    .eq("user_id", currentUser.id);
+
+  if(!error){
+    const joined = document.getElementById("profileJoined");
+    if(joined) joined.textContent = count || 0;
+  }
+
 }
+
+
+/* SAVE FREE FIRE UID */
+
+async function saveFFUID(){
+
+  if(!currentUser) return;
+
+  const input = document.getElementById("ffUidInput");
+  const message = document.getElementById("ffUidMessage");
+
+  const uid = input.value.trim();
+
+  if(!/^[0-9]{6,15}$/.test(uid)){
+    message.textContent = "Enter a valid Free Fire UID.";
+    return;
+  }
+
+  message.textContent = "Saving UID...";
+
+  const {error} = await supabaseClient
+    .from("profiles")
+    .update({ff_uid: uid})
+    .eq("id", currentUser.id);
+
+  if(error){
+    message.textContent = "Error: " + error.message;
+    return;
+  }
+
+  document.getElementById("profileUID").textContent = uid;
+
+  message.textContent = "Free Fire UID saved successfully! ✅";
+
 }
+  
 
 /* ESCAPE HTML */
 
