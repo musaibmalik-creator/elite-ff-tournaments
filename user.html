@@ -1049,70 +1049,157 @@ loadTournaments(filter);
 
 function openTeamRegistration(id){
 
-selectedTournamentId=id;
+  selectedTournamentId = id;
 
-const text=document.getElementById("selectedTournamentText");
+  const text = document.getElementById("selectedTournamentText");
 
-if(text){
-text.textContent="Tournament selected. Team details enter karein.";
+  if(text){
+    text.textContent = "Tournament selected. Team details enter karein.";
+  }
+
+  showOnly("teamSection");
 }
 
-showOnly("teamSection");
-}
 
 async function registerTeam(){
 
-if(!currentUser){
-setMessage("teamMessage","Pehle login karo.");
-return;
-}
+  if(!currentUser){
+    setMessage("teamMessage","Pehle login karo.");
+    return;
+  }
 
-if(!selectedTournamentId){
-setMessage("teamMessage","Tournament select karo.");
-return;
-}
+  if(!selectedTournamentId){
+    setMessage("teamMessage","Tournament select karo.");
+    return;
+  }
 
-const teamName=document.getElementById("teamName").value.trim();
+  const teamName =
+    document.getElementById("teamName").value.trim();
 
-if(!teamName){
-setMessage("teamMessage","Team name enter karo.");
-return;
-}
+  if(!teamName){
+    setMessage("teamMessage","Team name enter karo.");
+    return;
+  }
 
-setMessage("teamMessage","Registration submit ho rahi hai...");
+  setMessage("teamMessage","Checking tournament...");
 
-const {data:team,error} = await supabaseClient
-.from("teams")
-.insert({
-tournament_id:selectedTournamentId,
-captain_id:currentUser.id,
-name:teamName
-})
-.select()
-.single();
+  const {data: tournament, error: tournamentError} =
+    await supabaseClient
+      .from("tournaments")
+      .select("id,sport,name")
+      .eq("id",selectedTournamentId)
+      .single();
 
-if(error){
-setMessage("teamMessage",error.message);
-return;
-}
+  if(tournamentError){
+    setMessage("teamMessage",tournamentError.message);
+    return;
+  }
 
-const {error:entryError} = await supabaseClient
-.from("tournament_entries")
-.insert({
-tournament_id:selectedTournamentId,
-team_id:team.id,
-user_id:currentUser.id,
-status:"pending"
-});
+  const playerCount = {
+    cs_1v1: 1,
+    cs_2v2: 2,
+    cs_4v4: 4,
+    br_solo: 1,
+    br_duo: 2,
+    br_squad: 4,
+    lone_wolf: 2
+  };
 
-if(entryError){
-setMessage("teamMessage",entryError.message);
-return;
-}
+  const totalPlayers = playerCount[tournament.sport] || 1;
 
-document.getElementById("teamName").value="";
+  const members = [];
 
-setMessage("teamMessage","✅ Team registration submit ho gayi.");
+  for(let i = 1; i <= totalPlayers; i++){
+
+    const name =
+      document.getElementById("player" + i + "Name").value.trim();
+
+    const uid =
+      document.getElementById("player" + i + "UID").value.trim();
+
+    if(!name || !uid){
+      setMessage(
+        "teamMessage",
+        "Player " + i + " ka Name aur UID enter karo."
+      );
+      return;
+    }
+
+    members.push({
+      name: name,
+      uid: uid
+    });
+  }
+
+  setMessage("teamMessage","Registering team...");
+
+  const {data: team, error: teamError} =
+    await supabaseClient
+      .from("teams")
+      .insert({
+        tournament_id: selectedTournamentId,
+        captain_id: currentUser.id,
+        name: teamName
+      })
+      .select()
+      .single();
+
+  if(teamError){
+    setMessage("teamMessage",teamError.message);
+    return;
+  }
+
+  const {error: entryError} =
+    await supabaseClient
+      .from("tournament_entries")
+      .insert({
+        tournament_id: selectedTournamentId,
+        team_id: team.id,
+        user_id: currentUser.id,
+        status: "pending"
+      });
+
+  if(entryError){
+    setMessage("teamMessage",entryError.message);
+    return;
+  }
+
+  const playerRows = members.map(member => ({
+    team_id: team.id,
+    name: member.name,
+    team_name: teamName,
+    tournament_id: selectedTournamentId,
+    uid: member.uid,
+    status: "pending"
+  }));
+
+  const {error: playerError} =
+    await supabaseClient
+      .from("players")
+      .insert(playerRows);
+
+  if(playerError){
+    setMessage(
+      "teamMessage",
+      "Team saved, but player details error: " + playerError.message
+    );
+    return;
+  }
+
+  document.getElementById("teamName").value = "";
+
+  for(let i = 1; i <= 4; i++){
+
+    document.getElementById("player" + i + "Name").value = "";
+    document.getElementById("player" + i + "UID").value = "";
+
+  }
+
+  setMessage(
+    "teamMessage",
+    "Team and all players registered successfully! ✅"
+  );
+
 }
 
 /* COPY UPI */
