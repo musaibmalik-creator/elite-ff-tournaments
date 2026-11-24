@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1045,21 +1044,102 @@ showOnly("tournamentsSection");
 loadTournaments(filter);
 }
 
+
 /* TEAM REGISTRATION */
 
-function openTeamRegistration(id){
+function getPlayerCount(sport){
+
+  const playerCount = {
+    cs_1v1: 1,
+    cs_2v2: 2,
+    cs_4v4: 4,
+    br_solo: 1,
+    br_duo: 2,
+    br_squad: 4,
+    lone_wolf: 2
+  };
+
+  return playerCount[sport] || 1;
+}
+
+
+/* OPEN TEAM REGISTRATION */
+
+async function openTeamRegistration(id){
 
   selectedTournamentId = id;
 
-  const text = document.getElementById("selectedTournamentText");
+  const text =
+    document.getElementById("selectedTournamentText");
 
-  if(text){
-    text.textContent = "Tournament selected. Team details enter karein.";
+  const container =
+    document.getElementById("playersContainer");
+
+  if(!container){
+    alert("Players container nahi mila.");
+    return;
   }
 
+  container.innerHTML = "Loading tournament...";
+
   showOnly("teamSection");
+
+  const {data: tournament, error} =
+    await supabaseClient
+      .from("tournaments")
+      .select("id,name,sport")
+      .eq("id",id)
+      .single();
+
+  if(error){
+    container.innerHTML = "";
+    setMessage("teamMessage",error.message);
+    return;
+  }
+
+  const totalPlayers = getPlayerCount(tournament.sport);
+
+  if(text){
+    text.textContent =
+      "Tournament: " + tournament.name +
+      " | Mode: " + tournament.sport +
+      " | Players: " + totalPlayers;
+  }
+
+  container.innerHTML = "";
+
+  for(let i = 1; i <= totalPlayers; i++){
+
+    container.innerHTML += `
+      <div class="playerBox">
+
+        <div class="playerTitle">
+          Player ${i}
+        </div>
+
+        <input
+          id="player${i}Name"
+          class="input"
+          placeholder="Player ${i} Free Fire Name"
+        >
+
+        <input
+          id="player${i}UID"
+          class="input"
+          placeholder="Player ${i} Free Fire UID"
+        >
+
+      </div>
+    `;
+
+  }
+
+  setMessage("teamMessage","");
+
 }
 
+
+/* REGISTER TEAM */
 
 async function registerTeam(){
 
@@ -1095,17 +1175,7 @@ async function registerTeam(){
     return;
   }
 
-  const playerCount = {
-    cs_1v1: 1,
-    cs_2v2: 2,
-    cs_4v4: 4,
-    br_solo: 1,
-    br_duo: 2,
-    br_squad: 4,
-    lone_wolf: 2
-  };
-
-  const totalPlayers = playerCount[tournament.sport] || 1;
+  const totalPlayers = getPlayerCount(tournament.sport);
 
   const members = [];
 
@@ -1129,6 +1199,7 @@ async function registerTeam(){
       name: name,
       uid: uid
     });
+
   }
 
   setMessage("teamMessage","Registering team...");
@@ -1181,14 +1252,15 @@ async function registerTeam(){
   if(playerError){
     setMessage(
       "teamMessage",
-      "Team saved, but player details error: " + playerError.message
+      "Team saved, but player details error: " +
+      playerError.message
     );
     return;
   }
 
   document.getElementById("teamName").value = "";
 
-  for(let i = 1; i <= 4; i++){
+  for(let i = 1; i <= totalPlayers; i++){
 
     document.getElementById("player" + i + "Name").value = "";
     document.getElementById("player" + i + "UID").value = "";
@@ -1201,6 +1273,7 @@ async function registerTeam(){
   );
 
 }
+  
 
 /* COPY UPI */
 
