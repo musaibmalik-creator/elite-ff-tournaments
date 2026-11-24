@@ -2748,48 +2748,45 @@ function resetTournamentForm(){
 
 }
 
-
-
 /* =====================================================
    DELETE TOURNAMENT
 ===================================================== */
 
-window.deleteTournament =
-async function(id){
+window.deleteTournament = async function(id){
 
-  const confirmDelete =
-    confirm(
-      "Are you sure you want to delete this tournament?"
-    );
-
+  const confirmDelete = confirm(
+    "Are you sure you want to delete this tournament?"
+  );
 
   if(!confirmDelete){
     return;
   }
 
-
-  const { error } =
-    await supabase
-      .from("tournaments")
-      .delete()
-      .eq(
-        "id",
-        id
-      );
-
+  const { data, error } = await supabase
+    .from("tournaments")
+    .delete()
+    .eq("id", id)
+    .select("id");
 
   if(error){
 
     showMessage(
       $("tournamentMessage"),
-      "Delete Error: " +
-      error.message
+      "Delete Error: " + error.message
     );
 
     return;
-
   }
 
+  if(!data || data.length === 0){
+
+    showMessage(
+      $("tournamentMessage"),
+      "Delete failed: Record not deleted. Check Supabase RLS permissions."
+    );
+
+    return;
+  }
 
   showMessage(
     $("tournamentMessage"),
@@ -2797,12 +2794,12 @@ async function(id){
     true
   );
 
-
   await loadTournaments();
-
   await loadCounts();
 
 };
+
+
 
   /* =====================================================
    PLAYERS
