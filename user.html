@@ -208,45 +208,100 @@ button{cursor:pointer}
 <div id="tournamentList"><div class="empty">Loading tournaments...</div></div>
 </div>
 
+
 <!-- TEAM -->
 
 <div id="teamSection" class="section">
 
-<h2 class="sectionTitle">Team Registration</h2>
+  <h2 class="sectionTitle">Team Registration</h2>
 
-<div class="formBox">
+  <div class="formBox">
 
-<div id="selectedTournamentText" class="infoBox">
-Tournament select karein.
+    <div id="selectedTournamentText" class="infoBox">
+      Tournament select karein.
+    </div>
+
+    <input
+      id="teamName"
+      class="input"
+      placeholder="Team Name"
+    >
+
+    <div id="playersContainer"></div>
+
+    <button
+      id="registerTeamButton"
+      class="btn btnGold"
+      type="button"
+      onclick="registerTeam()"
+    >
+      REGISTER TEAM & JOIN
+    </button>
+
+    <button
+      class="btn btnDark"
+      type="button"
+      onclick="showOnly('tournamentsSection')"
+    >
+      ← BACK
+    </button>
+
+    <div id="teamMessage" class="message"></div>
+
+  </div>
+
+
+  <!-- CAPTAIN INVITE CODES -->
+
+  <div
+    id="teamInviteBox"
+    class="formBox"
+    style="display:none; margin-top:20px;"
+  >
+
+    <h3>TEAM INVITE CODES</h3>
+
+    <p>
+      Apne teammates ko unka unique invite code share karein.
+    </p>
+
+    <div id="teamInviteList"></div>
+
+  </div>
+
+
+  <!-- CLAIM PLAYER SLOT -->
+
+  <div class="formBox" style="margin-top:20px;">
+
+    <h3>CLAIM YOUR PLAYER SLOT</h3>
+
+    <p>
+      Apni Free Fire UID profile mein save karein,
+      phir captain se mila invite code enter karein.
+    </p>
+
+    <input
+      id="playerInviteCode"
+      class="input"
+      type="text"
+      placeholder="Enter Team Invite Code"
+    >
+
+    <button
+      class="btn btnGold"
+      type="button"
+      onclick="claimPlayerSlot()"
+    >
+      CLAIM PLAYER SLOT
+    </button>
+
+    <div id="claimMessage" class="message"></div>
+
+  </div>
+
 </div>
-
-<input
-id="teamName"
-class="input"
-placeholder="Team Name"
->
-
-<div id="playersContainer"></div>
-
-<button
-id="registerTeamButton"
-class="btn btnGold"
-onclick="registerTeam()"
->
-REGISTER TEAM & JOIN
-</button>
-
-<button
-class="btn btnDark"
-onclick="showOnly('tournamentsSection')"
->
-← BACK
-</button>
-
-<div id="teamMessage" class="message"></div>
-
-</div>
-</div>
+  
 
 <!-- DEPOSIT -->
 
