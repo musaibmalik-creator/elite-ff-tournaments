@@ -894,6 +894,62 @@ button:disabled{
 
 }
 
+/* =========================
+   WITHDRAWAL MOBILE FIX
+========================= */
+
+.withdrawal-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+}
+
+.withdrawal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.withdrawal-row {
+  display: grid;
+  grid-template-columns: 85px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.withdrawal-row span:first-child {
+  font-weight: 600;
+}
+
+.withdrawal-row span:last-child {
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.withdrawal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.withdrawal-actions button {
+  flex: 1;
+  min-width: 100px;
+}
+  
 </style>
 
 </head>
