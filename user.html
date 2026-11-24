@@ -800,7 +800,7 @@ async function loadWallet(){
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
     .from("withdrawals")
-    .select("amount,upi_id,status,created_at")
+    .select("amount,upi_id,status,created_at,rejection_reason")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
