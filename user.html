@@ -1052,93 +1052,53 @@ setMessage(
 
 async function submitWithdraw(){
 
-if(!currentUser){
-setMessage("withdrawMessage","Pehle login karo.");
-return;
-}
+  if(!currentUser){
+    setMessage("withdrawMessage","Pehle login karo.");
+    return;
+  }
 
-const amount=Number(document.getElementById("withdrawAmount").value);
-const upi=document.getElementById("withdrawUPI").value.trim();
+  const amount = Number(document.getElementById("withdrawAmount").value);
+  const upi = document.getElementById("withdrawUPI").value.trim();
 
-if(!Number.isFinite(amount)||amount<50){
-setMessage("withdrawMessage","Minimum withdrawal ₹50 hai.");
-return;
-}
+  if(!Number.isFinite(amount) || amount < 50){
+    setMessage("withdrawMessage","Minimum withdrawal ₹50 hai.");
+    return;
+  }
 
-if(!upi){
-setMessage("withdrawMessage","UPI ID enter karo.");
-return;
-}
+  if(!upi){
+    setMessage("withdrawMessage","UPI ID enter karo.");
+    return;
+  }
 
-const button=document.getElementById("withdrawButton");
-button.disabled=true;
-button.textContent="PROCESSING...";
+  const button = document.getElementById("withdrawButton");
 
-const {data:deposits,error:depositError}=await supabaseClient
-.from("payments")
-.select("amount")
-.eq("user_id",currentUser.id)
-.eq("status","approved");
+  button.disabled = true;
+  button.textContent = "PROCESSING...";
 
-if(depositError){
-button.disabled=false;
-button.textContent="REQUEST WITHDRAWAL";
-setMessage("withdrawMessage",depositError.message);
-return;
-}
+  const { data, error } = await supabaseClient.rpc(
+    "create_withdrawal_request",
+    {
+      p_amount: amount,
+      p_upi_id: upi
+    }
+  );
 
-const {data:withdrawals,error:withdrawError}=await supabaseClient
-.from("withdrawals")
-.select("amount")
-.eq("user_id",currentUser.id)
-.in("status",["pending","approved"]);
+  button.disabled = false;
+  button.textContent = "REQUEST WITHDRAWAL";
 
-if(withdrawError){
-button.disabled=false;
-button.textContent="REQUEST WITHDRAWAL";
-setMessage("withdrawMessage",withdrawError.message);
-return;
-}
+  if(error){
+    setMessage("withdrawMessage","Withdrawal failed: " + error.message);
+    return;
+  }
 
-let balance=0;
+  document.getElementById("withdrawAmount").value = "";
+  document.getElementById("withdrawUPI").value = "";
 
-(deposits||[]).forEach(item=>{
-balance+=Number(item.amount||0);
-});
+  await loadWallet();
 
-(withdrawals||[]).forEach(item=>{
-balance-=Number(item.amount||0);
-});
+  setMessage("withdrawMessage","✅ Withdrawal request submit ho gayi.");
+      }
 
-if(amount>balance){
-button.disabled=false;
-button.textContent="REQUEST WITHDRAWAL";
-setMessage("withdrawMessage","Wallet balance insufficient hai.");
-return;
-}
-
-const {error}=await supabaseClient
-.from("withdrawals")
-.insert({
-user_id:currentUser.id,
-amount:amount,
-upi_id:upi,
-status:"pending"
-});
-
-button.disabled=false;
-button.textContent="REQUEST WITHDRAWAL";
-
-if(error){
-setMessage("withdrawMessage",error.message);
-return;
-}
-
-document.getElementById("withdrawAmount").value="";
-document.getElementById("withdrawUPI").value="";
-
-setMessage("withdrawMessage","✅ Withdrawal request submit ho gayi.");
-}
 
 /* MY TOURNAMENTS */
 
