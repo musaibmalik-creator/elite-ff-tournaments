@@ -1568,8 +1568,10 @@ async function loadWithdrawals() {
       amount,
       upi_id,
       status,
-      created_at,
-      payment_details
+            created_at,
+      payment_details,
+      rejection_reason
+      
     `)
     .order("created_at", {
       ascending: false
@@ -1651,7 +1653,21 @@ async function loadWithdrawals() {
           ${withdrawal.payment_details || "-"}
         </span>
       </div>
-
+     
+      ${
+        withdrawal.status === "rejected"
+          ? `
+            <div class="withdrawal-row">
+              <span>Rejection Reason</span>
+              <span>
+                ${withdrawal.rejection_reason || "-"}
+              </span>
+            </div>
+          `
+          : ""
+      }
+      
+      
       <div class="withdrawal-row">
         <span>Date</span>
         <span>
