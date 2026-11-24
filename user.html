@@ -1076,11 +1076,25 @@ async function saveFFUID(){
     return;
   }
 
+  // AUTOMATIC PLAYER LINKING
+
+  const {data: linkedCount, error: linkError} =
+    await supabaseClient.rpc("link_my_player_records");
+
+  if(linkError){
+    message.textContent =
+      "UID saved, but linking failed: " + linkError.message;
+    return;
+  }
+
   document.getElementById("profileUID").textContent = uid;
 
-  message.textContent = "Free Fire UID saved successfully! ✅";
+  message.textContent =
+    "UID saved! Linked records: " + linkedCount + " ✅";
 
 }
+  
+
   
 
 /* ESCAPE HTML */
