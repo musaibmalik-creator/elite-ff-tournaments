@@ -469,79 +469,93 @@ const el = document.getElementById(id);
 if(el) el.textContent = text;
 }
 
+
 /* PASSWORD RECOVERY */
 
 function showForgotPassword(){
-document.getElementById("loginSection").style.display="none";
-document.getElementById("forgotPasswordSection").style.display="flex";
+  document.getElementById("loginSection").style.display="none";
+  document.getElementById("forgotPasswordSection").style.display="flex";
 }
 
 function backToLogin(){
-document.getElementById("forgotPasswordSection").style.display="none";
-document.getElementById("loginSection").style.display="flex";
+  document.getElementById("forgotPasswordSection").style.display="none";
+  document.getElementById("loginSection").style.display="flex";
 }
 
 async function sendPasswordReset(){
 
-const email = document.getElementById("forgotPasswordEmail").value.trim();
+  const email = document.getElementById("forgotPasswordEmail").value.trim();
 
-if(!email){
-setMessage("forgotPasswordMessage","Please enter your email.");
-return;
-}
+  if(!email){
+    setMessage("forgotPasswordMessage","Please enter your email.");
+    return;
+  }
 
-setMessage("forgotPasswordMessage","Sending reset link...");
+  setMessage("forgotPasswordMessage","Sending reset link...");
 
-const {error} = await supabaseClient.auth.resetPasswordForEmail(email,{
-redirectTo:window.location.origin + window.location.pathname
-});
+  const {error} = await supabaseClient.auth.resetPasswordForEmail(email,{
+    redirectTo:"https://elite-ff-tournaments-nine.vercel.app/user.html"
+  });
 
-if(error){
-setMessage("forgotPasswordMessage",error.message);
-return;
-}
+  if(error){
+    setMessage("forgotPasswordMessage",error.message);
+    return;
+  }
 
-setMessage("forgotPasswordMessage","Reset link email par bhej diya gaya hai. Apna email check karo.");
+  setMessage("forgotPasswordMessage","Password reset link sent! Please check your email.");
 }
 
 async function updatePassword(){
 
-const newPassword = document.getElementById("newPassword").value;
-const confirmPassword = document.getElementById("confirmPassword").value;
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-if(!newPassword || !confirmPassword){
-setMessage("resetPasswordMessage","Dono password fields fill karo.");
-return;
+  if(!newPassword || !confirmPassword){
+    setMessage("resetPasswordMessage","Please fill both password fields.");
+    return;
+  }
+
+  if(newPassword.length < 6){
+    setMessage("resetPasswordMessage","Password must be at least 6 characters.");
+    return;
+  }
+
+  if(newPassword !== confirmPassword){
+    setMessage("resetPasswordMessage","Passwords do not match.");
+    return;
+  }
+
+  setMessage("resetPasswordMessage","Updating password...");
+
+  const {error} = await supabaseClient.auth.updateUser({
+    password:newPassword
+  });
+
+  if(error){
+    setMessage("resetPasswordMessage",error.message);
+    return;
+  }
+
+  setMessage("resetPasswordMessage","Password successfully updated!");
+
+  setTimeout(()=>{
+    document.getElementById("resetPasswordSection").style.display="none";
+    document.getElementById("loginSection").style.display="flex";
+  },1500);
 }
+/* OPEN RESET PASSWORD SECTION */
 
-if(newPassword.length < 6){
-setMessage("resetPasswordMessage","Password minimum 6 characters ka hona chahiye.");
-return;
-}
-
-if(newPassword !== confirmPassword){
-setMessage("resetPasswordMessage","Passwords match nahi kar rahe.");
-return;
-}
-
-setMessage("resetPasswordMessage","Password update ho raha hai...");
-
-const {error} = await supabaseClient.auth.updateUser({
-password:newPassword
+supabaseClient.auth.onAuthStateChange((event, session)=>{
+  if(event === "PASSWORD_RECOVERY" && session){
+    document.getElementById("loginSection").style.display="none";
+    document.getElementById("forgotPasswordSection").style.display="none";
+    document.getElementById("resetPasswordSection").style.display="flex";
+  }
 });
+  
 
-if(error){
-setMessage("resetPasswordMessage",error.message);
-return;
-}
 
-setMessage("resetPasswordMessage","Password successfully update ho gaya.");
 
-setTimeout(()=>{
-document.getElementById("resetPasswordSection").style.display="none";
-document.getElementById("loginSection").style.display="flex";
-},1500);
-}
 
 /* SHOW SECTIONS */
 
