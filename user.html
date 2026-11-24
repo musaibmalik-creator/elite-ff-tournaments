@@ -1517,15 +1517,20 @@ function setMessage(id, text) {
 /* SHOW SECTION */
 function showOnly(sectionId) {
 
-  document.querySelectorAll(".section").forEach(section => {
+  document.querySelectorAll("#appSection .section").forEach(section => {
     section.classList.remove("active");
+    section.style.display = "none";
   });
 
   const target = document.getElementById(sectionId);
 
-  if (target) {
-    target.classList.add("active");
+  if (!target) {
+    console.error("Section not found:", sectionId);
+    return;
   }
+
+  target.classList.add("active");
+  target.style.display = "block";
 
   document.querySelectorAll(".navBtn").forEach(btn => {
     btn.classList.remove("active");
@@ -1539,20 +1544,20 @@ function showOnly(sectionId) {
     activeBtn.classList.add("active");
   }
 
-  if (sectionId === "tournamentsSection") {
-    loadTournaments();
-  }
-
-  if (sectionId === "myTournamentsSection") {
-    loadMyTournaments();
-  }
-
   if (sectionId === "profileSection") {
     loadProfile();
   }
 
   if (sectionId === "homeSection") {
     loadWallet();
+  }
+
+  if (sectionId === "tournamentsSection") {
+    loadTournaments();
+  }
+
+  if (sectionId === "myTournamentsSection") {
+    loadMyTournaments();
   }
 }
 
