@@ -759,44 +759,65 @@ document.getElementById("resetPasswordSection").style.display="flex";
 }
 });
 
-/* WALLET */
+/* WALLET + TRANSACTION HISTORY */
 
 async function loadWallet(){
 
   if(!currentUser) return;
+
+  const depositHistory = document.getElementById("depositHistory");
+  const withdrawHistory = document.getElementById("withdrawHistory");
+
+  if(depositHistory)
+    depositHistory.textContent = "Loading...";
+
+  if(withdrawHistory)
+    withdrawHistory.textContent = "Loading...";
 
   let balance = 0;
 
   const {data:deposits,error:depositError} =
     await supabaseClient
     .from("payments")
-    .select("amount")
+    .select("amount,status,provider_payment_id,created_at")
     .eq("user_id",currentUser.id)
-    .eq("status","approved");
+    .order("created_at",{ascending:false});
 
   if(depositError){
-    console.error("Deposit balance error:",depositError.message);
+    console.error("Deposit History Error:",depositError.message);
+
+    if(depositHistory)
+      depositHistory.textContent = "Unable to load deposits.";
+
     return;
   }
 
   (deposits || []).forEach(item=>{
-    balance += Number(item.amount || 0);
+    if(item.status === "approved"){
+      balance += Number(item.amount || 0);
+    }
   });
 
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
     .from("withdrawals")
-    .select("amount")
+    .select("amount,upi_id,status,created_at")
     .eq("user_id",currentUser.id)
-    .in("status",["pending","approved"]);
+    .order("created_at",{ascending:false});
 
   if(withdrawError){
-    console.error("Withdrawal balance error:",withdrawError.message);
+    console.error("Withdrawal History Error:",withdrawError.message);
+
+    if(withdrawHistory)
+      withdrawHistory.textContent = "Unable to load withdrawals.";
+
     return;
   }
 
   (withdrawals || []).forEach(item=>{
-    balance -= Number(item.amount || 0);
+    if(["pending","approved"].includes(item.status)){
+      balance -= Number(item.amount || 0);
+    }
   });
 
   const walletBalance =
@@ -810,6 +831,121 @@ async function loadWallet(){
 
   if(profileBalance)
     profileBalance.textContent = "₹" + balance.toFixed(2);
+
+
+  /* SAFE TEXT */
+
+  const safe = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[char]);
+
+  const dateFormat = value => {
+    if(!value) return "Date unavailable";
+
+    const date = new Date(value);
+
+    if(Number.isNaN(date.getTime()))
+      return "Date unavailable";
+
+    return date.toLocaleString("en-IN");
+  };
+
+  const statusColor = status => {
+    if(status === "approved") return "#20c997";
+    if(status === "rejected") return "#ff5252";
+    return "#ffc107";
+  };
+
+
+  /* DEPOSIT HISTORY */
+
+  if(depositHistory){
+
+    if(!deposits || deposits.length === 0){
+
+      depositHistory.innerHTML =
+        '<p style="color:#aaa">No deposit history yet.</p>';
+
+    }else{
+
+      depositHistory.innerHTML = deposits.map(item=>`
+
+        <div style="padding:12px;margin-bottom:10px;background:#171717;border:1px solid #333;border-radius:10px">
+
+          <div style="display:flex;justify-content:space-between;gap:10px">
+
+            <strong style="color:#20c997">
+              + ₹${safe(Number(item.amount || 0).toFixed(2))}
+            </strong>
+
+            <strong style="color:${statusColor(item.status)}">
+              ${safe((item.status || "pending").toUpperCase())}
+            </strong>
+
+          </div>
+
+          <div style="color:#aaa;font-size:12px;margin-top:7px">
+            UTR: ${safe(item.provider_payment_id || "Not available")}
+          </div>
+
+          <div style="color:#888;font-size:11px;margin-top:5px">
+            ${safe(dateFormat(item.created_at))}
+          </div>
+
+        </div>
+
+      `).join("");
+
+    }
+  }
+
+
+  /* WITHDRAWAL HISTORY */
+
+  if(withdrawHistory){
+
+    if(!withdrawals || withdrawals.length === 0){
+
+      withdrawHistory.innerHTML =
+        '<p style="color:#aaa">No withdrawal history yet.</p>';
+
+    }else{
+
+      withdrawHistory.innerHTML = withdrawals.map(item=>`
+
+        <div style="padding:12px;margin-bottom:10px;background:#171717;border:1px solid #333;border-radius:10px">
+
+          <div style="display:flex;justify-content:space-between;gap:10px">
+
+            <strong style="color:#ffb74d">
+              - ₹${safe(Number(item.amount || 0).toFixed(2))}
+            </strong>
+
+            <strong style="color:${statusColor(item.status)}">
+              ${safe((item.status || "pending").toUpperCase())}
+            </strong>
+
+          </div>
+
+          <div style="color:#aaa;font-size:12px;margin-top:7px">
+            UPI: ${safe(item.upi_id || "Not available")}
+          </div>
+
+          <div style="color:#888;font-size:11px;margin-top:5px">
+            ${safe(dateFormat(item.created_at))}
+          </div>
+
+        </div>
+
+      `).join("");
+
+    }
+  }
+
 }
 
 /* PROFILE */
