@@ -428,11 +428,16 @@ CONTACT SUPPORT
 </section>
 
 <script>
+
+/* SUPABASE */
+
+const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
+const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+
 const supabaseClient = window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY
 );
-
 /* REFERRAL LINK */
 
 async function generateReferralLink() {
@@ -443,9 +448,7 @@ async function generateReferralLink() {
     return;
   }
 
-  const link = window.location.origin +
-    "/signup.html?ref=" +
-    encodeURIComponent(data.user.id);
+  const link = window.location.origin + "/signup.html?ref=" + data.user.id;
 
   document.getElementById("referralLink").value = link;
 
@@ -453,19 +456,9 @@ async function generateReferralLink() {
     await navigator.clipboard.writeText(link);
     alert("Referral link copied successfully!");
   } catch (e) {
-    alert("Your referral link is ready. Copy it from the box.");
+    alert("Copy the referral link from the box.");
   }
 }
-/* SUPABASE */
-
-const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
-const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
-
-const supabaseClient = window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
 let currentUser = null;
 let selectedTournamentId = null;
 
