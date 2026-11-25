@@ -1137,11 +1137,16 @@ async function loadProfile(){
   const uid = document.getElementById("profileUID");
   const uidInput = document.getElementById("ffUidInput");
 
+  const ffName = document.getElementById("profileFFName");
+  const teamName = document.getElementById("profileTeamName");
+
   if(email){
     email.textContent = currentUser.email || "";
   }
 
   await loadWallet();
+
+  /* LOAD PROFILE UID */
 
   const {data: profile, error: profileError} =
     await supabaseClient
@@ -1152,27 +1157,116 @@ async function loadProfile(){
 
   if(!profileError){
 
-    if(uid){
-      uid.textContent = profile?.ff_uid || "Not Added";
-    }
-
     if(uidInput){
       uidInput.value = profile?.ff_uid || "";
     }
 
   }
 
-  const {count, error} = await supabaseClient
-    .from("tournament_entries")
-    .select("id", {count:"exact", head:true})
-    .eq("user_id", currentUser.id);
+  /* LOAD LINKED PLAYER */
 
-  if(!error){
+  const {data: player, error: playerError} =
+    await supabaseClient
+      .from("players")
+      .select("name,uid,team_name")
+      .eq("user_id",currentUser.id)
+      .order("created_at",{ascending:false})
+      .limit(1)
+      .maybeSingle();
+
+  if(!playerError && player){
+
+    if(ffName){
+      ffName.textContent = player.name || "Not Added";
+    }
+
+    if(uid){
+      uid.textContent = player.uid || "Not Added";
+    }
+
+    if(teamName){
+      teamName.textContent = player.team_name || "Not Added";
+    }
+
+  }else{
+
+    if(ffName) ffName.textContent = "Not Linked";
+    if(teamName) teamName.textContent = "Not Linked";
+
+    if(uid){
+      uid.textContent = profile?.ff_uid || "Not Added";
+    }
+
+  }
+
+  /* LOAD MATCHES JOINED */
+
+  const {count: joinedCount,error: joinedError} =
+    await supabaseClient
+      .from("tournament_entries")
+      .select("id",{count:"exact",head:true})
+      .eq("user_id",currentUser.id);
+
+  if(!joinedError){
+
     const joined = document.getElementById("profileJoined");
-    if(joined) joined.textContent = count || 0;
+
+    if(joined){
+      joined.textContent = joinedCount || 0;
+    }
+
+  }
+
+  /* LOAD INDIVIDUAL MATCH RESULTS */
+
+  const {data: results,error: resultsError} =
+    await supabaseClient
+      .from("player_match_results")
+      .select("kills,is_winner,prize_amount")
+      .eq("user_id",currentUser.id);
+
+  if(!resultsError){
+
+    const played = results || [];
+
+    const totalKills = played.reduce(
+      (sum,item)=>sum + Number(item.kills || 0),0
+    );
+
+    const totalWins = played.filter(
+      item=>item.is_winner === true
+    ).length;
+
+    const totalEarnings = played.reduce(
+      (sum,item)=>sum + Number(item.prize_amount || 0),0
+    );
+
+    const playedElement = document.getElementById("profilePlayed");
+    const killsElement = document.getElementById("profileKills");
+    const winsElement = document.getElementById("profileWins");
+    const earningsElement = document.getElementById("profileEarnings");
+
+    if(playedElement){
+      playedElement.textContent = played.length;
+    }
+
+    if(killsElement){
+      killsElement.textContent = totalKills;
+    }
+
+    if(winsElement){
+      winsElement.textContent = totalWins;
+    }
+
+    if(earningsElement){
+      earningsElement.textContent = "₹" + totalEarnings;
+    }
+
   }
 
 }
+  
+
 
 
 /* SAVE FREE FIRE UID */
