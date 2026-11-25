@@ -1428,8 +1428,8 @@ async function registerTeam(){
 
   inviteList.innerHTML = invites.map((item,index) => `
     <div class="infoBox" style="margin:10px 0;padding:12px;">
-      <b>${escapeHtml(item.player_name)}</b>
-      <p>Invite Code: <strong>${escapeHtml(item.invite_code)}</strong></p>
+      <b>${escapeHTML(item.player_name)}</b>
+      <p>Invite Code: <strong>${escapeHTML(item.invite_code)}</strong></p>
     </div>
   `).join("");
 
