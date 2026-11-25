@@ -250,24 +250,32 @@ button{cursor:pointer}
 
   </div>
 
+<!-- CAPTAIN INVITE CODES -->
 
-  <!-- CAPTAIN INVITE CODES -->
+<div
+  id="teamInviteBox"
+  class="formBox"
+  style="display:none; margin-top:20px;"
+>
 
-  <div
-    id="teamInviteBox"
-    class="formBox"
-    style="display:none; margin-top:20px;"
+  <h3>TEAM INVITE CODES</h3>
+
+  <p>
+    Apne teammates ko unka unique invite code share karein.
+  </p>
+
+  <button
+    class="btn btnGold"
+    type="button"
+    onclick="loadMyTeamInvites()"
   >
+    LOAD MY TEAM INVITE CODES
+  </button>
 
-    <h3>TEAM INVITE CODES</h3>
+  <div id="teamInviteList"></div>
 
-    <p>
-      Apne teammates ko unka unique invite code share karein.
-    </p>
-
-    <div id="teamInviteList"></div>
-
-  </div>
+</div>
+  
 
 
   <!-- CLAIM PLAYER SLOT -->
