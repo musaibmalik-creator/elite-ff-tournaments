@@ -1445,6 +1445,53 @@ async function registerTeam(){
   setMessage("teamMessage","Team registered and invite codes generated successfully! ✅");
 }
 
+/* LOAD MY TEAM INVITES */
+
+async function loadMyTeamInvites(){
+
+  if(!currentUser) return;
+
+  setMessage("teamMessage","Loading team invites...");
+
+  const {data: team,error} = await supabaseClient
+    .from("teams")
+    .select("id")
+    .eq("captain_id",currentUser.id)
+    .order("created_at",{ascending:false})
+    .limit(1)
+    .maybeSingle();
+
+  if(error || !team){
+    setMessage("teamMessage","Registered team not found.");
+    return;
+  }
+
+  const {data: invites,error: inviteError} =
+    await supabaseClient.rpc(
+      "create_team_player_invites",
+      {p_team_id:team.id}
+    );
+
+  if(inviteError){
+    setMessage("teamMessage","Error: "+inviteError.message);
+    return;
+  }
+
+  const inviteBox = document.getElementById("teamInviteBox");
+  const inviteList = document.getElementById("teamInviteList");
+
+  inviteList.innerHTML = invites.map(item => `
+    <div class="infoBox" style="margin:10px 0;padding:12px;">
+      <b>${escapeHTML(item.player_name)}</b>
+      <p>Invite Code: <strong>${escapeHTML(item.invite_code)}</strong></p>
+    </div>
+  `).join("");
+
+  inviteBox.style.display = "block";
+
+  setMessage("teamMessage","Invite codes ready! ✅");
+}
+  
 
 /* CLAIM PLAYER SLOT */
 
