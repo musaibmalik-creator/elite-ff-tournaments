@@ -1364,8 +1364,14 @@ list.innerHTML=data.map(t=>{
 const date=t.starts_at?new Date(t.starts_at).toLocaleString():"Date not set";
 
 return `
-<div class="tournamentCard">
-<div class="tournamentTitle">${escapeHTML(t.name||"Tournament")}</div>
+<div class="tournamentCard"
+onclick="openTournamentDashboard('${t.id}')"
+style="cursor:pointer;">
+
+<div class="tournamentTitle">
+${escapeHTML(t.name||"Tournament")}
+</div>
+
 <div class="tournamentInfo">
 🎮 ${escapeHTML(t.sport||"")}
 ${t.cs_mode?" • "+escapeHTML(t.cs_mode):""}
@@ -1375,12 +1381,14 @@ ${t.cs_mode?" • "+escapeHTML(t.cs_mode):""}
 <br>📅 ${escapeHTML(date)}
 <br>📌 Status: ${escapeHTML(t.status||"")}
 </div>
-<button class="joinBtn" onclick="openTeamRegistration('${t.id}')">REGISTER TEAM & JOIN</button>
+
+<button class="joinBtn"
+onclick="event.stopPropagation();openTeamRegistration('${t.id}')">
+REGISTER TEAM & JOIN
+</button>
+
 </div>
 `;
-
-}).join("");
-}
 
 /* TOURNAMENT DASHBOARD */
 
