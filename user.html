@@ -368,51 +368,7 @@ button{cursor:pointer}
 </div>
 
 
-<!-- PROFILE -->
 
-<div id="profileSection" class="section">
-<h2 class="sectionTitle">My Profile</h2>
-
-<div class="profileBox">
-
-<div class="profileRow">
-<div class="profileLabel">EMAIL</div>
-<div id="profileEmail" class="profileValue">-</div>
-</div>
-
-<div class="profileRow">
-<div class="profileLabel">BALANCE</div>
-<div id="profileBalance" class="profileValue" style="color:#ffc107;font-weight:900">₹0</div>
-</div>
-
-
-<!-- FREE FIRE UID -->
-
-<div class="profileRow">
-  <div class="profileLabel">FREE FIRE UID</div>
-  <div id="profileUID" class="profileValue">Not Added</div>
-</div>
-
-<div style="margin:15px 0;">
-  <input
-    id="ffUidInput"
-    type="text"
-    inputmode="numeric"
-    placeholder="Enter your Free Fire UID"
-    style="width:100%;padding:12px;background:#222;color:white;border:1px solid #444;border-radius:8px;box-sizing:border-box;"
-  >
-
-  <button
-    class="btn btnGold"
-    type="button"
-    onclick="saveFFUID()"
-  >
-    SAVE FREE FIRE UID
-  </button>
-
-  <div id="ffUidMessage"></div>
-</div>
-  
   
 <!-- REFERRAL SECTION -->
 
@@ -452,6 +408,109 @@ GENERATE & COPY LINK
 </div>
 
 <div style="background:#171717;border:1px solid #333;border-radius:12px;padding:18px;text-align:center;">
+
+<!-- PROFILE -->
+
+<div id="profileSection" class="section">
+
+<h2 class="sectionTitle">My Profile</h2>
+
+<div class="profileBox">
+
+<div class="profileRow">
+<div class="profileLabel">EMAIL</div>
+<div id="profileEmail" class="profileValue">-</div>
+</div>
+
+<div class="profileRow">
+<div class="profileLabel">BALANCE</div>
+<div id="profileBalance" class="profileValue" style="color:#ffc107;font-weight:900">₹0</div>
+</div>
+
+<!-- LINKED PLAYER DETAILS -->
+
+<h3 class="sectionTitle">FREE FIRE PLAYER DETAILS</h3>
+
+<div class="profileRow">
+<div class="profileLabel">FREE FIRE NAME</div>
+<div id="profileFFName" class="profileValue">Not Linked</div>
+</div>
+
+<div class="profileRow">
+<div class="profileLabel">FREE FIRE UID</div>
+<div id="profileUID" class="profileValue">Not Added</div>
+</div>
+
+<div class="profileRow">
+<div class="profileLabel">TEAM NAME</div>
+<div id="profileTeamName" class="profileValue">Not Linked</div>
+</div>
+
+<!-- SAVE FREE FIRE UID -->
+
+<div style="margin:15px 0;">
+
+<input
+id="ffUidInput"
+type="text"
+inputmode="numeric"
+placeholder="Enter your Free Fire UID"
+style="width:100%;padding:12px;background:#222;color:white;border:1px solid #444;border-radius:8px;box-sizing:border-box;"
+>
+
+<button
+class="btn btnGold"
+type="button"
+onclick="saveFFUID()"
+>
+SAVE FREE FIRE UID
+</button>
+
+<div id="ffUidMessage"></div>
+
+</div>
+
+<!-- REFERRAL SECTION -->
+
+<div style="background:#171717;border:1px solid #ffc107;border-radius:12px;padding:16px;margin:15px 0;">
+
+<h3 style="color:#ffc107;margin:0 0 8px;">REFER & EARN</h3>
+
+<p style="color:#aaa;font-size:13px;">
+Invite your friends to Elite FF Tournaments!
+</p>
+
+<input
+id="referralLink"
+type="text"
+readonly
+placeholder="Your referral link"
+style="width:100%;padding:12px;background:#222;color:white;border:1px solid #444;border-radius:8px;box-sizing:border-box;margin:10px 0;"
+>
+
+<button class="btn btnGold" onclick="generateReferralLink()">
+GENERATE & COPY LINK
+</button>
+
+</div>
+
+<!-- PLAYER STATISTICS -->
+
+<h3 class="sectionTitle">PLAYER STATISTICS</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0;">
+
+<div style="background:#171717;border:1px solid #333;border-radius:12px;padding:18px;text-align:center;">
+<div id="profileJoined" style="font-size:28px;font-weight:900;color:#ffc107;">0</div>
+<div style="font-size:12px;color:#aaa;">MATCHES JOINED</div>
+</div>
+
+<div style="background:#171717;border:1px solid #333;border-radius:12px;padding:18px;text-align:center;">
+<div id="profilePlayed" style="font-size:28px;font-weight:900;color:#ffc107;">0</div>
+<div style="font-size:12px;color:#aaa;">MATCHES PLAYED</div>
+</div>
+
+<div style="background:#171717;border:1px solid #333;border-radius:12px;padding:18px;text-align:center;">
 <div id="profileKills" style="font-size:28px;font-weight:900;color:#ffc107;">0</div>
 <div style="font-size:12px;color:#aaa;">TOTAL KILLS</div>
 </div>
@@ -468,6 +527,8 @@ GENERATE & COPY LINK
 
 </div>
 
+<!-- CUSTOMER SUPPORT -->
+
 <div class="profileRow">
 <div class="profileLabel">CUSTOMER SUPPORT</div>
 <div class="profileValue">Telegram Support</div>
@@ -477,10 +538,13 @@ GENERATE & COPY LINK
 CONTACT SUPPORT
 </button>
 
-<button id="logoutButton" class="btn btnDark" onclick="logoutUser()">LOGOUT</button>
+<button id="logoutButton" class="btn btnDark" onclick="logoutUser()">
+LOGOUT
+</button>
 
 </div>
 </div>
+  
 
 <!-- TOP PLAYERS -->
 
