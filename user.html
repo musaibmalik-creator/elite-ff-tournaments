@@ -1333,66 +1333,67 @@ return String(value??"")
 
 async function loadTournaments(filter="all"){
 
-const list=document.getElementById("tournamentList");
-if(!list) return;
+  const list = document.getElementById("tournamentList");
+  if(!list) return;
 
-list.innerHTML='<div class="empty">Loading tournaments...</div>';
+  list.innerHTML = '<div class="empty">Loading tournaments...</div>';
 
-let query=supabaseClient
-.from("tournaments")
-.select("id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at,cs_mode")
-.order("starts_at",{ascending:true});
+  let query = supabaseClient
+    .from("tournaments")
+    .select("id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at")
+    .order("starts_at",{ascending:true});
 
-if(filter!=="all"){
-query=query.eq("sport",filter);
-}
+  if(filter !== "all"){
+    query = query.eq("sport",filter);
+  }
 
-const {data,error}=await query;
+  const {data,error} = await query;
 
-if(error){
-list.innerHTML='<div class="empty">'+escapeHTML(error.message)+'</div>';
-return;
-}
+  if(error){
+    list.innerHTML = '<div class="empty">' + escapeHTML(error.message) + '</div>';
+    return;
+  }
 
-if(!data||data.length===0){
-list.innerHTML='<div class="empty">Abhi koi tournament available nahi hai.</div>';
-return;
-}
+  if(!data || data.length === 0){
+    list.innerHTML = '<div class="empty">Abhi koi tournament available nahi hai.</div>';
+    return;
+  }
 
-list.innerHTML=data.map(t=>{
+  list.innerHTML = data.map(t=>{
 
-const date=t.starts_at?new Date(t.starts_at).toLocaleString():"Date not set";
+    const date = t.starts_at
+      ? new Date(t.starts_at).toLocaleString()
+      : "Date not set";
 
-return `
-<div class="tournamentCard"
-onclick="openTournamentDashboard('${t.id}')"
-style="cursor:pointer;">
+    return `
+      <div class="tournamentCard"
+        onclick="openTournamentDashboard('${t.id}')"
+        style="cursor:pointer;">
 
-<div class="tournamentTitle">
-${escapeHTML(t.name||"Tournament")}
-</div>
+        <div class="tournamentTitle">
+          ${escapeHTML(t.name || "Tournament")}
+        </div>
 
-<div class="tournamentInfo">
-🎮 ${escapeHTML(t.sport||"")}
-${t.cs_mode?" • "+escapeHTML(t.cs_mode):""}
-<br>🎟 Entry: ₹${Number(t.entry_fee||0)}
-<br>💰 Prize Pool: ₹${Number(t.prize_pool||0)}
-<br>👥 Max Teams: ${Number(t.max_teams||0)}
-<br>📅 ${escapeHTML(date)}
-<br>📌 Status: ${escapeHTML(t.status||"")}
-</div>
+        <div class="tournamentInfo">
+          🎮 ${escapeHTML(t.sport || "")}
+          <br>🎟 Entry: ₹${Number(t.entry_fee || 0)}
+          <br>💰 Prize Pool: ₹${Number(t.prize_pool || 0)}
+          <br>👥 Max Teams: ${Number(t.max_teams || 0)}
+          <br>📅 ${escapeHTML(date)}
+          <br>📌 Status: ${escapeHTML(t.status || "")}
+        </div>
 
-<button class="joinBtn"
-onclick="event.stopPropagation();openTeamRegistration('${t.id}')">
-REGISTER TEAM & JOIN
-</button>
+        <button class="joinBtn"
+          onclick="event.stopPropagation(); openTeamRegistration('${t.id}')">
+          REGISTER TEAM & JOIN
+        </button>
 
-</div>
-`;
+      </div>
+    `;
 
   }).join("");
 
-  }
+}
 
 /* TOURNAMENT DASHBOARD */
 
