@@ -1412,7 +1412,7 @@ async function openTournamentDashboard(id){
 
   const {data:tournament,error} = await supabaseClient
     .from("tournaments")
-    .select("id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at,cs_mode")
+    .select("id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at")
     .eq("id",id)
     .single();
 
@@ -1466,6 +1466,7 @@ async function openTournamentDashboard(id){
       <p>🎟 Entry Fee: ₹${Number(tournament.entry_fee || 0)}</p>
       <p>🏆 Prize Pool: ₹${Number(tournament.prize_pool || 0)}</p>
       <p>📌 Status: ${escapeHTML(tournament.status || "")}</p>
+      <p>📅 ${tournament.starts_at ? escapeHTML(new Date(tournament.starts_at).toLocaleString()) : "Date not set"}</p>
     </div>
   `;
 
@@ -1486,11 +1487,11 @@ async function openTournamentDashboard(id){
 
   slotsBox.innerHTML = teamList.map((team,index)=>{
 
-    const teamPlayers = players.filter(p=>p.team_id===team.id);
+    const teamPlayers = players.filter(p => p.team_id === team.id);
 
     const isMine =
       team.captain_id === currentUser?.id ||
-      teamPlayers.some(p=>p.user_id === currentUser?.id);
+      teamPlayers.some(p => p.user_id === currentUser?.id);
 
     return `
       <div class="tournamentCard"
@@ -1517,6 +1518,8 @@ async function openTournamentDashboard(id){
   }).join("");
 
 }
+
+  
 
   
 /* FILTER */
