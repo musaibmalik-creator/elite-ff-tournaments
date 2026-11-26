@@ -1770,9 +1770,18 @@ async function openTeamRegistration(id){
 }
 
 
+
 /* REGISTER TEAM + GENERATE INVITE CODES */
 
 async function registerTeam(){
+
+  // CHECK TOURNAMENT RULES AGREEMENT
+  const rulesCheckbox = document.getElementById("agreeTournamentRules");
+
+  if(!rulesCheckbox || !rulesCheckbox.checked){
+    setMessage("teamMessage","Please read and accept tournament rules first.");
+    return;
+  }
 
   if(!currentUser){
     setMessage("teamMessage","Pehle login karo.");
@@ -1818,7 +1827,10 @@ async function registerTeam(){
       return;
     }
 
-    members.push({name:name,uid:uid});
+    members.push({
+      name:name,
+      uid:uid
+    });
   }
 
   setMessage("teamMessage","Registering team...");
@@ -1907,7 +1919,11 @@ async function registerTeam(){
 
   setMessage("teamMessage","Team registered and invite codes generated successfully! ✅");
 }
+  
+  
 
+
+  
 /* LOAD MY TEAM INVITES */
 
 async function loadMyTeamInvites(){
