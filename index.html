@@ -2483,6 +2483,7 @@ $("backButton")
 );
 
 
+
 /* =====================================================
    TOURNAMENT FORM
 ===================================================== */
@@ -2495,9 +2496,7 @@ function getTournamentForm(){
   return {
 
     name:
-      $("tournamentName")
-        .value
-        .trim(),
+      $("tournamentName").value.trim(),
 
     sport:
       selectedMode,
@@ -2508,9 +2507,7 @@ function getTournamentForm(){
         : null,
 
     description:
-      $("tournamentDescription")
-        .value
-        .trim(),
+      $("tournamentDescription").value.trim(),
 
     entry_fee:
       Number($("entryFee").value || 0),
@@ -2525,23 +2522,12 @@ function getTournamentForm(){
       $("tournamentStatus").value,
 
     starts_at:
-      $("startsAt").value || null,
-
-    room_id:
-      $("roomId").value.trim() || null,
-
-    room_password:
-      $("roomPassword").value.trim() || null,
-
-    custom_id:
-      $("customId").value.trim() || null,
-
-    custom_password:
-      $("customPassword").value.trim() || null
+      $("startsAt").value || null
 
   };
 
 }
+  
   
 
 
@@ -2571,14 +2557,30 @@ $("saveTournamentButton")
 );
 
 
+
 /* =====================================================
    CREATE TOURNAMENT
 ===================================================== */
 
 async function createTournament(){
 
-  const value =
-    getTournamentForm();
+  const value = getTournamentForm();
+
+  const roomDetails = {
+
+    room_id:
+      $("roomId").value.trim() || null,
+
+    room_password:
+      $("roomPassword").value.trim() || null,
+
+    custom_id:
+      $("customId").value.trim() || null,
+
+    custom_password:
+      $("customPassword").value.trim() || null
+
+  };
 
 
   if(!value.name){
@@ -2599,21 +2601,46 @@ async function createTournament(){
   );
 
 
-  const {
-    error
-  } =
-  await supabase
+  const {data,error} = await supabase
     .from("tournaments")
-    .insert(value);
+    .insert(value)
+    .select("id")
+    .single();
 
 
   if(error){
 
     showMessage(
       $("tournamentMessage"),
-      "Create Error: " +
-      error.message
+      "Create Error: " + error.message
     );
+
+    return;
+
+  }
+
+
+  const {error:roomError} = await supabase
+    .from("tournament_room_details")
+    .upsert({
+
+      tournament_id: data.id,
+
+      ...roomDetails
+
+    });
+
+
+  if(roomError){
+
+    showMessage(
+      $("tournamentMessage"),
+      "Tournament created, but room details failed: " +
+      roomError.message
+    );
+
+    await loadTournaments();
+    await loadCounts();
 
     return;
 
@@ -2622,7 +2649,7 @@ async function createTournament(){
 
   showMessage(
     $("tournamentMessage"),
-    "Tournament created successfully! ✅",
+    "Tournament and Room Details created successfully! ✅",
     true
   );
 
@@ -2634,6 +2661,9 @@ async function createTournament(){
   await loadCounts();
 
 }
+  
+  
+
 
 /* =====================================================
    LOAD TOURNAMENTS
@@ -2797,6 +2827,7 @@ function tournamentCard(t){
 
 
 
+
 /* =====================================================
    EDIT TOURNAMENT
 ===================================================== */
@@ -2827,6 +2858,29 @@ async function(id){
   }
 
 
+  const {
+    data: room,
+    error: roomError
+  } =
+  await supabase
+    .from("tournament_room_details")
+    .select("*")
+    .eq("tournament_id", id)
+    .maybeSingle();
+
+
+  if(roomError){
+
+    showMessage(
+      $("tournamentMessage"),
+      "Room Details Error: " + roomError.message
+    );
+
+    return;
+
+  }
+
+
   editingTournamentId = id;
 
 
@@ -2846,12 +2900,8 @@ async function(id){
     data.name || "";
 
 
-  const savedMode =
-    data.sport || "cs_1v1";
-
-
   $("tournamentSport").value =
-    savedMode;
+    data.sport || "cs_1v1";
 
 
   $("tournamentDescription").value =
@@ -2878,23 +2928,23 @@ async function(id){
     data.starts_at
       ? new Date(data.starts_at)
           .toISOString()
-          .slice(0, 16)
+          .slice(0,16)
       : "";
 
 
-  /* ROOM DETAILS */
+  /* SECURE ROOM DETAILS */
 
   $("roomId").value =
-    data.room_id || "";
+    room?.room_id || "";
 
   $("roomPassword").value =
-    data.room_password || "";
+    room?.room_password || "";
 
   $("customId").value =
-    data.custom_id || "";
+    room?.custom_id || "";
 
   $("customPassword").value =
-    data.custom_password || "";
+    room?.custom_password || "";
 
 
   window.scrollTo({
@@ -2903,6 +2953,7 @@ async function(id){
   });
 
 };
+  
   
 
 
