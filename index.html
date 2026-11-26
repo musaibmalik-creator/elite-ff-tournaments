@@ -2955,9 +2955,6 @@ async function(id){
 };
   
   
-
-
-
 /* =====================================================
    UPDATE TOURNAMENT
 ===================================================== */
@@ -2988,16 +2985,36 @@ async function updateTournament(){
 
   }
 
+  const roomDetails = {
+
+    tournament_id: editingTournamentId,
+
+    room_id:
+      $("roomId").value.trim() || null,
+
+    room_password:
+      $("roomPassword").value.trim() || null,
+
+    custom_id:
+      $("customId").value.trim() || null,
+
+    custom_password:
+      $("customPassword").value.trim() || null
+
+  };
+
   showMessage(
     $("tournamentMessage"),
     "Updating tournament..."
   );
 
-  const { data, error } = await supabase
+
+  const {data,error} = await supabase
     .from("tournaments")
     .update(v)
     .eq("id", editingTournamentId)
-    .select();
+    .select("id");
+
 
   if(error){
 
@@ -3014,18 +3031,38 @@ async function updateTournament(){
 
     showMessage(
       $("tournamentMessage"),
-      "Tournament was not updated. Check permissions."
+      "Tournament not updated. Check permissions."
     );
 
     return;
 
   }
 
+
+  const {error:roomError} = await supabase
+    .from("tournament_room_details")
+    .upsert(roomDetails);
+
+
+  if(roomError){
+
+    showMessage(
+      $("tournamentMessage"),
+      "Tournament updated, but room details failed: " +
+      roomError.message
+    );
+
+    return;
+
+  }
+
+
   showMessage(
     $("tournamentMessage"),
-    "Tournament updated successfully! ✅",
+    "Tournament and Room Details updated successfully! ✅",
     true
   );
+
 
   resetTournamentForm();
 
@@ -3034,6 +3071,11 @@ async function updateTournament(){
   await loadCounts();
 
 }
+  
+
+
+
+
 
 
 /* =====================================================
