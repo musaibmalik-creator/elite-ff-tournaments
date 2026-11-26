@@ -2482,6 +2482,7 @@ $("backButton")
   }
 );
 
+
 /* =====================================================
    TOURNAMENT FORM
 ===================================================== */
@@ -2512,34 +2513,36 @@ function getTournamentForm(){
         .trim(),
 
     entry_fee:
-      Number(
-        $("entryFee")
-          .value || 0
-      ),
+      Number($("entryFee").value || 0),
 
     prize_pool:
-      Number(
-        $("prizePool")
-          .value || 0
-      ),
+      Number($("prizePool").value || 0),
 
     max_teams:
-      Number(
-        $("maxTeams")
-          .value || 8
-      ),
+      Number($("maxTeams").value || 8),
 
     status:
-      $("tournamentStatus")
-        .value,
+      $("tournamentStatus").value,
 
     starts_at:
-      $("startsAt")
-        .value || null
+      $("startsAt").value || null,
+
+    room_id:
+      $("roomId").value.trim() || null,
+
+    room_password:
+      $("roomPassword").value.trim() || null,
+
+    custom_id:
+      $("customId").value.trim() || null,
+
+    custom_password:
+      $("customPassword").value.trim() || null
 
   };
 
 }
+  
 
 
 
