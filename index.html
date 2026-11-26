@@ -2982,6 +2982,7 @@ $("cancelEditButton")
     }
   );
 
+
 /* =====================================================
    RESET TOURNAMENT FORM
 ===================================================== */
@@ -2990,53 +2991,57 @@ function resetTournamentForm(){
 
   editingTournamentId = null;
 
-
   $("formTitle")
     .textContent =
     "➕ Create Tournament";
-
 
   $("saveTournamentButton")
     .textContent =
     "Create Tournament";
 
-
   $("cancelEditButton")
     .classList.add("hidden");
-
 
   $("tournamentName").value =
     "";
 
-
   $("tournamentSport").value =
     "cs_1v1";
-
 
   $("tournamentDescription").value =
     "";
 
-
   $("entryFee").value =
     0;
-
 
   $("prizePool").value =
     0;
 
-
   $("maxTeams").value =
     8;
-
 
   $("tournamentStatus").value =
     "registration_open";
 
-
   $("startsAt").value =
     "";
 
+  /* ROOM DETAILS */
+
+  $("roomId").value =
+    "";
+
+  $("roomPassword").value =
+    "";
+
+  $("customId").value =
+    "";
+
+  $("customPassword").value =
+    "";
+
 }
+  
 
 /* =====================================================
    DELETE TOURNAMENT
