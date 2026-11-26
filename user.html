@@ -1395,7 +1395,10 @@ async function loadTournaments(filter="all"){
 
 }
 
-/* TOURNAMENT DASHBOARD */
+
+/* =====================================================
+   TOURNAMENT DASHBOARD
+===================================================== */
 
 async function openTournamentDashboard(id){
 
@@ -1411,16 +1414,19 @@ async function openTournamentDashboard(id){
   stats.innerHTML = "";
   slotsBox.innerHTML = "Loading slots...";
 
+
   const {data:tournament,error} = await supabaseClient
     .from("tournaments")
     .select("id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at")
     .eq("id",id)
     .single();
 
+
   if(error){
     info.innerHTML = "Error: " + escapeHTML(error.message);
     return;
   }
+
 
   const {data:teams,error:teamError} = await supabaseClient
     .from("teams")
@@ -1428,15 +1434,18 @@ async function openTournamentDashboard(id){
     .eq("tournament_id",id)
     .order("created_at",{ascending:true});
 
+
   if(teamError){
     slotsBox.innerHTML = "Error: " + escapeHTML(teamError.message);
     return;
   }
 
+
   const teamList = teams || [];
   const teamIds = teamList.map(t => t.id);
 
   let players = [];
+
 
   if(teamIds.length > 0){
 
@@ -1453,6 +1462,7 @@ async function openTournamentDashboard(id){
     players = playerData || [];
   }
 
+
   const totalSlots = Number(tournament.max_teams || 0);
   const filledSlots = teamList.length;
   const availableSlots = Math.max(0,totalSlots-filledSlots);
@@ -1460,31 +1470,134 @@ async function openTournamentDashboard(id){
 
   const playersPerSlot = getPlayerCount(tournament.sport);
 
+
   info.innerHTML = `
     <div class="tournamentCard">
+
       <h2>${escapeHTML(tournament.name)}</h2>
+
       <p>🎮 ${escapeHTML(tournament.sport || "")}</p>
+
       <p>🎟 Entry Fee: ₹${Number(tournament.entry_fee || 0)}</p>
+
       <p>🏆 Prize Pool: ₹${Number(tournament.prize_pool || 0)}</p>
+
       <p>📌 Status: ${escapeHTML(tournament.status || "")}</p>
-      <p>📅 ${tournament.starts_at ? escapeHTML(new Date(tournament.starts_at).toLocaleString()) : "Date not set"}</p>
+
+      <p>📅 ${tournament.starts_at
+        ? escapeHTML(new Date(tournament.starts_at).toLocaleString())
+        : "Date not set"}</p>
+
     </div>
   `;
+
 
   stats.innerHTML = `
     <div class="tournamentCard">
+
       <h3>SLOT STATISTICS</h3>
+
       <p>🔢 Total Slots: ${totalSlots}</p>
+
       <p>✅ Filled Slots: ${filledSlots}</p>
+
       <p>🟢 Available Slots: ${availableSlots}</p>
+
       <p>👥 Players Joined: ${totalPlayers}</p>
+
     </div>
   `;
 
+
   if(teamList.length === 0){
-    slotsBox.innerHTML = '<div class="empty">Abhi koi team join nahi hui.</div>';
+
+    slotsBox.innerHTML =
+      '<div class="empty">Abhi koi team join nahi hui.</div>';
+
     return;
+
   }
+
+
+  /* CHECK PLAYER REGISTRATION */
+
+  const isRegistered = teamList.some(team => {
+
+    return (
+      team.captain_id === currentUser?.id ||
+      players.some(player =>
+        player.team_id === team.id &&
+        player.user_id === currentUser?.id
+      )
+    );
+
+  });
+
+
+  /* SECURE ROOM DETAILS */
+
+  if(isRegistered){
+
+    const {data:room,error:roomError} = await supabaseClient
+      .from("tournament_room_details")
+      .select("room_id,room_password,custom_id,custom_password")
+      .eq("tournament_id",id)
+      .maybeSingle();
+
+
+    if(roomError){
+
+      info.innerHTML += `
+        <div class="tournamentCard">
+          Room details could not be loaded.
+        </div>
+      `;
+
+    }else if(room){
+
+      info.innerHTML += `
+        <div class="tournamentCard">
+
+          <h3>🎮 YOUR ROOM DETAILS</h3>
+
+          <p>
+            <b>Room ID:</b>
+            ${escapeHTML(room.room_id || "Not released")}
+          </p>
+
+          <p>
+            <b>Room Password:</b>
+            ${escapeHTML(room.room_password || "Not released")}
+          </p>
+
+          <p>
+            <b>Custom ID:</b>
+            ${escapeHTML(room.custom_id || "Not available")}
+          </p>
+
+          <p>
+            <b>Custom Password:</b>
+            ${escapeHTML(room.custom_password || "Not available")}
+          </p>
+
+        </div>
+      `;
+
+    }else{
+
+      info.innerHTML += `
+        <div class="tournamentCard">
+          <h3>🎮 ROOM DETAILS</h3>
+          <p>Admin ne abhi room details release nahi ki hain.</p>
+        </div>
+      `;
+
+    }
+
+  }
+
+
+  /* SHOW TEAM SLOTS */
 
   slotsBox.innerHTML = teamList.map((team,index)=>{
 
@@ -1519,6 +1632,7 @@ async function openTournamentDashboard(id){
   }).join("");
 
 }
+  
 
   
 
