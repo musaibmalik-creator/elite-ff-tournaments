@@ -1502,7 +1502,10 @@ async function openTournamentDashboard(id){
   const playersPerSlot = getPlayerCount(tournament.sport);
 
 
+  /* TOURNAMENT INFORMATION + MATCH INSTRUCTIONS */
+
   info.innerHTML = `
+
     <div class="tournamentCard">
 
       <h2>${escapeHTML(tournament.name)}</h2>
@@ -1520,10 +1523,41 @@ async function openTournamentDashboard(id){
         : "Date not set"}</p>
 
     </div>
+
+
+    <div class="tournamentCard" style="margin-top:15px;">
+
+      <h3 style="color:#D6A642;">
+        ⚠️ MATCH INSTRUCTIONS
+      </h3>
+
+      <p>🕒 Room ID & Password match se 5–7 minutes pehle release honge.</p>
+
+      <p>🔒 Room details sirf registered players ko milengi.</p>
+
+      <p>🎮 Apne registered Free Fire Name aur UID se entry karein.</p>
+
+      <p>🚫 Room ID aur Password kisi ke saath share na karein.</p>
+
+      <p>🚫 Hacks, scripts, configs aur unfair gameplay prohibited hain.</p>
+
+      <p>⏰ Match start hone se pehle room join karein.</p>
+
+      <p>⚠️ Late entry aur rule violations par disqualification ho sakti hai.</p>
+
+      <p style="color:#D6A642;font-weight:bold;text-align:center;">
+        PLAY FAIR • RESPECT ALL • GOOD LUCK!
+      </p>
+
+    </div>
+
   `;
 
 
+  /* SLOT STATISTICS */
+
   stats.innerHTML = `
+
     <div class="tournamentCard">
 
       <h3>SLOT STATISTICS</h3>
@@ -1537,8 +1571,11 @@ async function openTournamentDashboard(id){
       <p>👥 Players Joined: ${totalPlayers}</p>
 
     </div>
+
   `;
 
+
+  /* CHECK EMPTY TEAMS */
 
   if(teamList.length === 0){
 
@@ -1587,6 +1624,7 @@ async function openTournamentDashboard(id){
     }else if(room){
 
       info.innerHTML += `
+
         <div class="tournamentCard">
 
           <h3>🎮 YOUR ROOM DETAILS</h3>
@@ -1612,15 +1650,21 @@ async function openTournamentDashboard(id){
           </p>
 
         </div>
+
       `;
 
     }else{
 
       info.innerHTML += `
+
         <div class="tournamentCard">
+
           <h3>🎮 ROOM DETAILS</h3>
+
           <p>Admin ne abhi room details release nahi ki hain.</p>
+
         </div>
+
       `;
 
     }
@@ -1639,6 +1683,7 @@ async function openTournamentDashboard(id){
       teamPlayers.some(p => p.user_id === currentUser?.id);
 
     return `
+
       <div class="tournamentCard"
         style="${isMine ? 'border:2px solid #ffc107;' : ''}">
 
@@ -1652,18 +1697,27 @@ async function openTournamentDashboard(id){
         <p>👥 Players: ${teamPlayers.length}/${playersPerSlot}</p>
 
         ${teamPlayers.map((player,i)=>`
+
           <div class="infoBox" style="margin:8px 0;padding:10px;">
+
             ${i+1}. ${escapeHTML(player.name || "Player")}
+
           </div>
+
         `).join("")}
 
       </div>
+
     `;
 
   }).join("");
 
 }
   
+
+
+  
+     
 
   
 
