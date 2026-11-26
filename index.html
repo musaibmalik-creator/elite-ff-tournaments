@@ -2796,6 +2796,7 @@ function tournamentCard(t){
 }
 
 
+
 /* =====================================================
    EDIT TOURNAMENT
 ===================================================== */
@@ -2881,12 +2882,28 @@ async function(id){
       : "";
 
 
+  /* ROOM DETAILS */
+
+  $("roomId").value =
+    data.room_id || "";
+
+  $("roomPassword").value =
+    data.room_password || "";
+
+  $("customId").value =
+    data.custom_id || "";
+
+  $("customPassword").value =
+    data.custom_password || "";
+
+
   window.scrollTo({
     top: 0,
     behavior: "smooth"
   });
 
 };
+  
 
 
 
