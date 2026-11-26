@@ -1315,31 +1315,38 @@ async function loadProfile(){
 
 }
   
-
-
-
-/* SAVE FREE FIRE UID */
+/* SAVE FREE FIRE DETAILS */
 
 async function saveFFUID(){
 
   if(!currentUser) return;
 
-  const input = document.getElementById("ffUidInput");
+  const nameInput = document.getElementById("ffNameInput");
+  const uidInput = document.getElementById("ffUidInput");
   const message = document.getElementById("ffUidMessage");
 
-  const uid = input.value.trim();
+  const ffName = nameInput.value.trim();
+  const uid = uidInput.value.trim();
+
+  if(!ffName){
+    message.textContent = "Enter your Free Fire Name.";
+    return;
+  }
 
   if(!/^[0-9]{6,15}$/.test(uid)){
     message.textContent = "Enter a valid Free Fire UID.";
     return;
   }
 
-  message.textContent = "Saving UID...";
+  message.textContent = "Saving Free Fire Details...";
 
   const {error} = await supabaseClient
     .from("profiles")
-    .update({ff_uid: uid})
-    .eq("id", currentUser.id);
+    .update({
+      ff_name: ffName,
+      ff_uid: uid
+    })
+    .eq("id",currentUser.id);
 
   if(error){
     message.textContent = "Error: " + error.message;
@@ -1348,12 +1355,10 @@ async function saveFFUID(){
 
   document.getElementById("profileUID").textContent = uid;
 
-  message.textContent = "Free Fire UID saved successfully! ✅";
+  message.textContent =
+    "Free Fire Name & UID saved successfully! ✅";
 
 }
-  
-
-  
 
 /* ESCAPE HTML */
 
