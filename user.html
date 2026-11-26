@@ -1195,22 +1195,32 @@ async function loadProfile(){
 
   await loadWallet();
 
-  /* LOAD PROFILE UID */
+  /* LOAD PROFILE FREE FIRE DETAILS */
 
-  const {data: profile, error: profileError} =
-    await supabaseClient
-      .from("profiles")
-      .select("ff_uid")
-      .eq("id", currentUser.id)
-      .maybeSingle();
+const {data: profile, error: profileError} =
+  await supabaseClient
+    .from("profiles")
+    .select("ff_name,ff_uid")
+    .eq("id", currentUser.id)
+    .maybeSingle();
 
-  if(!profileError){
+if(!profileError){
 
-    if(uidInput){
-      uidInput.value = profile?.ff_uid || "";
-    }
+  const ffNameInput =
+    document.getElementById("ffNameInput");
 
+  const uidInput =
+    document.getElementById("ffUidInput");
+
+  if(ffNameInput){
+    ffNameInput.value = profile?.ff_name || "";
   }
+
+  if(uidInput){
+    uidInput.value = profile?.ff_uid || "";
+  }
+
+}
 
   /* LOAD LINKED PLAYER */
 
@@ -1239,7 +1249,7 @@ async function loadProfile(){
 
   }else{
 
-    if(ffName) ffName.textContent = "Not Linked";
+    if(ffName) ffName.textContent = profile?.ff_name || "Not Added";
     if(teamName) teamName.textContent = "Not Linked";
 
     if(uid){
@@ -1759,7 +1769,6 @@ function getPlayerCount(sport){
   return playerCount[sport] || 1;
 }
 
-
 /* OPEN TEAM REGISTRATION */
 
 async function openTeamRegistration(id){
@@ -1777,6 +1786,11 @@ async function openTeamRegistration(id){
     return;
   }
 
+  if(!currentUser){
+    alert("Please login first.");
+    return;
+  }
+
   container.innerHTML = "Loading tournament...";
 
   showOnly("teamSection");
@@ -1791,6 +1805,21 @@ async function openTeamRegistration(id){
   if(error){
     container.innerHTML = "";
     setMessage("teamMessage",error.message);
+    return;
+  }
+
+  /* LOAD PROFILE DETAILS */
+
+  const {data: profile, error: profileError} =
+    await supabaseClient
+      .from("profiles")
+      .select("ff_name,ff_uid")
+      .eq("id",currentUser.id)
+      .maybeSingle();
+
+  if(profileError){
+    container.innerHTML = "";
+    setMessage("teamMessage",profileError.message);
     return;
   }
 
@@ -1831,9 +1860,22 @@ async function openTeamRegistration(id){
 
   }
 
+  /* AUTO FILL PLAYER 1 */
+
+  if(profile){
+
+    document.getElementById("player1Name").value =
+      profile.ff_name || "";
+
+    document.getElementById("player1UID").value =
+      profile.ff_uid || "";
+
+  }
+
   setMessage("teamMessage","");
 
 }
+
 
 
 
