@@ -979,29 +979,18 @@ async function loadWallet(){
   if(withdrawHistory)
     withdrawHistory.textContent = "Loading...";
 
-  let balance = 0;
-
   const {data:deposits,error:depositError} =
     await supabaseClient
-    .from("payments")
-    .select("amount,status,provider_payment_id,created_at,rejection_reason")
+    .from("deposits")
+    .select("amount,status,transaction_id,utr,created_at")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
   if(depositError){
     console.error("Deposit History Error:",depositError.message);
-
-    if(depositHistory)
-      depositHistory.textContent = "Unable to load deposits.";
-
+    if(depositHistory) depositHistory.textContent = "Unable to load deposits."; 
     return;
   }
-
-  (deposits || []).forEach(item=>{
-    if(item.status === "approved"){
-      balance += Number(item.amount || 0);
-    }
-  });
 
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
@@ -1012,31 +1001,34 @@ async function loadWallet(){
 
   if(withdrawError){
     console.error("Withdrawal History Error:",withdrawError.message);
-
-    if(withdrawHistory)
-      withdrawHistory.textContent = "Unable to load withdrawals.";
-
+    if(withdrawHistory) withdrawHistory.textContent = "Unable to load withdrawals."; 
     return;
   }
 
-  (withdrawals || []).forEach(item=>{
-    if(["pending","approved"].includes(item.status)){
-      balance -= Number(item.amount || 0);
-    }
-  });
+  const {data:wallet,error:walletError} =
+    await supabaseClient
+    .from("wallets")
+    .select("balance")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
 
-  const walletBalance =
-    document.getElementById("walletBalance");
+  if(walletError){
+    console.error("Wallet Balance Error:",walletError.message);
+    if(depositHistory) depositHistory.textContent = "Unable to load wallet balance."; 
+    return;
+  }
 
-  const profileBalance =
-    document.getElementById("profileBalance");
+  const walletAmount = Number(wallet?.balance || 0);
+  const pendingWithdrawals = (withdrawals || []).reduce((total,item)=>{
+    return total + (item.status === "pending" ? Number(item.amount || 0) : 0);
+  },0);
+  const availableBalance = Math.max(0,walletAmount - pendingWithdrawals);
 
-  if(walletBalance)
-    walletBalance.textContent = "₹" + balance.toFixed(2);
+  const walletBalance = document.getElementById("walletBalance");
+  const profileBalance = document.getElementById("profileBalance");
 
-  if(profileBalance)
-    profileBalance.textContent = "₹" + balance.toFixed(2);
-
+  if(walletBalance) walletBalance.textContent = "₹" + availableBalance.toFixed(2);
+  if(profileBalance) profileBalance.textContent = "₹" + availableBalance.toFixed(2);
 
   /* SAFE TEXT */
 
@@ -1093,7 +1085,7 @@ if(depositHistory){
         </div>
 
         <div style="color:#aaa;font-size:12px;margin-top:7px">
-          UTR: ${safe(item.provider_payment_id || "Not available")}
+          UTR: ${safe(item.utr || item.transaction_id || "Not available")}
         </div>
 
         ${
