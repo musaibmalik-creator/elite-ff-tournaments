@@ -3,12 +3,12 @@ importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-com
 
 /* Replace these values after creating the Firebase Web App. */
 firebase.initializeApp({
-  apiKey: "PASTE_FIREBASE_API_KEY",
-  authDomain: "PASTE_FIREBASE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_FIREBASE_PROJECT_ID",
-  storageBucket: "PASTE_FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_FIREBASE_SENDER_ID",
-  appId: "PASTE_FIREBASE_APP_ID"
+  apiKey: "AIzaSyDH055Cqyc7dZtyxQ0DHRuXFlS-61FXjN4",
+  authDomain: "elite-ff-tournaments01.firebaseapp.com",
+  projectId: "elite-ff-tournaments01",
+  storageBucket: "elite-ff-tournaments01.firebasestorage.app",
+  messagingSenderId: "1024385083938",
+  appId: "1:1024385083938:web:76cecdcd53fddc1689387b"
 });
 
 const messaging = firebase.messaging();
