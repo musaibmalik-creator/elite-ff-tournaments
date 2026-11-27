@@ -86,6 +86,80 @@ button{cursor:pointer}
 @media(max-width:420px){
 .hero h1{font-size:24px}
 }
+
+/* PREMIUM USER APP BACKGROUND + NEON WALLET ACTIONS */
+body{
+  background:
+    radial-gradient(ellipse at 8% 0%,rgba(0,210,190,.10),transparent 34%),
+    radial-gradient(ellipse at 95% 18%,rgba(255,193,7,.09),transparent 32%),
+    linear-gradient(145deg,#05090d 0%,#090d12 48%,#080808 100%);
+  background-attachment:fixed;
+}
+#appSection{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(0,220,200,.045),transparent 38%),
+    transparent;
+}
+.topbar{
+  background:rgba(5,9,13,.94);
+  backdrop-filter:blur(14px);
+  border-bottom-color:rgba(0,220,200,.18);
+  box-shadow:0 5px 24px rgba(0,0,0,.28);
+}
+.wallet{
+  background:linear-gradient(135deg,rgba(18,25,29,.97),rgba(10,14,18,.97));
+  border-color:rgba(0,220,200,.20);
+  box-shadow:0 8px 28px rgba(0,0,0,.22);
+}
+.formBox{
+  background:linear-gradient(145deg,rgba(17,23,28,.98),rgba(9,13,17,.98));
+  border-color:rgba(255,255,255,.09);
+}
+#depositSection,#withdrawSection{
+  border-radius:18px;
+  padding:12px;
+}
+#depositSection{
+  background:radial-gradient(ellipse at 50% 0%,rgba(0,255,145,.09),transparent 58%);
+}
+#withdrawSection{
+  background:radial-gradient(ellipse at 50% 0%,rgba(0,210,255,.10),transparent 58%);
+}
+#depositSection .formBox{
+  border-color:rgba(0,255,145,.32);
+  box-shadow:0 0 22px rgba(0,255,145,.08),inset 0 0 18px rgba(0,255,145,.025);
+}
+#withdrawSection .formBox{
+  border-color:rgba(0,210,255,.34);
+  box-shadow:0 0 22px rgba(0,210,255,.09),inset 0 0 18px rgba(0,210,255,.025);
+}
+#depositButton,
+.walletBtns button[onclick*="depositSection"],
+.quick[onclick*="depositSection"]{
+  background:linear-gradient(135deg,#00f59b,#00bd78);
+  color:#03150d;
+  border:1px solid #72ffd0;
+  box-shadow:0 0 8px rgba(0,255,153,.65),0 0 22px rgba(0,255,153,.28),inset 0 1px 0 rgba(255,255,255,.28);
+}
+#withdrawButton,
+.walletBtns button[onclick*="withdrawSection"],
+.quick[onclick*="withdrawSection"]{
+  background:linear-gradient(135deg,#00dcff,#008dff);
+  color:#031019;
+  border:1px solid #8ceeff;
+  box-shadow:0 0 8px rgba(0,210,255,.7),0 0 22px rgba(0,160,255,.30),inset 0 1px 0 rgba(255,255,255,.3);
+}
+#depositButton:active,#withdrawButton:active,
+.walletBtns button[onclick*="depositSection"]:active,
+.walletBtns button[onclick*="withdrawSection"]:active{
+  transform:translateY(1px);
+  filter:brightness(1.12);
+}
+#depositButton:disabled,#withdrawButton:disabled{
+  opacity:.65;
+  box-shadow:none;
+}
+
 </style>
 </head>
 
