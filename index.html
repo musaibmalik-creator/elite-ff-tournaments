@@ -1783,10 +1783,10 @@ button:focus-visible{
 
     </div>
 
-    <p class="payment-history-intro">Verified deposit ledger for the last 12 months. Search by user ID, UTR or deposit ID; filter by status.</p>
+    <p class="payment-history-intro">Verified deposit ledger for the last 12 months. Search by player, UTR or deposit ID; filter by status.</p>
     <div id="depositHistoryStats" class="payment-history-stats"></div>
     <div class="payment-history-tools">
-      <input id="depositHistorySearch" type="search" placeholder="Search user ID, UTR or record ID" oninput="filterAdminDeposits()">
+      <input id="depositHistorySearch" type="search" placeholder="Search player, UTR or record ID" oninput="filterAdminDeposits()">
       <select id="depositHistoryStatus" onchange="filterAdminDeposits()"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Successful</option><option value="rejected">Rejected</option></select>
     </div>
     <div id="depositsList">
