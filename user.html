@@ -1503,13 +1503,17 @@ if(!profileError){
 
   }
 
-  /* LOAD MATCHES JOINED */
+  /* LOAD MATCHES JOINED
+     Count the player's own registration rows.
+     tournament_entries is group/team-level, so its user_id only
+     represents the first player who created that group. */
 
   const {count: joinedCount,error: joinedError} =
     await supabaseClient
-      .from("tournament_entries")
+      .from("players")
       .select("id",{count:"exact",head:true})
-      .eq("user_id",currentUser.id);
+      .eq("user_id",currentUser.id)
+      .not("tournament_id","is",null);
 
   if(!joinedError){
 
@@ -1519,6 +1523,8 @@ if(!profileError){
       joined.textContent = joinedCount || 0;
     }
 
+  }else{
+    console.error("Player joined statistics error:",joinedError);
   }
 
   /* LOAD INDIVIDUAL MATCH RESULTS */
