@@ -483,6 +483,7 @@ button{cursor:pointer}
 </div>
 
 <div class="formBox">
+  <div id="depositFormPanel">
   <div id="depositStepAmount">
     <div class="infoBox">
       <div style="font-weight:800">Add Money to Wallet</div>
@@ -524,6 +525,10 @@ button{cursor:pointer}
   </div>
 
   <div id="depositMessage" class="message"></div>
+  </div>
+  <button type="button" class="btn btnDark" onclick="showWalletSubsection('deposit','history')">📜 VIEW DEPOSIT HISTORY</button>
+  <div id="depositHistoryPanel" style="display:none">
+    <button type="button" class="btn btnDark" onclick="showWalletSubsection('deposit','form')">← BACK TO DEPOSIT</button>
   <div class="historyBox">
     <h3>Deposit History</h3>
     <div id="depositHistory">Loading history...</div>
@@ -531,6 +536,7 @@ button{cursor:pointer}
       <p style="color:#ffd76a;font-size:13px;line-height:1.6">Deposit 24 hours ke andar wallet mein credit na ho, to Customer Support ko Telegram par message karein aur apna payment screenshot bhejein.</p>
       <a href="https://t.me/NocTyx001" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:9px;padding:10px;background:#ffc107;color:#111;border-radius:9px;text-decoration:none;font-weight:900">MESSAGE CUSTOMER SUPPORT</a>
     </div>
+  </div>
   </div>
 </div>
 </div>
@@ -555,6 +561,10 @@ button{cursor:pointer}
 <input id="withdrawUPI" class="input" type="text" placeholder="UPI ID / Bank Details">
 <button id="withdrawButton" class="btn btnGold" onclick="submitWithdraw()">REQUEST WITHDRAWAL</button>
 <div id="withdrawMessage" class="message"></div>
+</div>
+<button type="button" class="btn btnDark" onclick="showWalletSubsection('withdraw','history')">📜 VIEW WITHDRAWAL HISTORY</button>
+<div id="withdrawHistoryPanel" style="display:none">
+  <button type="button" class="btn btnDark" onclick="showWalletSubsection('withdraw','form')">← BACK TO WITHDRAW</button>
 <div class="historyBox">
   <h3>Withdrawal History</h3>
   <div id="withdrawHistory">
@@ -1067,6 +1077,16 @@ supabaseClient.auth.onAuthStateChange((event, session)=>{
 
 
 
+
+/* WALLET FORM / HISTORY SUBSECTIONS */
+function showWalletSubsection(type, view){
+  const form=document.getElementById(type+"FormPanel");
+  const history=document.getElementById(type+"HistoryPanel");
+  if(!form||!history) return;
+  form.style.display=view==="form"?"block":"none";
+  history.style.display=view==="history"?"block":"none";
+  if(view==="history") loadWallet();
+}
 
 /* SHOW SECTIONS */
 
