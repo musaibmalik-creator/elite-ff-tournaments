@@ -97,13 +97,18 @@ Deno.serve(async (req) => {
       if (!tournamentId) throw new Error("Tournament ID required");
 
       const [{ data: tournament, error: tError }, { data: room, error: rError }, { data: players, error: pError }] = await Promise.all([
-        adminClient.from("tournaments").select("id,name").eq("id", tournamentId).maybeSingle(),
+        adminClient.from("tournaments").select("id,name,starts_at").eq("id", tournamentId).maybeSingle(),
         adminClient.from("tournament_room_details")
           .select("room_id,room_password,custom_id,custom_password")
           .eq("tournament_id", tournamentId).maybeSingle(),
         adminClient.from("players").select("user_id").eq("tournament_id", tournamentId).eq("status", "confirmed").not("user_id", "is", null),
       ]);
       if (tError || !tournament) throw new Error("Tournament not found");
+      if (!tournament.starts_at) throw new Error("Set the match start date and time before releasing room details");
+      const releaseAt = new Date(tournament.starts_at).getTime() - 7 * 60 * 1000;
+      if (!Number.isFinite(releaseAt) || Date.now() < releaseAt) {
+        throw new Error("Room release is allowed only during the final 7 minutes before match start");
+      }
       if (rError) throw new Error("Unable to verify room details");
       if (pError) throw new Error("Unable to load registered players");
       const hasRoom = !!(room?.room_id || room?.room_password || room?.custom_id || room?.custom_password);
