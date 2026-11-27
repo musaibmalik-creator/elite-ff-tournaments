@@ -5360,8 +5360,8 @@ $("backDepositsButton")
 window.approveDeposit = async function(id, isRecovery = false){
 
   const confirmText = isRecovery
-    ? "RECOVER REJECTED DEPOSIT?\n\nOnly continue if the player's original payment has now been received. Verify the full amount including the ₹1 platform fee. The original wallet credit and 1x wagering will be applied once."
-    : "Approve this deposit? Verify the total payment received, including the ₹1 platform fee. Wallet credit is the deposit amount.";
+    ? "RECOVER REJECTED DEPOSIT?\n\nOnly continue if the player's original payment has now been received. Verify the total payment shown on this deposit (wallet credit + 10% platform fee). Wallet credit and 1x wagering will be applied once."
+    : "Approve this deposit? Verify the total payment shown on this deposit (wallet credit + 10% platform fee). Wallet credit is the deposit amount.";
 
   if(!confirm(confirmText)){
     return;
