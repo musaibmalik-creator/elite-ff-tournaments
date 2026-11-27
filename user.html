@@ -87,79 +87,53 @@ button{cursor:pointer}
 .hero h1{font-size:24px}
 }
 
-/* PREMIUM USER APP BACKGROUND + NEON WALLET ACTIONS */
-body{
-  background:
-    radial-gradient(ellipse at 8% 0%,rgba(0,210,190,.10),transparent 34%),
-    radial-gradient(ellipse at 95% 18%,rgba(255,193,7,.09),transparent 32%),
-    linear-gradient(145deg,#05090d 0%,#090d12 48%,#080808 100%);
-  background-attachment:fixed;
-}
-#appSection{
-  background:
-    radial-gradient(circle at 50% 0%,rgba(0,220,200,.045),transparent 38%),
-    transparent;
-}
-.topbar{
-  background:rgba(5,9,13,.94);
-  backdrop-filter:blur(14px);
-  border-bottom-color:rgba(0,220,200,.18);
-  box-shadow:0 5px 24px rgba(0,0,0,.28);
-}
-.wallet{
-  background:linear-gradient(135deg,rgba(18,25,29,.97),rgba(10,14,18,.97));
-  border-color:rgba(0,220,200,.20);
-  box-shadow:0 8px 28px rgba(0,0,0,.22);
-}
-.formBox{
-  background:linear-gradient(145deg,rgba(17,23,28,.98),rgba(9,13,17,.98));
-  border-color:rgba(255,255,255,.09);
+/* RGB FAN STYLE - OUTER DEPOSIT / WITHDRAW PANELS ONLY */
+@keyframes rgbFanGlow{
+  0%{background-position:0% 50%;filter:hue-rotate(0deg)}
+  50%{background-position:100% 50%;filter:hue-rotate(90deg)}
+  100%{background-position:0% 50%;filter:hue-rotate(180deg)}
 }
 #depositSection,#withdrawSection{
-  border-radius:18px;
-  padding:12px;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:16px;
+  margin:0 -2px 18px;
+  border:1px solid transparent;
+  border-radius:20px;
+  background:
+    linear-gradient(#080d11,#080d11) padding-box,
+    linear-gradient(120deg,#00ff9d,#00d9ff,#8a2bff,#ff2d95,#ffe600,#00ff9d) border-box;
+  background-size:100% 100%,300% 300%;
+  animation:rgbFanGlow 6s linear infinite;
+  box-shadow:0 0 9px rgba(0,255,190,.28),0 0 24px rgba(0,180,255,.16),inset 0 0 24px rgba(0,220,255,.035);
 }
-#depositSection{
-  background:radial-gradient(ellipse at 50% 0%,rgba(0,255,145,.09),transparent 58%);
+#depositSection::before,#withdrawSection::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:-45%;
+  pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 0 22%,rgba(0,255,170,.22) 28%,transparent 35%,rgba(0,190,255,.24) 48%,transparent 55%,rgba(190,0,255,.20) 70%,transparent 78%,rgba(255,40,150,.18) 90%,transparent 100%);
+  filter:blur(28px);
+  animation:rgbFanSpin 8s linear infinite;
 }
-#withdrawSection{
-  background:radial-gradient(ellipse at 50% 0%,rgba(0,210,255,.10),transparent 58%);
-}
-#depositSection .formBox{
-  border-color:rgba(0,255,145,.32);
-  box-shadow:0 0 22px rgba(0,255,145,.08),inset 0 0 18px rgba(0,255,145,.025);
-}
-#withdrawSection .formBox{
-  border-color:rgba(0,210,255,.34);
-  box-shadow:0 0 22px rgba(0,210,255,.09),inset 0 0 18px rgba(0,210,255,.025);
-}
-#depositButton,
-.walletBtns button[onclick*="depositSection"],
-.quick[onclick*="depositSection"]{
-  background:linear-gradient(135deg,#00f59b,#00bd78);
-  color:#03150d;
-  border:1px solid #72ffd0;
-  box-shadow:0 0 8px rgba(0,255,153,.65),0 0 22px rgba(0,255,153,.28),inset 0 1px 0 rgba(255,255,255,.28);
-}
-#withdrawButton,
-.walletBtns button[onclick*="withdrawSection"],
-.quick[onclick*="withdrawSection"]{
-  background:linear-gradient(135deg,#00dcff,#008dff);
-  color:#031019;
-  border:1px solid #8ceeff;
-  box-shadow:0 0 8px rgba(0,210,255,.7),0 0 22px rgba(0,160,255,.30),inset 0 1px 0 rgba(255,255,255,.3);
-}
-#depositButton:active,#withdrawButton:active,
-.walletBtns button[onclick*="depositSection"]:active,
-.walletBtns button[onclick*="withdrawSection"]:active{
-  transform:translateY(1px);
-  filter:brightness(1.12);
-}
-#depositButton:disabled,#withdrawButton:disabled{
-  opacity:.65;
+@keyframes rgbFanSpin{to{transform:rotate(360deg)}}
+/* Keep the inner form and controls in their original appearance */
+#depositSection .formBox,#withdrawSection .formBox{
+  background:#111;
+  border:1px solid #292929;
   box-shadow:none;
 }
-
+#depositButton,#withdrawButton{
+  background:#ffc107;
+  color:#000;
+  border:0;
+  box-shadow:none;
+}
+@media(prefers-reduced-motion:reduce){
+  #depositSection,#withdrawSection,#depositSection::before,#withdrawSection::before{animation:none}
+}
 </style>
 </head>
 
