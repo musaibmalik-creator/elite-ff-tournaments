@@ -1316,27 +1316,27 @@ async function loadWallet(){
   const {data:deposits,error:depositError} =
     await supabaseClient
     .from("deposits")
-    .select("id,amount,fee_amount,paid_amount,status,transaction_id,utr,created_at,payment_proof_path,rejection_reason")
+    .select("*")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
+  const depositLoadFailed=!!depositError;
   if(depositError){
-    console.error("Deposit History Error:",depositError.message);
-    if(depositHistory) depositHistory.textContent = "Unable to load deposits."; 
-    return;
+    console.error("Deposit History Error:",depositError);
+    if(depositHistory) depositHistory.textContent = "Deposit history error: "+depositError.message;
   }
 
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
     .from("withdrawals")
-    .select("id,amount,fee_amount,payout_amount,upi_id,status,created_at,paid_at,payment_details,payment_proof_path,user_bank_statement_path,rejection_reason")
+    .select("*")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
+  const withdrawalLoadFailed=!!withdrawError;
   if(withdrawError){
-    console.error("Withdrawal History Error:",withdrawError.message);
-    if(withdrawHistory) withdrawHistory.textContent = "Unable to load withdrawals."; 
-    return;
+    console.error("Withdrawal History Error:",withdrawError);
+    if(withdrawHistory) withdrawHistory.textContent = "Withdrawal history error: "+withdrawError.message;
   }
 
   // Private player-uploaded proofs: create short-lived URLs for the signed-in player.
@@ -1372,8 +1372,6 @@ async function loadWallet(){
 
   if(walletError){
     console.error("Wallet Balance Error:",walletError.message);
-    if(depositHistory) depositHistory.textContent = "Unable to load wallet balance."; 
-    return;
   }
 
   const walletAmount = Number(wallet?.balance || 0);
@@ -1422,7 +1420,9 @@ async function loadWallet(){
 
 if(depositHistory){
 
-  if(!deposits || deposits.length === 0){
+  if(depositLoadFailed){
+    depositHistory.innerHTML = '<p style="color:#ff7777">Could not load deposit history: '+safe(depositError.message)+'</p>';
+  }else if(!deposits || deposits.length === 0){
 
     depositHistory.innerHTML =
       '<p style="color:#aaa">No deposit history yet.</p>';
@@ -1482,7 +1482,9 @@ if(depositHistory){
 
   if(withdrawHistory){
 
-    if(!withdrawals || withdrawals.length === 0){
+    if(withdrawalLoadFailed){
+      withdrawHistory.innerHTML = '<p style="color:#ff7777">Could not load withdrawal history: '+safe(withdrawError.message)+'</p>';
+    }else if(!withdrawals || withdrawals.length === 0){
 
       withdrawHistory.innerHTML =
         '<p style="color:#aaa">No withdrawal history yet.</p>';
