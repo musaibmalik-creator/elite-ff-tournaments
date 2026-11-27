@@ -1320,6 +1320,9 @@ async function loadWallet(){
     return "#ffc107";
   };
 
+  const depositStatusLabel = status =>
+    status === "approved" ? "COMPLETE" : (status || "pending").toUpperCase();
+
 /* DEPOSIT HISTORY */
 
 if(depositHistory){
@@ -1342,7 +1345,7 @@ if(depositHistory){
           </strong>
 
           <strong style="color:${statusColor(item.status)}">
-            ${safe((item.status || "pending").toUpperCase())}
+            ${safe(depositStatusLabel(item.status))}
           </strong>
 
         </div>
