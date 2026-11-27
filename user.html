@@ -1877,13 +1877,13 @@ button.disabled=true;
 button.textContent="SUBMITTING...";
 
 const {error}=await supabaseClient
-.from("payments")
+.from("deposits")
 .insert({
 user_id:currentUser.id,
 amount:amount,
-currency:"INR",
-status:"pending",
-provider_payment_id:utr
+transaction_id:utr,
+utr:utr,
+status:"pending"
 });
 
 button.disabled=false;
@@ -1892,7 +1892,7 @@ button.textContent="SUBMIT DEPOSIT";
 if(error){
 
 if(error.code==="23505" &&
-error.message.includes("payments_unique_utr")){
+(error.message.includes("deposits_unique_utr") || error.message.includes("deposits_transaction_id_key"))){
 
 setMessage(
 "depositMessage",
