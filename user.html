@@ -472,7 +472,12 @@ button{cursor:pointer}
 </div>
 
 <div class="formBox">
-<input id="depositAmount" class="input" type="number" min="10" placeholder="Amount (Minimum ₹10)">
+<div class="infoBox" style="margin-bottom:12px">
+<div style="font-weight:700">Deposit fee: ₹1 fixed</div>
+<div style="color:#aaa;font-size:13px">Example: Wallet credit ₹10 + fee ₹1 = Pay ₹11</div>
+<div id="depositFeePreview" style="color:#ffc107;margin-top:8px">Enter amount to see total payment.</div>
+</div>
+<input id="depositAmount" class="input" type="number" min="10" step="0.01" placeholder="Wallet Credit (Minimum ₹10)">
 <input id="depositUTR" class="input" type="text" placeholder="Enter UTR Number">
 <button id="depositButton" class="btn btnGold" onclick="submitDeposit()">SUBMIT DEPOSIT</button>
 <div id="depositMessage" class="message"></div>
@@ -496,7 +501,12 @@ button{cursor:pointer}
 </div>
 
 <div class="formBox">
-<input id="withdrawAmount" class="input" type="number" min="50" placeholder="Amount (Minimum ₹50)">
+<div class="infoBox" style="margin-bottom:12px">
+<div style="font-weight:700">Withdrawal platform fee: 4%</div>
+<div style="color:#aaa;font-size:13px">Fee is deducted from the requested amount.</div>
+<div id="withdrawFeePreview" style="color:#ffc107;margin-top:8px">Enter amount to see your payout.</div>
+</div>
+<input id="withdrawAmount" class="input" type="number" min="50" step="0.01" placeholder="Withdrawal Amount (Minimum ₹50)">
 <input id="withdrawUPI" class="input" type="text" placeholder="UPI ID / Bank Details">
 <button id="withdrawButton" class="btn btnGold" onclick="submitWithdraw()">REQUEST WITHDRAWAL</button>
 <div id="withdrawMessage" class="message"></div>
@@ -1235,7 +1245,7 @@ async function loadWallet(){
   const {data:deposits,error:depositError} =
     await supabaseClient
     .from("deposits")
-    .select("amount,status,transaction_id,utr,created_at")
+    .select("amount,fee_amount,paid_amount,status,transaction_id,utr,created_at")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -1248,7 +1258,7 @@ async function loadWallet(){
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
     .from("withdrawals")
-    .select("amount,upi_id,status,created_at,rejection_reason")
+    .select("amount,fee_amount,payout_amount,upi_id,status,created_at,rejection_reason")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -1338,6 +1348,10 @@ if(depositHistory){
         </div>
 
         <div style="color:#aaa;font-size:12px;margin-top:7px">
+          Platform fee: ₹${safe(Number(item.fee_amount ?? 0).toFixed(2))}
+          · Total paid: ₹${safe(Number(item.paid_amount ?? item.amount ?? 0).toFixed(2))}
+        </div>
+        <div style="color:#aaa;font-size:12px;margin-top:7px">
           UTR: ${safe(item.utr || item.transaction_id || "Not available")}
         </div>
 
@@ -1392,6 +1406,10 @@ if(depositHistory){
 
           </div>
 
+          <div style="color:#aaa;font-size:12px;margin-top:7px">
+            Platform fee (4%): ₹${safe(Number(item.fee_amount ?? 0).toFixed(2))}
+            · You receive: ₹${safe(Number(item.payout_amount ?? item.amount ?? 0).toFixed(2))}
+          </div>
           <div style="color:#aaa;font-size:12px;margin-top:7px">
             UPI: ${safe(item.upi_id || "Not available")}
           </div>
@@ -2459,6 +2477,8 @@ const {error}=await supabaseClient
 .insert({
 user_id:currentUser.id,
 amount:amount,
+fee_amount:1,
+paid_amount:amount+1,
 transaction_id:utr,
 utr:utr,
 status:"pending"
@@ -2545,6 +2565,42 @@ async function submitWithdraw(){
   setMessage("withdrawMessage","✅ Withdrawal request submit ho gayi.");
       }
 
+
+/* WALLET FEE PREVIEWS */
+
+function updateDepositFeePreview(){
+  const amount=Number(document.getElementById("depositAmount")?.value||0);
+  const preview=document.getElementById("depositFeePreview");
+  if(!preview) return;
+  if(!Number.isFinite(amount)||amount<10){
+    preview.textContent="Enter at least ₹10. Fixed fee ₹1.";
+    return;
+  }
+  preview.textContent=
+    "Wallet credit: ₹"+amount.toFixed(2)+
+    " | Fee: ₹1.00 | Total to pay: ₹"+(amount+1).toFixed(2);
+}
+
+function updateWithdrawFeePreview(){
+  const amount=Number(document.getElementById("withdrawAmount")?.value||0);
+  const preview=document.getElementById("withdrawFeePreview");
+  if(!preview) return;
+  if(!Number.isFinite(amount)||amount<50){
+    preview.textContent="Enter at least ₹50. Fee is 4%.";
+    return;
+  }
+  const fee=Math.round((amount*0.04+Number.EPSILON)*100)/100;
+  const payout=Math.round((amount-fee+Number.EPSILON)*100)/100;
+  preview.textContent=
+    "Requested: ₹"+amount.toFixed(2)+
+    " | Fee: ₹"+fee.toFixed(2)+
+    " | You receive: ₹"+payout.toFixed(2);
+}
+
+document.getElementById("depositAmount")?.addEventListener("input",updateDepositFeePreview);
+document.getElementById("withdrawAmount")?.addEventListener("input",updateWithdrawFeePreview);
+updateDepositFeePreview();
+updateWithdrawFeePreview();
 
 /* PUSH NOTIFICATIONS */
 
