@@ -2705,6 +2705,22 @@ async function createTournament(){
   }
 
 
+  // Notify all users when a new tournament is published.
+  try {
+    const { error: notificationError } = await supabase.functions.invoke("send-notification", {
+      body: {
+        type: "broadcast",
+        title: "🏆 New Tournament Available!",
+        body: (value.name || "A new tournament") + " is now open. Join from Elite FF Tournaments."
+      }
+    });
+    if(notificationError) {
+      console.error("New tournament notification failed:", notificationError);
+    }
+  } catch(notificationError) {
+    console.error("New tournament notification failed:", notificationError);
+  }
+
   const roomReady = Object.values(roomDetails).some(Boolean);
   if(roomReady) await notifyRoomReleased(data.id);
 
