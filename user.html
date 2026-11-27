@@ -1765,6 +1765,71 @@ async function openTeamRegistration(id){
 
 /* INDIVIDUAL WALLET-PAID JOIN */
 
+async function registerTeam(){
+
+  const rulesCheckbox = document.getElementById("agreeTournamentRules");
+
+  if(!rulesCheckbox || !rulesCheckbox.checked){
+    setMessage("teamMessage","Please read and accept tournament rules first.");
+    return;
+  }
+
+  if(!currentUser){
+    setMessage("teamMessage","Pehle login karo.");
+    return;
+  }
+
+  if(!selectedTournamentId){
+    setMessage("teamMessage","Tournament select karo.");
+    return;
+  }
+
+  const button = document.getElementById("registerTeamButton");
+  if(button){
+    button.disabled = true;
+    button.textContent = "PROCESSING PAYMENT...";
+  }
+
+  setMessage("teamMessage","Checking profile, slot and wallet...");
+
+  try{
+    const {data,error} = await supabaseClient.rpc(
+      "join_tournament_with_wallet",
+      {p_tournament_id:selectedTournamentId}
+    );
+
+    if(error) throw error;
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    setMessage(
+      "teamMessage",
+      "Payment successful! ₹" + Number(result.charged || 0) +
+      " deducted. You joined " + escapeHTML(result.team_name || "your slot") +
+      ". Players: " + result.team_players + "/" + result.team_capacity +
+      ". Status: " + (result.team_status === "confirmed" ? "CONFIRMED ✅" : "WAITING FOR TEAMMATES")
+    );
+
+    if(typeof loadWallet === "function") await loadWallet();
+    if(typeof loadProfile === "function") await loadProfile();
+
+    if(typeof openTournamentDashboard === "function"){
+      setTimeout(() => openTournamentDashboard(selectedTournamentId), 700);
+    }
+
+  }catch(error){
+    setMessage("teamMessage",error.message || "Tournament join failed.");
+  }finally{
+    if(button){
+      button.disabled = false;
+      button.textContent = "JOIN TOURNAMENT & PAY";
+    }
+  }
+}
+
+
+
+
 /* COPY UPI */
 
 function copyUPI(){
