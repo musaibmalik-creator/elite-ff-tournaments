@@ -1452,13 +1452,16 @@ async function openTournamentDashboard(id){
 
   const activeTeamIds = new Set(players.filter(p => p.user_id).map(p => p.team_id));
   teamList = teamList.filter(team => activeTeamIds.has(team.id));
+  players = players.filter(player => activeTeamIds.has(player.team_id));
 
   const totalSlots = (String(tournament.sport || '').startsWith('cs_') || tournament.sport === 'lone_wolf') ? 2 : Number(tournament.max_teams || 0);
-  const filledSlots = teamList.length;
-  const availableSlots = Math.max(0,totalSlots-filledSlots);
-  const totalPlayers = players.length;
-
   const playersPerSlot = getPlayerCount(tournament.sport);
+  const filledSlots = teamList.filter(team =>
+    players.filter(player => player.team_id === team.id).length >= playersPerSlot
+  ).length;
+  const occupiedSlots = teamList.length;
+  const availableSlots = Math.max(0,totalSlots-occupiedSlots);
+  const totalPlayers = players.length;
 
 
   /* TOURNAMENT INFORMATION + MATCH INSTRUCTIONS */
@@ -1523,7 +1526,9 @@ async function openTournamentDashboard(id){
 
       <p>🔢 Total Slots: ${totalSlots}</p>
 
-      <p>✅ Filled Slots: ${filledSlots}</p>
+      <p>✅ Completed Slots: ${filledSlots}</p>
+
+      <p>🟡 Teams/Slots Occupied: ${occupiedSlots}</p>
 
       <p>🟢 Available Slots: ${availableSlots}</p>
 
