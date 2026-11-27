@@ -1868,6 +1868,11 @@ async function renderAdminWithdrawals(rows){
       const signed=await supabase.storage.from("withdrawal-proofs").createSignedUrl(withdrawal.payment_proof_path,3600);
       if(!signed.error) proofUrl=signed.data.signedUrl;
     }
+    let bankStatementUrl="";
+    if(withdrawal.user_bank_statement_path){
+      const signedStatement=await supabase.storage.from("withdrawal-bank-statements").createSignedUrl(withdrawal.user_bank_statement_path,3600);
+      if(!signedStatement.error) bankStatementUrl=signedStatement.data.signedUrl;
+    }
     const state=String(withdrawal.status||"pending").toLowerCase();
     const color=state==="approved"?"#34d399":state==="rejected"?"#fb7185":"#fbbf24";
     const id=escapeHtml(withdrawal.id);
@@ -1886,7 +1891,8 @@ async function renderAdminWithdrawals(rows){
         <div class="payment-history-row"><span>Requested at</span><span>${withdrawal.created_at?new Date(withdrawal.created_at).toLocaleString("en-IN"):"-"}</span></div>
         <div class="payment-history-row"><span>Paid at</span><strong>${withdrawal.paid_at?new Date(withdrawal.paid_at).toLocaleString("en-IN"):(state==="approved"?"Time not recorded":"Not paid")}</strong></div>
         ${withdrawal.rejection_reason?'<p style="color:#fda4af;font-size:12px">Rejection reason: '+escapeHtml(withdrawal.rejection_reason)+'</p>':""}
-        ${proofUrl?'<a class="payment-proof-link" href="'+proofUrl+'" target="_blank" rel="noopener">View payment proof</a>':""}
+        ${bankStatementUrl?'<a class="payment-proof-link" href="'+bankStatementUrl+'" target="_blank" rel="noopener" style="display:block;margin-top:8px">View PLAYER bank statement PDF</a>':""}
+        ${proofUrl?'<a class="payment-proof-link" href="'+proofUrl+'" target="_blank" rel="noopener">View ADMIN payout proof</a>':""}
         ${state!=="rejected"?`
           <div class="payment-proof-tools">
             <strong style="font-size:12px;color:#e5e7eb">${proofUrl?"Replace transfer proof":"Attach transfer screenshot / PDF"}</strong>
@@ -1941,7 +1947,7 @@ async function loadWithdrawals(){
   list.innerHTML="Loading last 12 months of withdrawals...";
   const since=new Date();since.setFullYear(since.getFullYear()-1);
   const {data,error}=await supabase.from("withdrawals")
-    .select("id,user_id,amount,fee_amount,payout_amount,upi_id,status,created_at,paid_at,payment_details,payment_proof_path,rejection_reason")
+    .select("id,user_id,amount,fee_amount,payout_amount,upi_id,status,created_at,paid_at,payment_details,payment_proof_path,user_bank_statement_path,rejection_reason")
     .gte("created_at",since.toISOString())
     .order("created_at",{ascending:false});
   if(error){list.innerHTML="Withdrawal history error: "+escapeHtml(error.message);return;}
@@ -5273,6 +5279,7 @@ function filterAdminDeposits(){
         <div class="payment-history-row"><span>Player</span><span>${escapeHtml(deposit.player_profile?.display_name||deposit.player_profile?.ff_name||"Player")}${deposit.player_profile?.ff_uid?" · UID "+escapeHtml(deposit.player_profile.ff_uid):""}</span></div>
         <div class="payment-history-row"><span>UTR / Transaction ID</span><span>${escapeHtml(deposit.utr||deposit.transaction_id||"-")}</span></div>
         <div class="payment-history-row"><span>Submitted at</span><span>${deposit.created_at?new Date(deposit.created_at).toLocaleString("en-IN"):"-"}</span></div>
+        ${deposit.payment_proof_url?'<a class="payment-proof-link" href="'+deposit.payment_proof_url+'" target="_blank" rel="noopener">View player payment screenshot</a>':'<p style="color:#9ca3af;font-size:12px">Player screenshot not uploaded.</p>'}
         ${deposit.status==="rejected"?'<p style="color:#fda4af;font-size:12px">Reason: '+escapeHtml(deposit.rejection_reason||"Not provided")+'</p>':""}
         ${state==="pending"?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" onclick="approveDeposit(\''+deposit.id+'\')">Approve deposit</button><button type="button" class="danger" onclick="rejectDeposit(\''+deposit.id+'\')">Reject deposit</button></div>':state==="rejected"?'<button type="button" onclick="approveDeposit(\''+deposit.id+'\', true)">Recover & complete</button>':'<p style="color:#34d399;font-size:12px;font-weight:700">✓ Wallet credit completed</p>'}
       </article>`;
@@ -5288,6 +5295,12 @@ async function loadDeposits(){
   const {data,error}=await supabase.from("deposits").select("*").gte("created_at",since.toISOString()).order("created_at",{ascending:false});
   if(error){list.innerHTML="Deposit Error: "+escapeHtml(error.message);return;}
   adminDepositRows=data||[];
+  await Promise.all(adminDepositRows.map(async row=>{
+    if(row.payment_proof_path){
+      const signed=await supabase.storage.from("deposit-proofs").createSignedUrl(row.payment_proof_path,3600);
+      if(!signed.error) row.payment_proof_url=signed.data.signedUrl;
+    }
+  }));
   const depositUserIds=[...new Set(adminDepositRows.map(x=>x.user_id).filter(Boolean))];
   if(depositUserIds.length){
     const {data:profiles}=await supabase.from("profiles").select("id,display_name,ff_name,ff_uid").in("id",depositUserIds);
