@@ -1081,6 +1081,10 @@ button:disabled{
       🏆 Manage Match Results
     </button>
 
+    <button id="openNotificationsButton">
+      🔔 Send User Notification
+    </button>
+
   </div>
 
 </div>
@@ -1199,6 +1203,24 @@ button:disabled{
   
     
     <!-- =====================================================
+     SEND NOTIFICATION
+===================================================== -->
+
+<div id="notificationsSection" class="hidden">
+  <div class="card">
+    <div class="top">
+      <h2>🔔 Send Notification</h2>
+      <button id="backNotificationsButton" class="secondary" type="button">Back</button>
+    </div>
+    <p class="info">Ye announcement sabhi registered app users ko jayegi.</p>
+    <input id="notificationTitle" maxlength="100" placeholder="Notification Title">
+    <textarea id="notificationBody" maxlength="500" placeholder="Write announcement message"></textarea>
+    <button id="sendNotificationButton" type="button">📣 SEND TO ALL USERS</button>
+    <div id="notificationMessage"></div>
+  </div>
+</div>
+
+<!-- =====================================================
      TOURNAMENTS
 ===================================================== -->
 
@@ -2552,6 +2574,22 @@ function getTournamentForm(){
 
 
 
+async function notifyRoomReleased(tournamentId){
+  try {
+    const {data,error} = await supabase.functions.invoke("send-notification",{
+      body:{type:"room_released",tournament_id:tournamentId}
+    });
+    if(error) {
+      console.error("Room notification error:",error);
+      showMessage($("tournamentMessage"),"Room saved, but notification failed: "+error.message);
+      return;
+    }
+    console.log("Room notification result:",data);
+  } catch(error) {
+    console.error("Room notification error:",error);
+  }
+}
+
 /* =====================================================
    SAVE TOURNAMENT
 ===================================================== */
@@ -2666,6 +2704,9 @@ async function createTournament(){
 
   }
 
+
+  const roomReady = Object.values(roomDetails).some(Boolean);
+  if(roomReady) await notifyRoomReleased(data.id);
 
   showMessage(
     $("tournamentMessage"),
@@ -3059,6 +3100,12 @@ async function updateTournament(){
   }
 
 
+  const {data:oldRoom} = await supabase
+    .from("tournament_room_details")
+    .select("room_id,room_password,custom_id,custom_password")
+    .eq("tournament_id",editingTournamentId)
+    .maybeSingle();
+
   const {error:roomError} = await supabase
     .from("tournament_room_details")
     .upsert(roomDetails);
@@ -3076,6 +3123,13 @@ async function updateTournament(){
 
   }
 
+
+  const roomFields = ["room_id","room_password","custom_id","custom_password"];
+  const roomReady = roomFields.some(key => !!roomDetails[key]);
+  const roomChanged = roomFields.some(key =>
+    String(oldRoom?.[key] || "") !== String(roomDetails[key] || "")
+  );
+  if(roomReady && roomChanged) await notifyRoomReleased(editingTournamentId);
 
   showMessage(
     $("tournamentMessage"),
@@ -5021,6 +5075,45 @@ async function loadCounts(){
   }
 
 }
+
+/* =====================================================
+   GENERAL USER NOTIFICATION
+===================================================== */
+
+$("openNotificationsButton").addEventListener("click",()=>{
+  $("dashboard").classList.add("hidden");
+  $("notificationsSection").classList.remove("hidden");
+});
+
+$("backNotificationsButton").addEventListener("click",()=>{
+  $("notificationsSection").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+});
+
+$("sendNotificationButton").addEventListener("click",async()=>{
+  const button=$("sendNotificationButton");
+  const title=$("notificationTitle").value.trim();
+  const body=$("notificationBody").value.trim();
+  if(!title || !body){
+    showMessage($("notificationMessage"),"Title aur message dono likho.");
+    return;
+  }
+  button.disabled=true;
+  button.textContent="Sending...";
+  const {data,error}=await supabase.functions.invoke("send-notification",{
+    body:{type:"broadcast",title,body}
+  });
+  button.disabled=false;
+  button.textContent="📣 SEND TO ALL USERS";
+  if(error){
+    showMessage($("notificationMessage"),"Send failed: "+error.message);
+    return;
+  }
+  $("notificationTitle").value="";
+  $("notificationBody").value="";
+  showMessage($("notificationMessage"),
+    "Notification saved for "+(data?.recipients||0)+" users. Push sent: "+(data?.pushSent||0),true);
+});
 
 /* =====================================================
    SESSION CHECK
