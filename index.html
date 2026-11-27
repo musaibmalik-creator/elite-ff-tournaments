@@ -5235,10 +5235,18 @@ async function loadDeposits(){
           📌 Status:
           <b>
             ${escapeHtml(
-              deposit.status || "pending"
+              deposit.status === "approved"
+                ? "COMPLETE"
+                : (deposit.status || "pending").toUpperCase()
             )}
           </b>
         </p>
+
+        ${deposit.status === "rejected" ? `
+          <p style="color:#ff8b8b">
+            Rejection reason: ${escapeHtml(deposit.rejection_reason || "Not provided")}
+          </p>
+        ` : ""}
 
         <p>
           📅 Date:
@@ -5270,14 +5278,18 @@ async function loadDeposits(){
             </button>
 
           `
+          : deposit.status === "rejected"
+          ? `
+            <button
+              type="button"
+              class="successButton"
+              onclick="approveDeposit('${deposit.id}', true)"
+            >
+              ♻️ Recover & Complete
+            </button>
+          `
           : `
-            <p>
-              ${
-                deposit.status === "approved"
-                ? "🟢 Deposit Approved"
-                : "🔴 Deposit Rejected"
-              }
-            </p>
+            <p>🟢 Deposit Complete — Wallet Credited</p>
           `
         }
 
@@ -5345,11 +5357,13 @@ $("backDepositsButton")
    APPROVE DEPOSIT + CREDIT WALLET
 ===================================================== */
 
-window.approveDeposit = async function(id){
+window.approveDeposit = async function(id, isRecovery = false){
 
-  if(!confirm(
-    "Approve this deposit? Verify the total payment received, including the ₹1 platform fee. Wallet credit is the deposit amount."
-  )){
+  const confirmText = isRecovery
+    ? "RECOVER REJECTED DEPOSIT?\n\nOnly continue if the player's original payment has now been received. Verify the full amount including the ₹1 platform fee. The original wallet credit and 1x wagering will be applied once."
+    : "Approve this deposit? Verify the total payment received, including the ₹1 platform fee. Wallet credit is the deposit amount.";
+
+  if(!confirm(confirmText)){
     return;
   }
 
@@ -5375,7 +5389,7 @@ window.approveDeposit = async function(id){
   const newBalance = Number(data?.new_balance || 0);
 
   alert(
-    "Deposit approved successfully! ✅\n\n" +
+    (data?.recovered ? "Rejected deposit recovered and completed! ✅\n\n" : "Deposit approved successfully! ✅\n\n") +
     "Wallet credited: ₹" +
     amount.toFixed(2) +
     "\n\n" +
