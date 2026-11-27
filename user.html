@@ -105,6 +105,18 @@ button{cursor:pointer}
 .hero h1{font-size:24px}
 }
 
+/* SMALL-PHONE LAYOUT SAFETY */
+@media(max-width:360px){
+  .container{padding-left:10px;padding-right:10px}
+  .quickGrid{gap:6px}
+  .quick{padding:12px 4px;font-size:11px}
+  .tournamentMetrics,.tournamentMetaGrid{gap:5px}
+  .tournamentMetric{padding:8px 3px}
+  .tournamentMetric strong{font-size:15px}
+  .tournamentStatusTab{font-size:10px;padding:10px 2px}
+  .floatingJoinBtn{right:12px;min-width:128px;padding:13px 15px}
+}
+
 /* RGB FAN STYLE - OUTER DEPOSIT / WITHDRAW PANELS ONLY */
 @keyframes rgbFanGlow{
   0%{background-position:0% 50%;filter:hue-rotate(0deg)}
@@ -1809,7 +1821,7 @@ async function loadTournaments(filter=currentTournamentModeFilter){
    TOURNAMENT DASHBOARD
 ===================================================== */
 
-async function openTournamentDashboard(id){
+async async function openTournamentDashboard(id){
 
   selectedTournamentId = id;
 
