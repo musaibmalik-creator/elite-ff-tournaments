@@ -135,6 +135,48 @@ button{cursor:pointer}
   #depositSection,#withdrawSection,#depositSection::before,#withdrawSection::before{animation:none}
 }
 
+
+/* RGB GAMING LIGHTS - PROFILE OUTER CARD */
+#profileSection .profileBox{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border:1px solid transparent;
+  background:
+    linear-gradient(#101010,#101010) padding-box,
+    linear-gradient(125deg,#00f5ff,#8b35ff,#ff2b9d,#ffb52e,#00ff9d,#00f5ff) border-box;
+  background-size:100% 100%,300% 300%;
+  animation:profileRgbBorder 7s linear infinite;
+  box-shadow:0 0 12px rgba(0,220,255,.16),0 0 25px rgba(170,40,255,.12),0 12px 30px rgba(0,0,0,.4);
+}
+#profileSection .profileBox:before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  pointer-events:none;
+  inset:-55%;
+  opacity:.32;
+  background:conic-gradient(from 0deg,transparent 0 18%,rgba(0,245,255,.28) 25%,transparent 33%,rgba(150,40,255,.3) 46%,transparent 55%,rgba(255,35,145,.26) 68%,transparent 77%,rgba(0,255,150,.24) 88%,transparent 100%);
+  filter:blur(32px);
+  animation:profileRgbFan 10s linear infinite;
+}
+#profileSection .profileBox>*{
+  position:relative;
+  z-index:1;
+}
+#profileSection .profileBox .profileRow{
+  border-bottom-color:rgba(255,255,255,.13);
+}
+@keyframes profileRgbBorder{
+  0%{background-position:0 0,0% 50%}
+  50%{background-position:0 0,100% 50%}
+  100%{background-position:0 0,0% 50%}
+}
+@keyframes profileRgbFan{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){
+  #profileSection .profileBox,#profileSection .profileBox:before{animation:none}
+}
+
 </style>
 </head>
 
