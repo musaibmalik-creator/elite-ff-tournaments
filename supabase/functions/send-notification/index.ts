@@ -129,7 +129,9 @@ Deno.serve(async (req) => {
     }
 
     const rows = recipients.map((user_id) => ({
-      user_id, title, body, notification_type: type, tournament_id: tournamentId,
+      user_id, title, body,
+      notification_type: type === "room_released" ? "room_released" : "general",
+      tournament_id: tournamentId,
     }));
     const { error: insertError } = await adminClient.from("user_notifications").insert(rows);
     if (insertError) throw new Error("Notification history save failed: " + insertError.message);
