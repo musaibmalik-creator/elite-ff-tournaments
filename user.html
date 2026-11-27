@@ -280,9 +280,12 @@ button{cursor:pointer}
     </div>
 
     <p style="color:#aaa;">
-      Aapka slot system automatically assign karega. Entry fee
-      aapke apne wallet se deduct hogi.
+      Neeche apna available slot select karein. Payment successful hone par
+      slot aapke Free Fire Name aur UID ke saath confirm hoga.
     </p>
+
+    <h3 style="color:#D6A642;margin-top:15px;">SELECT YOUR SLOT</h3>
+    <div id="slotPicker" class="infoBox">Loading available slots...</div>
 
     <button
       id="registerTeamButton"
@@ -626,6 +629,7 @@ async function generateReferralLink() {
 }
 let currentUser = null;
 let selectedTournamentId = null;
+let selectedSlotNumber = null;
 
 /* MESSAGES */
 
@@ -1714,6 +1718,110 @@ function getPlayerCount(sport){
   return playerCount[sport] || 1;
 }
 
+/* MANUAL SLOT SELECTION HELPERS */
+
+function tournamentSlotCapacity(sport){
+  return {
+    cs_1v1:1, cs_2v2:2, cs_4v4:4,
+    br_solo:1, br_duo:2, br_squad:4,
+    lone_wolf:1
+  }[sport] || 1;
+}
+
+function tournamentTotalSlots(tournament){
+  const mode=String(tournament.sport || "").toLowerCase();
+  const cap=tournamentSlotCapacity(mode);
+  if(mode.startsWith("cs_") || mode==="lone_wolf") return cap*2;
+  return Math.max(0,Number(tournament.max_teams || 0))*cap;
+}
+
+function slotGroupDetails(tournament,globalSlot){
+  const mode=String(tournament.sport || "").toLowerCase();
+  const cap=tournamentSlotCapacity(mode);
+  if(mode.startsWith("cs_")){
+    const groupNo=Math.floor((globalSlot-1)/cap)+1;
+    return {name:groupNo===1?"Team A":"Team B",local:((globalSlot-1)%cap)+1};
+  }
+  if(mode==="lone_wolf"){
+    return {name:globalSlot===1?"Team A":"Team B",local:1};
+  }
+  const groupNo=Math.floor((globalSlot-1)/cap)+1;
+  const name=mode==="br_solo"?"Slot "+groupNo:(mode==="br_duo"?"Duo "+groupNo:"Squad "+groupNo);
+  return {name,local:((globalSlot-1)%cap)+1};
+}
+
+function selectTournamentSlot(slot){
+  selectedSlotNumber=slot;
+  document.querySelectorAll("[data-tournament-slot]").forEach(el=>{
+    const chosen=Number(el.getAttribute("data-tournament-slot"))===slot;
+    el.style.background=chosen?"#D6A642":"#171717";
+    el.style.color=chosen?"#111":"#eee";
+    el.style.borderColor=chosen?"#D6A642":"#555";
+    el.style.fontWeight=chosen?"bold":"normal";
+  });
+  setMessage("teamMessage","Slot "+slot+" selected. Ab JOIN TOURNAMENT & PAY dabayein.");
+}
+
+async function renderTournamentSlotPicker(tournament){
+  const box=document.getElementById("slotPicker");
+  if(!box) return;
+  box.innerHTML="Loading slots...";
+  const {data:teams,error:teamError}=await supabaseClient
+    .from("teams").select("id,name").eq("tournament_id",tournament.id);
+  if(teamError){box.innerHTML="Slots load nahi hue: "+escapeHTML(teamError.message);return;}
+
+  const teamList=teams || [];
+  const ids=teamList.map(t=>t.id);
+  let players=[];
+  if(ids.length){
+    const {data,error}=await supabaseClient
+      .from("players").select("team_id,name,uid,user_id,slot_number").in("team_id",ids);
+    if(error){box.innerHTML="Players load nahi hue: "+escapeHTML(error.message);return;}
+    players=(data || []).filter(p=>p.user_id);
+  }
+
+  const total=tournamentTotalSlots(tournament);
+  if(!total){box.innerHTML="Admin ne tournament capacity set nahi ki.";return;}
+
+  const occupied=new Map();
+  for(const player of players){
+    const team=teamList.find(t=>t.id===player.team_id);
+    if(!team) continue;
+    let global=0;
+    const mode=String(tournament.sport || "").toLowerCase();
+    const cap=tournamentSlotCapacity(mode);
+    if(mode.startsWith("cs_")){
+      const offset=team.name==="Team B"?cap:0;
+      global=offset+Number(player.slot_number || 1);
+    }else if(mode==="lone_wolf"){
+      global=team.name==="Team B"?2:1;
+    }else{
+      let groupNo=Number(String(team.name || "").match(/(\d+)/)?.[1] || 1);
+      global=(groupNo-1)*cap+Number(player.slot_number || 1);
+    }
+    if(global>0 && global<=total) occupied.set(global,player);
+  }
+
+  box.innerHTML=`
+    <p style="margin:0 0 10px;color:#aaa;">Green nahi: available • Gold: selected • Grey: already booked</p>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">
+      ${Array.from({length:total},(_,i)=>{
+        const n=i+1, player=occupied.get(n);
+        const mine=player && player.user_id===currentUser?.id;
+        const label=player?(mine?"YOUR SLOT":(player.name || "Booked")):"SLOT "+n;
+        return `<button type="button" data-tournament-slot="${n}"
+          ${player?"disabled":""}
+          onclick="selectTournamentSlot(${n})"
+          style="min-height:58px;border:1px solid ${player?"#555":"#D6A642"};border-radius:8px;padding:6px 3px;background:${player?(mine?"#8b6a22":"#333"):"#171717"};color:${player?"#bbb":"#D6A642"};font-size:12px;">
+          <b>${player?(mine?"SLOT "+n:"SLOT "+n):"SLOT "+n}</b><br>
+          <span>${player?escapeHTML(player.name || "Booked"):"AVAILABLE"}</span>
+          ${player && player.uid?"<br><small>"+escapeHTML(player.uid)+"</small>":""}
+        </button>`;
+      }).join("")}
+    </div>
+  `;
+}
+
 /* OPEN INDIVIDUAL TOURNAMENT JOIN */
 
 async function openTeamRegistration(id){
@@ -1769,6 +1877,8 @@ async function openTeamRegistration(id){
   }
 
   if(container) container.innerHTML = "";
+  selectedSlotNumber = null;
+  await renderTournamentSlotPicker(tournament);
   setMessage("teamMessage","");
 }
 
@@ -1794,6 +1904,11 @@ async function registerTeam(){
     return;
   }
 
+  if(!selectedSlotNumber){
+    setMessage("teamMessage","Pehle apna available slot select karo.");
+    return;
+  }
+
   const button = document.getElementById("registerTeamButton");
   if(button){
     button.disabled = true;
@@ -1805,7 +1920,7 @@ async function registerTeam(){
   try{
     const {data,error} = await supabaseClient.rpc(
       "join_tournament_with_wallet",
-      {p_tournament_id:selectedTournamentId}
+      {p_tournament_id:selectedTournamentId,p_slot_number:selectedSlotNumber}
     );
 
     if(error) throw error;
@@ -1816,7 +1931,7 @@ async function registerTeam(){
       "teamMessage",
       "Payment successful! ₹" + Number(result.charged || 0) +
       " deducted. You joined " + escapeHTML(result.team_name || "your slot") +
-      ". Players: " + result.team_players + "/" + result.team_capacity +
+      " (Slot " + result.slot_number + "). Players: " + result.team_players + "/" + result.team_capacity +
       ". Status: " + (result.team_status === "confirmed" ? "CONFIRMED ✅" : "WAITING FOR TEAMMATES")
     );
 
