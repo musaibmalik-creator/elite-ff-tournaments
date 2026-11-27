@@ -61,6 +61,7 @@ button{cursor:pointer}
 .tournamentInfo{color:#aaa;font-size:13px;margin:9px 0;line-height:1.7}
 .badge{padding:5px 9px;border-radius:20px;background:#2a2100;color:#ffc107;font-size:11px}
 .joinBtn{width:100%;padding:12px;border:0;border-radius:10px;background:#ffc107;color:#000;font-weight:900}
+.floatingJoinBtn{position:fixed;z-index:120;right:max(16px,calc((100vw - 760px)/2 + 16px));bottom:88px;width:auto;min-width:145px;padding:15px 19px;border:1px solid #ffe082;border-radius:30px;background:#ffc107;color:#111;font-weight:900;box-shadow:0 5px 22px rgba(255,193,7,.3)}
 
 .formBox{background:#111;border:1px solid #292929;padding:18px;border-radius:17px}
 .playerBox{margin-top:10px;padding:12px;border-radius:12px;background:#181818;border:1px solid #292929}
@@ -223,6 +224,10 @@ button{cursor:pointer}
   <div id="dashboardSlots">
     <div class="empty">Loading slots...</div>
   </div>
+
+  <h3 class="sectionTitle">JOINED PLAYERS</h3>
+  <div id="dashboardJoinedPlayers"><div class="empty">Loading players...</div></div>
+  <button class="floatingJoinBtn" type="button" onclick="joinSelectedTournament()">⚡ JOIN SLOT</button>
 
   <button class="btn btnDark"
     onclick="showOnly('tournamentsSection')">
@@ -1381,7 +1386,7 @@ async function loadTournaments(filter="all"){
         </div>
 
         <button class="joinBtn"
-          onclick="event.stopPropagation(); openTeamRegistration('${t.id}')">
+          onclick="event.stopPropagation(); openTournamentDashboard('${t.id}')">
           JOIN TOURNAMENT
         </button>
 
@@ -1406,10 +1411,12 @@ async function openTournamentDashboard(id){
   const info = document.getElementById("dashboardTournamentInfo");
   const stats = document.getElementById("dashboardSlotStats");
   const slotsBox = document.getElementById("dashboardSlots");
+  const joinedPlayersBox = document.getElementById("dashboardJoinedPlayers");
 
   info.innerHTML = "Loading tournament...";
   stats.innerHTML = "";
   slotsBox.innerHTML = "Loading slots...";
+  if(joinedPlayersBox) joinedPlayersBox.innerHTML = "Loading players...";
 
 
   const {data:tournament,error} = await supabaseClient
@@ -1538,7 +1545,7 @@ async function openTournamentDashboard(id){
 
       <p>🟢 Available Slots: ${availableSlots}</p>
 
-      <p>👥 Players Joined: ${totalPlayers}</p>
+      <p style="font-size:20px;font-weight:900;color:#ffc107;margin-top:8px;">👥 ${totalPlayers}/${totalSlots} PLAYERS JOINED</p>
 
     </div>
 
@@ -1656,6 +1663,24 @@ async function openTournamentDashboard(id){
     }).join("");
   }else{
     slotsBox.innerHTML=Array.from({length:totalSlots},(_,index)=>dashboardSlotCard(index+1)).join("");
+  }
+
+  if(joinedPlayersBox){
+    if(!players.length){
+      joinedPlayersBox.innerHTML='<div class="empty">Abhi kisi player ne join nahi kiya.</div>';
+    }else{
+      joinedPlayersBox.innerHTML=players.map((player,index)=>{
+        const team=teamList.find(t=>t.id===player.team_id);
+        const group=slotGroupDetails(tournament,Number(player.slot_number)||1);
+        const place=team ? team.name+" • Slot "+(Number(player.slot_number)||1) : group.name+" • Slot "+group.local;
+        return '<div class="tournamentCard" style="display:flex;align-items:center;gap:12px;margin:9px 0;padding:13px;">'+
+          '<div style="width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:#302500;color:#ffc107;font-weight:900;">'+(index+1)+'</div>'+
+          '<div style="min-width:0;flex:1;"><div style="font-weight:900;overflow-wrap:anywhere;">'+escapeHTML(player.name||"Player")+'</div>'+
+          '<div style="font-size:12px;color:#aaa;margin-top:4px;">UID: '+escapeHTML(player.uid||"Not added")+'</div>'+
+          '<div style="font-size:11px;color:#ffc107;margin-top:4px;">'+escapeHTML(place)+'</div></div>'+
+          '<span style="color:#55d68b;font-size:11px;font-weight:800;">JOINED</span></div>';
+      }).join("");
+    }
   }
 
 }
