@@ -123,7 +123,7 @@ ON CONFLICT (tournament_id,user_id) DO NOTHING;
 
 -- Keep one leaderboard row per player per tournament so resubmitting
 -- corrected results updates the amount instead of double-counting it.
-DO $
+DO $$
 DECLARE
   item record;
 BEGIN
@@ -145,7 +145,7 @@ BEGIN
       AND id<>item.keep_id;
   END LOOP;
 END;
-$;
+$$;
 
 CREATE UNIQUE INDEX IF NOT EXISTS leaderboard_winnings_tournament_user_uidx
   ON public.leaderboard_winnings(tournament_id,user_id);
@@ -159,7 +159,7 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, pg_temp
-AS $
+AS $$
 DECLARE
   result_count integer;
 BEGIN
@@ -264,7 +264,7 @@ BEGIN
 
   RETURN jsonb_build_object('saved',true,'players',result_count);
 END;
-$;
+$$;
 
 GRANT EXECUTE ON FUNCTION public.admin_save_tournament_results(uuid,jsonb)
   TO authenticated;
