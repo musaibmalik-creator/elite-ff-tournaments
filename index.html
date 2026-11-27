@@ -1887,13 +1887,14 @@ async function renderAdminWithdrawals(rows){
         <div class="payment-history-row"><span>Paid at</span><strong>${withdrawal.paid_at?new Date(withdrawal.paid_at).toLocaleString("en-IN"):(state==="approved"?"Time not recorded":"Not paid")}</strong></div>
         ${withdrawal.rejection_reason?'<p style="color:#fda4af;font-size:12px">Rejection reason: '+escapeHtml(withdrawal.rejection_reason)+'</p>':""}
         ${proofUrl?'<a class="payment-proof-link" href="'+proofUrl+'" target="_blank" rel="noopener">View payment proof</a>':""}
-        ${state==="approved"?`
+        ${state!=="rejected"?`
           <div class="payment-proof-tools">
             <strong style="font-size:12px;color:#e5e7eb">${proofUrl?"Replace transfer proof":"Attach transfer screenshot / PDF"}</strong>
             <input type="file" id="proofFile_${id}" accept="image/jpeg,image/png,image/webp,application/pdf">
-            <button type="button" onclick="uploadWithdrawalProof('${id}','${escapeHtml(withdrawal.user_id)}','proofFile_${id}')">⬆ SAVE PROOF FOR PLAYER</button>
-            <small style="color:#9ca3af">Player can view this proof in their Withdrawal History.</small>
-          </div>`:state==="pending"?`
+            <button type="button" class="save-withdrawal-proof" data-id="${id}" data-user="${escapeHtml(withdrawal.user_id)}" data-input="proofFile_${id}">⬆ SAVE TRANSFER PROOF</button>
+            <small style="color:#9ca3af">Send the UPI transfer first, then attach its receipt. Proof is required before marking this payout successful.</small>
+          </div>`:""}
+        ${state==="pending"?`
           <div class="withdrawal-actions" style="margin-top:12px">
             <button class="approve-withdrawal" data-id="${id}" type="button">✓ Mark paid / approve</button>
             <button class="reject-withdrawal" data-id="${id}" type="button">Reject</button>
@@ -1902,6 +1903,9 @@ async function renderAdminWithdrawals(rows){
   }));
   list.innerHTML=cards.join("");
   bindWithdrawalButtons();
+  document.querySelectorAll(".save-withdrawal-proof").forEach(button=>{
+    button.addEventListener("click",()=>uploadWithdrawalProof(button.dataset.id,button.dataset.user,button.dataset.input));
+  });
 }
 
 function filterAdminWithdrawals(){
@@ -2409,12 +2413,17 @@ async function updateWithdrawalStatus(
 
     const {data: withdrawalInfo,error: withdrawalInfoError} = await supabase
       .from("withdrawals")
-      .select("amount,fee_amount,payout_amount,upi_id")
+      .select("amount,fee_amount,payout_amount,upi_id,payment_proof_path")
       .eq("id",withdrawalId)
       .maybeSingle();
 
     if(withdrawalInfoError || !withdrawalInfo){
       alert("Withdrawal details load nahi ho sake. Please refresh.");
+      return;
+    }
+
+    if(!withdrawalInfo.payment_proof_path){
+      alert("Pehle actual UPI transfer ka screenshot/PDF upload karein. Proof ke baghair payout ko successful mark nahi kar sakte.");
       return;
     }
 
