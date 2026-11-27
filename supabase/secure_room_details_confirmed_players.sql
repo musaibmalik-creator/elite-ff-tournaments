@@ -40,6 +40,13 @@ USING (
     WHERE player.tournament_id = tournament_room_details.tournament_id
       AND player.user_id = auth.uid()
       AND player.status = 'confirmed'
+      AND EXISTS (
+        SELECT 1
+        FROM public.tournaments tournament
+        WHERE tournament.id = player.tournament_id
+          AND tournament.starts_at IS NOT NULL
+          AND now() >= tournament.starts_at - interval '7 minutes'
+      )
   )
 );
 
