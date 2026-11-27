@@ -363,13 +363,13 @@ button{cursor:pointer}
 
   <div id="dashboardSlotStats"></div>
 
-  <h3 class="sectionTitle">REGISTERED SLOTS</h3>
+  <h3 id="dashboardSlotsTitle" class="sectionTitle">REGISTERED SLOTS</h3>
 
   <div id="dashboardSlots">
     <div class="empty">Loading slots...</div>
   </div>
 
-  <h3 class="sectionTitle">JOINED PLAYERS</h3>
+  <h3 id="dashboardJoinedTitle" class="sectionTitle">JOINED PLAYERS</h3>
   <div id="dashboardJoinedPlayers"><div class="empty">Loading players...</div></div>
   <button class="floatingJoinBtn" type="button" onclick="joinSelectedTournament()">⚡ JOIN SLOT</button>
 
@@ -1814,7 +1814,7 @@ async function openTournamentDashboard(id){
 
     const {data:playerData,error:playerError} = await supabaseClient
       .from("players")
-      .select("team_id,name,uid,user_id,slot_number")
+      .select("team_id,name,uid,user_id,slot_number,status")
       .in("team_id",teamIds);
 
     if(playerError){
@@ -1825,7 +1825,9 @@ async function openTournamentDashboard(id){
     players = playerData || [];
   }
 
-  players = players.filter(player => player.user_id);
+  players = players.filter(player =>
+    player.user_id && String(player.status || "").toLowerCase() === "confirmed"
+  );
   const totalSlots = tournamentTotalSlots(tournament);
   const playersPerSlot = tournamentSlotCapacity(tournament.sport);
   const occupiedSlots = players.length;
@@ -1892,27 +1894,40 @@ async function openTournamentDashboard(id){
   `;
 
 
-  /* SLOT STATISTICS */
+  /* STATUS-WISE DASHBOARD LAYOUT */
 
-  stats.innerHTML = `
+  const dashboardStatus=normalizeTournamentStatus(tournament.status);
+  const isUpcoming=dashboardStatus==="upcoming";
+  const isOngoing=dashboardStatus==="ongoing";
+  const isComplete=["complete","completed"].includes(String(tournament.status||"").toLowerCase());
 
-    <div class="tournamentCard">
+  const slotsTitle=document.getElementById("dashboardSlotsTitle");
+  const joinedTitle=document.getElementById("dashboardJoinedTitle");
+  const joinButton=document.querySelector("#tournamentDashboardSection .floatingJoinBtn");
 
-      <h3>SLOT STATISTICS</h3>
+  // Remaining slots and slot grid are only for Upcoming matches.
+  stats.style.display=isUpcoming?"":"none";
+  slotsBox.style.display=isUpcoming?"":"none";
+  if(slotsTitle) slotsTitle.style.display=isUpcoming?"":"none";
+  if(joinButton) joinButton.style.display=isUpcoming?"":"none";
 
-      <p>🔢 Total Slots: ${totalSlots}</p>
+  // Ongoing shows participation; Complete shows winners only.
+  if(joinedTitle) joinedTitle.textContent=isComplete?"MATCH WINNINGS":"PLAYER PARTICIPATION";
+  if(joinedTitle) joinedTitle.style.display=(isOngoing||isComplete)?"":"none";
+  if(joinedPlayersBox) joinedPlayersBox.style.display=(isOngoing||isComplete)?"":"none";
 
-      <p>✅ Completed Slots: ${filledSlots}</p>
-
-      <p>🟡 Player Slots Occupied: ${occupiedSlots}</p>
-
-      <p>🟢 Available Slots: ${availableSlots}</p>
-
-      <p style="font-size:20px;font-weight:900;color:#ffc107;margin-top:8px;">👥 ${totalPlayers}/${totalSlots} PLAYERS JOINED</p>
-
-    </div>
-
-  `;
+  if(isUpcoming){
+    stats.innerHTML = `
+      <div class="tournamentCard">
+        <h3>SLOT AVAILABILITY</h3>
+        <p>🔢 Total Slots: ${totalSlots}</p>
+        <p>🟡 Joined Players: ${occupiedSlots}</p>
+        <p style="font-size:20px;font-weight:900;color:#ffc107;margin-top:8px;">🟢 ${availableSlots} SLOTS LEFT</p>
+      </div>
+    `;
+  }else{
+    stats.innerHTML="";
+  }
 
 
   /* CHECK PLAYER REGISTRATION */
@@ -1990,8 +2005,7 @@ async function openTournamentDashboard(id){
   }
 
 
-  /* MODE-WISE SLOT DISPLAY */
-
+  /* UPCOMING: SHOW SLOT GRID ONLY */
   const mode=String(tournament.sport || "").toLowerCase();
   const isGroupedBR=mode==="br_duo" || mode==="br_squad";
   const cap=tournamentSlotCapacity(mode);
@@ -2011,30 +2025,31 @@ async function openTournamentDashboard(id){
     `;
   }
 
-  if(isGroupedBR){
-    const groupCount=totalSlots/cap;
-    slotsBox.innerHTML=Array.from({length:groupCount},(_,groupIndex)=>{
-      const groupNo=groupIndex+1;
-      const start=groupIndex*cap+1;
-      return `
-        <div class="tournamentCard" style="margin:12px 0;padding:12px;border:1px solid #4a3b1b;">
-          <h3 style="color:#D6A642;margin:0 0 12px;">${mode==="br_duo"?"DUO":"SQUAD"} ${groupNo}</h3>
-          <div style="display:grid;grid-template-columns:repeat(${cap},minmax(0,1fr));gap:8px;">
-            ${Array.from({length:cap},(_,i)=>dashboardSlotCard(start+i)).join("")}
-          </div>
-        </div>`;
-    }).join("");
+  if(isUpcoming){
+    if(isGroupedBR){
+      const groupCount=totalSlots/cap;
+      slotsBox.innerHTML=Array.from({length:groupCount},(_,groupIndex)=>{
+        const groupNo=groupIndex+1;
+        const start=groupIndex*cap+1;
+        return `
+          <div class="tournamentCard" style="margin:12px 0;padding:12px;border:1px solid #4a3b1b;">
+            <h3 style="color:#D6A642;margin:0 0 12px;">${mode==="br_duo"?"DUO":"SQUAD"} ${groupNo}</h3>
+            <div style="display:grid;grid-template-columns:repeat(${cap},minmax(0,1fr));gap:8px;">
+              ${Array.from({length:cap},(_,i)=>dashboardSlotCard(start+i)).join("")}
+            </div>
+          </div>`;
+      }).join("");
+    }else{
+      slotsBox.innerHTML=Array.from({length:totalSlots},(_,index)=>dashboardSlotCard(index+1)).join("");
+    }
   }else{
-    slotsBox.innerHTML=Array.from({length:totalSlots},(_,index)=>dashboardSlotCard(index+1)).join("");
+    slotsBox.innerHTML="";
   }
 
-  /* MATCH RESULTS: visible to everyone only after admin marks match complete */
+  /* RESULTS ARE PUBLIC ONLY AFTER ADMIN SUBMITS THEM */
   let matchResultsByUser = new Map();
-  const isMatchComplete = ["complete","completed"].includes(
-    String(tournament.status || "").toLowerCase()
-  );
 
-  if(isMatchComplete){
+  if(isComplete){
     const {data:matchResults,error:resultsError}=await supabaseClient
       .from("player_match_results")
       .select("user_id,kills,is_winner,prize_amount,results_submitted")
@@ -2048,34 +2063,65 @@ async function openTournamentDashboard(id){
   }
 
   if(joinedPlayersBox){
-    if(!players.length){
-      joinedPlayersBox.innerHTML='<div class="empty">Abhi kisi player ne join nahi kiya.</div>';
+    if(isComplete){
+      const winners=players
+        .map(player=>({
+          player,
+          team:teamList.find(t=>t.id===player.team_id),
+          result:matchResultsByUser.get(player.user_id)
+        }))
+        .filter(item=>item.result && Number(item.result.prize_amount)>0)
+        .sort((a,b)=>Number(b.result.prize_amount)-Number(a.result.prize_amount));
+
+      joinedPlayersBox.innerHTML=winners.length
+        ? winners.map((item,index)=>{
+            const player=item.player;
+            const result=item.result;
+            const teamName=item.team?.name || "Player";
+            const initial=String(player.name||"P").trim().charAt(0).toUpperCase();
+            return `
+              <div class="tournamentCard" style="display:flex;align-items:center;gap:12px;margin:10px 0;padding:14px;">
+                <div style="width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:#302500;color:#ffc107;font-size:18px;font-weight:900;">${escapeHTML(initial)}</div>
+                <div style="min-width:0;flex:1;">
+                  <div style="font-weight:900;overflow-wrap:anywhere;">${escapeHTML(player.name||"Player")}</div>
+                  <div style="font-size:12px;color:#aaa;margin-top:4px;">Team: ${escapeHTML(teamName)}</div>
+                  <div style="font-size:12px;color:#aaa;margin-top:4px;">Kills: <b style="color:#ffc107;">${Number(result.kills||0)}</b></div>
+                </div>
+                <div style="text-align:center;min-width:72px;">
+                  <div style="font-size:19px;font-weight:900;color:#ffc107;">₹${Number(result.prize_amount||0).toLocaleString("en-IN",{maximumFractionDigits:2})}</div>
+                  <div style="font-size:10px;color:#55d68b;font-weight:900;">PRIZE WON</div>
+                </div>
+              </div>`;
+          }).join("")
+        : '<div class="empty">Abhi koi winning amount submit nahi hua.</div>';
+
+    }else if(isOngoing){
+      joinedPlayersBox.innerHTML=players.length
+        ? '<div class="tournamentCard" style="padding:8px 14px;">'+players.map((player,index)=>
+            '<div style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #333;">'+
+            '<div style="width:28px;color:#ffc107;font-weight:900;">'+(index+1)+'.</div>'+
+            '<div style="font-weight:800;overflow-wrap:anywhere;">'+escapeHTML(player.name||"Player")+'</div>'+
+            '</div>'
+          ).join("")+'</div>'
+        : '<div class="empty">Abhi koi player participate nahi kar raha.</div>';
+
+    }else if(isUpcoming){
+      joinedPlayersBox.innerHTML=players.length
+        ? players.map((player,index)=>{
+            const team=teamList.find(t=>t.id===player.team_id);
+            const group=slotGroupDetails(tournament,Number(player.slot_number)||1);
+            const place=team ? team.name+" • Slot "+(Number(player.slot_number)||1) : group.name+" • Slot "+group.local;
+            return '<div class="tournamentCard" style="display:flex;align-items:center;gap:12px;margin:9px 0;padding:13px;">'+
+              '<div style="width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:#302500;color:#ffc107;font-weight:900;">'+(index+1)+'</div>'+
+              '<div style="min-width:0;flex:1;"><div style="font-weight:900;overflow-wrap:anywhere;">'+escapeHTML(player.name||"Player")+'</div>'+
+              '<div style="font-size:11px;color:#ffc107;margin-top:4px;">'+escapeHTML(place)+'</div></div>'+
+              '<span style="color:#55d68b;font-size:11px;font-weight:800;">JOINED</span></div>';
+          }).join("")
+        : '<div class="empty">Abhi kisi player ne join nahi kiya.</div>';
     }else{
-      joinedPlayersBox.innerHTML=players.map((player,index)=>{
-        const team=teamList.find(t=>t.id===player.team_id);
-        const group=slotGroupDetails(tournament,Number(player.slot_number)||1);
-        const place=team ? team.name+" • Slot "+(Number(player.slot_number)||1) : group.name+" • Slot "+group.local;
-        const result=matchResultsByUser.get(player.user_id);
-        const resultDetails=isMatchComplete
-          ? (result
-              ? '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid #333;">'+
-                '<span style="font-size:12px;color:#ddd;">🔫 Kills: <b style="color:#ffc107;">'+Number(result.kills||0)+'</b></span>'+
-                '<span style="font-size:12px;color:#ddd;">🏆 Won: <b style="color:#ffc107;">₹'+Number(result.prize_amount||0).toLocaleString("en-IN",{maximumFractionDigits:2})+'</b></span>'+
-                (result.is_winner?'<span style="font-size:11px;color:#55d68b;font-weight:900;">WINNER</span>':'')+
-                '</div>'
-              : '<div style="font-size:11px;color:#aaa;margin-top:8px;">Results will be updated soon.</div>')
-          : '';
-        return '<div class="tournamentCard" style="display:flex;align-items:center;gap:12px;margin:9px 0;padding:13px;">'+
-          '<div style="width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:#302500;color:#ffc107;font-weight:900;">'+(index+1)+'</div>'+
-          '<div style="min-width:0;flex:1;"><div style="font-weight:900;overflow-wrap:anywhere;">'+escapeHTML(player.name||"Player")+'</div>'+
-          '<div style="font-size:12px;color:#aaa;margin-top:4px;">UID: '+escapeHTML(player.uid||"Not added")+'</div>'+
-          '<div style="font-size:11px;color:#ffc107;margin-top:4px;">'+escapeHTML(place)+'</div>'+
-          resultDetails+'</div>'+
-          '<span style="color:#55d68b;font-size:11px;font-weight:800;">JOINED</span></div>';
-      }).join("");
+      joinedPlayersBox.innerHTML='<div class="empty">Match details unavailable.</div>';
     }
   }
-
 }
   
 
