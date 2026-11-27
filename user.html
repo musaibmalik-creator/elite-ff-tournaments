@@ -557,30 +557,6 @@ button{cursor:pointer}
 <div id="profileBalance" class="profileValue" style="color:#ffc107;font-weight:900">₹0</div>
 </div>
 
-<!-- REFERRAL SECTION -->
-
-<div style="background:#171717;border:1px solid #ffc107;border-radius:12px;padding:16px;margin:15px 0;">
-
-<h3 style="color:#ffc107;margin:0 0 8px;">REFER & EARN</h3>
-
-<p style="color:#aaa;font-size:13px;">
-Invite your friends to Elite FF Tournaments!
-</p>
-
-<input
-id="referralLink"
-type="text"
-readonly
-placeholder="Your referral link"
-style="width:100%;padding:12px;background:#222;color:white;border:1px solid #444;border-radius:8px;box-sizing:border-box;margin:10px 0;"
->
-
-<button class="btn btnGold" onclick="generateReferralLink()">
-GENERATE & COPY LINK
-</button>
-
-</div>
-
   
 <!-- LINKED PLAYER DETAILS -->
 
@@ -693,6 +669,33 @@ LOGOUT
   <button class="btn btnDark" type="button" onclick="showOnly('profileSection')">← BACK TO PROFILE</button>
 </div>
 
+<!-- EARN SECTION -->
+<div id="earnSection" class="section">
+  <h2 class="sectionTitle">Earn Rewards</h2>
+
+  <button class="btn btnDark" type="button" onclick="shareReferralLink()" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:18px;border:1px solid #ffc107;margin:12px 0;">
+    <span><strong style="color:#ffc107;font-size:16px;">👥 REFER & EARN</strong><br><small style="color:#aaa;font-weight:400;">Invite friends to Elite FF Tournaments</small></span>
+    <span style="font-size:24px;color:#ffc107;">›</span>
+  </button>
+  <div id="referralShareMessage" class="message"></div>
+
+  <button class="btn btnDark" type="button" onclick="showOnly('watchEarnSection')" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:18px;border:1px solid #444;margin:12px 0;">
+    <span><strong style="color:#fff;font-size:16px;">▶ WATCH & EARN</strong><br><small style="color:#aaa;font-weight:400;">Watch videos and earn rewards</small></span>
+    <span style="font-size:24px;color:#aaa;">›</span>
+  </button>
+</div>
+
+<!-- WATCH & EARN COMING SOON -->
+<div id="watchEarnSection" class="section">
+  <h2 class="sectionTitle">WATCH & EARN</h2>
+  <div class="infoBox" style="text-align:center;padding:38px 18px;margin-top:18px;">
+    <div style="font-size:42px;margin-bottom:12px;">▶️</div>
+    <h3 style="color:#ffc107;font-size:22px;margin-bottom:10px;">COMING SOON</h3>
+    <p style="color:#aaa;font-size:13px;line-height:1.7;">Watch & Earn feature is under development. Stay tuned!</p>
+  </div>
+  <button class="btn btnDark" type="button" onclick="showOnly('earnSection')">← BACK TO EARN</button>
+</div>
+
 <!-- TOP PLAYERS -->
 
 <div id="topPlayersSection" class="section">
@@ -729,8 +732,8 @@ LOGOUT
 <span class="navIcon">👑</span>Top Players
 </button>
 
-<button class="navBtn" data-section="depositSection" onclick="showOnly('depositSection')">
-<span class="navIcon">💰</span>Wallet
+<button class="navBtn" data-section="earnSection" onclick="showOnly('earnSection')">
+<span class="navIcon">🎁</span>Earn
 </button>
 
 <button class="navBtn" data-section="profileSection" onclick="showOnly('profileSection')">
@@ -770,25 +773,42 @@ SUPABASE_KEY,
   }
 }
 );
-/* REFERRAL LINK */
+/* REFER & EARN - OPEN PHONE SHARE SHEET */
 
-async function generateReferralLink() {
+async function shareReferralLink() {
+  const message = document.getElementById("referralShareMessage");
+  if(message) message.textContent = "Preparing your referral link...";
+
   const { data, error } = await supabaseClient.auth.getUser();
-
   if (error || !data.user) {
-    alert("Please login first!");
+    if(message) message.textContent = "Please login first.";
     return;
   }
 
   const link = window.location.origin + "/signup.html?ref=" + data.user.id;
-
-  document.getElementById("referralLink").value = link;
+  const shareData = {
+    title: "Join Elite FF Tournaments",
+    text: "Join me on Elite FF Tournaments! Sign up using my referral link:",
+    url: link
+  };
 
   try {
-    await navigator.clipboard.writeText(link);
-    alert("Referral link copied successfully!");
-  } catch (e) {
-    alert("Copy the referral link from the box.");
+    if (navigator.share) {
+      await navigator.share(shareData);
+      if(message) message.textContent = "Choose an app to share your referral link.";
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(link);
+      if(message) message.textContent = "Referral link copied. Ab Instagram, Snapchat ya kisi bhi app mein paste karo.";
+    } else {
+      window.prompt("Copy your referral link:", link);
+      if(message) message.textContent = "Copy your referral link and share it.";
+    }
+  } catch (shareError) {
+    if (shareError && shareError.name === "AbortError") {
+      if(message) message.textContent = "Sharing cancelled.";
+    } else {
+      if(message) message.textContent = "Share nahi ho saka. Please dobara try karo.";
+    }
   }
 }
 let currentUser = null;
