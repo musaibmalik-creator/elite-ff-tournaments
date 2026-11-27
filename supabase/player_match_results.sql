@@ -31,6 +31,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS player_match_results_tournament_user_uidx
 ALTER TABLE public.player_match_results ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Players view own match results or admins view all" ON public.player_match_results;
+DROP POLICY IF EXISTS "Authenticated users view results of completed tournaments" ON public.player_match_results;
+
+-- Before completion, players can only see their own result.
+-- Once admin marks the tournament complete, all signed-in players can see
+-- every participant's kills, winner status and winning amount.
 CREATE POLICY "Players view own match results or admins view all"
 ON public.player_match_results FOR SELECT TO authenticated
 USING (
@@ -38,6 +43,11 @@ USING (
   OR EXISTS (
     SELECT 1 FROM public.profiles
     WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+  )
+  OR EXISTS (
+    SELECT 1 FROM public.tournaments t
+    WHERE t.id = player_match_results.tournament_id
+      AND lower(coalesce(t.status,'')) IN ('complete','completed')
   )
 );
 
