@@ -370,6 +370,7 @@ button{cursor:pointer}
   </div>
 
   <h3 id="dashboardJoinedTitle" class="sectionTitle">JOINED PLAYERS</h3>
+  <div id="dashboardResultSummary"></div>
   <div id="dashboardJoinedPlayers"><div class="empty">Loading players...</div></div>
   <button class="floatingJoinBtn" type="button" onclick="joinSelectedTournament()">⚡ JOIN SLOT</button>
 
@@ -1771,6 +1772,7 @@ async function openTournamentDashboard(id){
   const stats = document.getElementById("dashboardSlotStats");
   const slotsBox = document.getElementById("dashboardSlots");
   const joinedPlayersBox = document.getElementById("dashboardJoinedPlayers");
+  const resultSummaryBox = document.getElementById("dashboardResultSummary");
 
   info.innerHTML = "Loading tournament...";
   stats.innerHTML = "";
@@ -2048,6 +2050,12 @@ async function openTournamentDashboard(id){
 
   /* RESULTS ARE PUBLIC ONLY AFTER ADMIN SUBMITS THEM */
   let matchResultsByUser = new Map();
+  let submittedResults = [];
+
+  if(resultSummaryBox){
+    resultSummaryBox.innerHTML="";
+    resultSummaryBox.style.display=isComplete?"":"none";
+  }
 
   if(isComplete){
     const {data:matchResults,error:resultsError}=await supabaseClient
@@ -2055,13 +2063,42 @@ async function openTournamentDashboard(id){
       .select("user_id,kills,is_winner,prize_amount,results_submitted")
       .eq("tournament_id",id);
 
-    if(!resultsError){
-      (matchResults || []).filter(result=>result.results_submitted).forEach(result=>{
+    if(resultsError){
+      if(resultSummaryBox){
+        resultSummaryBox.innerHTML='<div class="empty">Match results load nahi hue: '+escapeHTML(resultsError.message)+'</div>';
+      }
+    }else{
+      submittedResults=(matchResults || []).filter(result=>result.results_submitted===true);
+      submittedResults.forEach(result=>{
         matchResultsByUser.set(result.user_id,result);
       });
+
+      const totalMatchKills=submittedResults.reduce((sum,result)=>sum+Number(result.kills||0),0);
+      const totalMatchWinnings=submittedResults.reduce((sum,result)=>sum+Number(result.prize_amount||0),0);
+      const totalMatchWinners=submittedResults.filter(result=>Number(result.prize_amount||0)>0).length;
+
+      if(resultSummaryBox){
+        resultSummaryBox.innerHTML=`
+          <div class="tournamentCard" style="padding:14px;margin:0 0 14px;border:1px solid #806000;">
+            <h3 style="color:#ffc107;margin-bottom:12px;">🏆 MATCH RESULTS SUMMARY</h3>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+              <div style="background:#1b1b1b;border:1px solid #333;border-radius:10px;padding:11px 5px;text-align:center;">
+                <div style="font-size:21px;font-weight:900;color:#ffc107;">${totalMatchKills}</div>
+                <div style="font-size:10px;color:#aaa;margin-top:4px;">TOTAL KILLS</div>
+              </div>
+              <div style="background:#1b1b1b;border:1px solid #333;border-radius:10px;padding:11px 5px;text-align:center;">
+                <div style="font-size:21px;font-weight:900;color:#ffc107;">₹${totalMatchWinnings.toLocaleString("en-IN",{maximumFractionDigits:2})}</div>
+                <div style="font-size:10px;color:#aaa;margin-top:4px;">TOTAL WINNINGS</div>
+              </div>
+              <div style="background:#1b1b1b;border:1px solid #333;border-radius:10px;padding:11px 5px;text-align:center;">
+                <div style="font-size:21px;font-weight:900;color:#ffc107;">${totalMatchWinners}</div>
+                <div style="font-size:10px;color:#aaa;margin-top:4px;">WINNERS</div>
+              </div>
+            </div>
+          </div>`;
+      }
     }
   }
-
   if(joinedPlayersBox){
     if(isComplete){
       const winners=players
