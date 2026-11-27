@@ -3788,7 +3788,7 @@ async function loadPlayers(){
 
               <div class="info">
 
-                **Player ${index + 1}**
+                <strong>Player ${index + 1}</strong>
 
                 <br>
 
@@ -3818,8 +3818,9 @@ async function loadPlayers(){
   }).join("");
 
 }
-          
 
+// Expose this module function for the inline Refresh button.
+window.loadPlayers = loadPlayers;
 
 
 /* =====================================================
