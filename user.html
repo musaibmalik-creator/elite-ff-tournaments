@@ -2028,6 +2028,25 @@ async function openTournamentDashboard(id){
     slotsBox.innerHTML=Array.from({length:totalSlots},(_,index)=>dashboardSlotCard(index+1)).join("");
   }
 
+  /* MATCH RESULTS: visible to everyone only after admin marks match complete */
+  let matchResultsByUser = new Map();
+  const isMatchComplete = ["complete","completed"].includes(
+    String(tournament.status || "").toLowerCase()
+  );
+
+  if(isMatchComplete){
+    const {data:matchResults,error:resultsError}=await supabaseClient
+      .from("player_match_results")
+      .select("user_id,kills,is_winner,prize_amount")
+      .eq("tournament_id",id);
+
+    if(!resultsError){
+      (matchResults || []).forEach(result=>{
+        matchResultsByUser.set(result.user_id,result);
+      });
+    }
+  }
+
   if(joinedPlayersBox){
     if(!players.length){
       joinedPlayersBox.innerHTML='<div class="empty">Abhi kisi player ne join nahi kiya.</div>';
@@ -2036,11 +2055,22 @@ async function openTournamentDashboard(id){
         const team=teamList.find(t=>t.id===player.team_id);
         const group=slotGroupDetails(tournament,Number(player.slot_number)||1);
         const place=team ? team.name+" • Slot "+(Number(player.slot_number)||1) : group.name+" • Slot "+group.local;
+        const result=matchResultsByUser.get(player.user_id);
+        const resultDetails=isMatchComplete
+          ? (result
+              ? '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid #333;">'+
+                '<span style="font-size:12px;color:#ddd;">🔫 Kills: <b style="color:#ffc107;">'+Number(result.kills||0)+'</b></span>'+
+                '<span style="font-size:12px;color:#ddd;">🏆 Won: <b style="color:#ffc107;">₹'+Number(result.prize_amount||0).toFixed(2).replace(/\\.00$/,"")+'</b></span>'+
+                (result.is_winner?'<span style="font-size:11px;color:#55d68b;font-weight:900;">WINNER</span>':'')+
+                '</div>'
+              : '<div style="font-size:11px;color:#aaa;margin-top:8px;">Results will be updated soon.</div>')
+          : '';
         return '<div class="tournamentCard" style="display:flex;align-items:center;gap:12px;margin:9px 0;padding:13px;">'+
           '<div style="width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:#302500;color:#ffc107;font-weight:900;">'+(index+1)+'</div>'+
           '<div style="min-width:0;flex:1;"><div style="font-weight:900;overflow-wrap:anywhere;">'+escapeHTML(player.name||"Player")+'</div>'+
           '<div style="font-size:12px;color:#aaa;margin-top:4px;">UID: '+escapeHTML(player.uid||"Not added")+'</div>'+
-          '<div style="font-size:11px;color:#ffc107;margin-top:4px;">'+escapeHTML(place)+'</div></div>'+
+          '<div style="font-size:11px;color:#ffc107;margin-top:4px;">'+escapeHTML(place)+'</div>'+
+          resultDetails+'</div>'+
           '<span style="color:#55d68b;font-size:11px;font-weight:800;">JOINED</span></div>';
       }).join("");
     }
