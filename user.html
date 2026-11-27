@@ -1448,7 +1448,7 @@ async function openTournamentDashboard(id){
 
     const {data:playerData,error:playerError} = await supabaseClient
       .from("players")
-      .select("team_id,name,uid,user_id")
+      .select("team_id,name,uid,user_id,slot_number")
       .in("team_id",teamIds);
 
     if(playerError){
@@ -1799,7 +1799,7 @@ async function openTeamRegistration(id){
 
   const {data:tournament,error:tournamentError} = await supabaseClient
     .from("tournaments")
-    .select("id,name,sport,entry_fee")
+    .select("id,name,sport,entry_fee,max_teams")
     .eq("id",id)
     .single();
 
