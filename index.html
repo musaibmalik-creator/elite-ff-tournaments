@@ -5280,6 +5280,7 @@ function filterAdminDeposits(){
         <div class="payment-history-row"><span>UTR / Transaction ID</span><span>${escapeHtml(deposit.utr||deposit.transaction_id||"-")}</span></div>
         <div class="payment-history-row"><span>Submitted at</span><span>${deposit.created_at?new Date(deposit.created_at).toLocaleString("en-IN"):"-"}</span></div>
         ${deposit.payment_proof_url?'<a class="payment-proof-link" href="'+deposit.payment_proof_url+'" target="_blank" rel="noopener">View player payment screenshot</a>':'<p style="color:#9ca3af;font-size:12px">Player screenshot not uploaded.</p>'}
+        ${deposit.payment_proof_url?'<a class="payment-proof-link" href="'+deposit.payment_proof_url+'" target="_blank" rel="noopener">View player payment screenshot</a>':'<p style="color:#9ca3af;font-size:12px">Player screenshot not uploaded.</p>'}
         ${deposit.status==="rejected"?'<p style="color:#fda4af;font-size:12px">Reason: '+escapeHtml(deposit.rejection_reason||"Not provided")+'</p>':""}
         ${state==="pending"?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" onclick="approveDeposit(\''+deposit.id+'\')">Approve deposit</button><button type="button" class="danger" onclick="rejectDeposit(\''+deposit.id+'\')">Reject deposit</button></div>':state==="rejected"?'<button type="button" onclick="approveDeposit(\''+deposit.id+'\', true)">Recover & complete</button>':'<p style="color:#34d399;font-size:12px;font-weight:700">✓ Wallet credit completed</p>'}
       </article>`;
