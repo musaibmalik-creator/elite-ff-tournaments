@@ -1294,7 +1294,7 @@ async function loadWallet(){
   const {data:deposits,error:depositError} =
     await supabaseClient
     .from("deposits")
-    .select("id,amount,fee_amount,paid_amount,status,transaction_id,utr,created_at,payment_proof_path")
+    .select("id,amount,fee_amount,paid_amount,status,transaction_id,utr,created_at,payment_proof_path,rejection_reason")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -2642,9 +2642,13 @@ async function submitDeposit(){
   button.textContent="SUBMITTING...";
 
   const screenshot=document.getElementById("depositScreenshot")?.files?.[0];
-  if(!screenshot){setMessage("depositMessage","Payment screenshot upload karna zaroori hai.");return;}
+  if(!screenshot){
+    button.disabled=false;button.textContent="SUBMIT UTR & SCREENSHOT";
+    setMessage("depositMessage","Payment screenshot upload karna zaroori hai.");return;
+  }
   if(!["image/jpeg","image/png","image/webp"].includes(screenshot.type)||screenshot.size>5*1024*1024){
-    setMessage("depositMessage","Sirf JPG, PNG ya WEBP screenshot upload karein (max 5 MB).");return;
+    button.disabled=false;button.textContent="SUBMIT UTR & SCREENSHOT";
+    setMessage("depositMessage","Sirf JPG, PNG ya WEBP screenshot karein (max 5 MB).");return;
   }
   button.disabled=true;
   button.textContent="UPLOADING SCREENSHOT...";
