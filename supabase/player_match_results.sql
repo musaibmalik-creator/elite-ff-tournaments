@@ -23,6 +23,7 @@ ALTER TABLE public.player_match_results
   ADD COLUMN IF NOT EXISTS kills integer NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS is_winner boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS prize_amount numeric(12,2) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS results_submitted boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
 
 CREATE UNIQUE INDEX IF NOT EXISTS player_match_results_tournament_user_uidx
@@ -205,7 +206,7 @@ BEGIN
   END IF;
 
   INSERT INTO public.player_match_results
-    (tournament_id,user_id,player_name,player_uid,kills,is_winner,prize_amount)
+    (tournament_id,user_id,player_name,player_uid,kills,is_winner,prize_amount,results_submitted)
   SELECT
     p_tournament_id,
     x.user_id,
@@ -213,7 +214,8 @@ BEGIN
     coalesce(x.player_uid,''),
     x.kills,
     coalesce(x.is_winner,false),
-    x.prize_amount
+    x.prize_amount,
+    true
   FROM jsonb_to_recordset(p_results) AS x(
     user_id uuid,
     player_name text,
@@ -227,7 +229,8 @@ BEGIN
     player_uid=EXCLUDED.player_uid,
     kills=EXCLUDED.kills,
     is_winner=EXCLUDED.is_winner,
-    prize_amount=EXCLUDED.prize_amount;
+    prize_amount=EXCLUDED.prize_amount,
+    results_submitted=true;
 
   INSERT INTO public.leaderboard_winnings
     (user_id,player_name,player_uid,tournament_id,amount)
