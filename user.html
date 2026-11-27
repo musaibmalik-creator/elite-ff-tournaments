@@ -744,8 +744,16 @@ LOGOUT
 <!-- TOP PLAYERS -->
 
 <div id="topPlayersSection" class="section">
-<h2 class="sectionTitle">Top Players</h2>
-<div class="empty">Top players leaderboard coming soon.</div>
+  <h2 class="sectionTitle">👑 TOP EARNERS</h2>
+  <div class="infoBox" style="text-align:center;padding:18px;margin:14px 0;">
+    <div style="font-size:34px;">🏆</div>
+    <h3 style="color:#ffc107;margin:8px 0;">ELITE FF RANKINGS</h3>
+    <p style="color:#aaa;font-size:12px;margin:0;">Ranked by total tournament winning amount only</p>
+  </div>
+  <div id="topPlayersLeaderboard">
+    <div class="empty">Loading leaderboard...</div>
+  </div>
+  <button class="btn btnDark" type="button" onclick="loadTopPlayers()">↻ REFRESH LEADERBOARD</button>
 </div>
 
 <!-- CONTACT -->
@@ -818,6 +826,52 @@ SUPABASE_KEY,
   }
 }
 );
+/* TOP PLAYERS - TOTAL WINNINGS ONLY */
+
+async function loadTopPlayers(){
+  const list=document.getElementById("topPlayersLeaderboard");
+  if(!list) return;
+  list.innerHTML='<div class="empty">Loading leaderboard...</div>';
+
+  const {data,error}=await supabaseClient
+    .from("leaderboard_winnings")
+    .select("user_id,player_name,player_uid,amount");
+
+  if(error){
+    list.innerHTML='<div class="empty">Leaderboard error: '+escapeHTML(error.message)+'</div>';
+    return;
+  }
+
+  const totals=new Map();
+  (data||[]).forEach(row=>{
+    const key=String(row.user_id||row.player_uid||"").trim();
+    if(!key) return;
+    const current=totals.get(key)||{name:row.player_name||"Player",uid:row.player_uid||"",total:0};
+    current.total+=Number(row.amount||0);
+    totals.set(key,current);
+  });
+
+  const ranked=Array.from(totals.values()).sort((a,b)=>b.total-a.total).slice(0,100);
+  if(!ranked.length){
+    list.innerHTML='<div class="empty">Abhi koi tournament winning add nahi hui hai.</div>';
+    return;
+  }
+
+  list.innerHTML=ranked.map((player,index)=>{
+    const medal=index===0?"🥇":index===1?"🥈":index===2?"🥉":"#"+(index+1);
+    return `
+      <div class="infoBox" style="display:flex;align-items:center;gap:12px;margin:10px 0;padding:14px;">
+        <div style="font-size:23px;min-width:38px;text-align:center;font-weight:800;color:#ffc107;">${medal}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;color:#fff;">${escapeHTML(player.name)}</div>
+          <div style="font-size:11px;color:#999;">UID: ${escapeHTML(player.uid||"-")}</div>
+        </div>
+        <div style="font-weight:900;color:#ffc107;white-space:nowrap;">₹${player.total.toFixed(2)}</div>
+      </div>
+    `;
+  }).join("");
+}
+
 /* REFER & EARN - OPEN PHONE SHARE SHEET */
 
 async function shareReferralLink() {
@@ -986,6 +1040,10 @@ const activeBtn = document.querySelector(
 
 if(activeBtn){
 activeBtn.classList.add("active");
+}
+
+if(sectionId==="topPlayersSection"){
+loadTopPlayers();
 }
 
 if(sectionId==="profileSection"){
