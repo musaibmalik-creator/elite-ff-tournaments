@@ -53,3 +53,7 @@ with check (auth.uid() = user_id);
 
 -- Notification rows and FCM sends are created only by the Edge Function
 -- using the Supabase service-role key. Never expose that key in HTML.
+
+-- Explicit client grants; RLS still limits each user to their own rows.
+grant select, insert, update, delete on public.push_subscriptions to authenticated;
+grant select, update on public.user_notifications to authenticated;
