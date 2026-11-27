@@ -41,3 +41,24 @@ The notification itself never contains the Room ID or Password. It only says the
 ## Important device note
 
 Push can arrive while the screen is off if the phone is powered on, connected to the internet, and Android/browser notifications are allowed. It cannot arrive while the phone is completely powered off. Battery optimization, data saver, browser restrictions, or revoked notification permission may delay/block delivery.
+
+
+## 5. Prize wallet credit and room security
+
+Run these SQL files in Supabase SQL Editor (each file once):
+
+1. `supabase/leaderboard_winnings.sql`
+2. `supabase/player_match_results.sql`
+3. `supabase/prize_wallet_payout.sql`
+4. `supabase/secure_room_details_confirmed_players.sql`
+5. `supabase/notifications.sql`
+
+The prize payout migration credits submitted prizes to each winner's wallet automatically. It is idempotent: resubmitting unchanged results does not pay twice; correcting a prize applies only the difference. A downward correction is rejected if the player has already spent the amount being reversed.
+
+The room-security SQL replaces old SELECT policies. Only admins and confirmed tournament players can read room details, and players gain access starting seven minutes before the scheduled match.
+
+## 6. Deploy and verify notifications
+
+The Edge Function source is already at `supabase/functions/send-notification/index.ts`. Deploy it from Supabase Dashboard > Edge Functions (or Supabase CLI) with the name `send-notification`. Add the `FIREBASE_SERVICE_ACCOUNT` secret as described above. Then enable notifications on a real player phone and send a test broadcast from the admin app.
+
+SQL files being present in GitHub does not mean they have been executed in the Supabase database. Push notifications also remain unverified until the Edge Function is deployed, the secret is configured, and a real phone receives a test.
