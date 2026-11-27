@@ -5,11 +5,7 @@ ALTER TABLE public.withdrawals
   ADD COLUMN IF NOT EXISTS paid_at timestamptz,
   ADD COLUMN IF NOT EXISTS payment_proof_path text;
 
--- Keep historical approved rows searchable; paid_at is backfilled from creation time
--- only where no explicit payout timestamp exists.
-UPDATE public.withdrawals
-SET paid_at = created_at
-WHERE status = 'approved' AND paid_at IS NULL;
+-- Historical payouts retain a NULL paid_at when the actual transfer time was never recorded.
 
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
