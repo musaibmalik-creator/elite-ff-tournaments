@@ -1769,7 +1769,7 @@ async function openTournamentDashboard(id){
 
   /* CHECK PLAYER REGISTRATION */
 
-  const isRegistered = players.some(player => player.user_id === currentUser?.id);
+  const isRegistered = players.some(player => player.user_id === currentUser?.id && player.status === "confirmed");
 
 
   /* SECURE ROOM DETAILS */
