@@ -304,7 +304,7 @@ button{cursor:pointer}
 </div>
 
 <div class="quickGrid">
-<button class="quick" onclick="showOnly('tournamentsSection')"><span class="quickIcon">🏆</span>Matches</button>
+<button class="quick" onclick="filterTournaments('all')"><span class="quickIcon">🏆</span>Matches</button>
 <button class="quick" onclick="showOnly('depositSection')"><span class="quickIcon">➕</span>Deposit</button>
 <button class="quick" onclick="showOnly('withdrawSection')"><span class="quickIcon">💸</span>Withdraw</button>
 </div>
@@ -769,7 +769,7 @@ LOGOUT
 <span class="navIcon">🏠</span>Home
 </button>
 
-<button class="navBtn" data-section="tournamentsSection" onclick="showOnly('tournamentsSection')">
+<button class="navBtn" data-section="tournamentsSection" onclick="filterTournaments('all')">
 <span class="navIcon">🏆</span>Matches
 </button>
 
