@@ -165,13 +165,6 @@ Deno.serve(async (req) => {
                   ? "https://elite-ff-tournaments-nine.vercel.app/user.html?tournament=" + tournamentId
                   : "https://elite-ff-tournaments-nine.vercel.app/user.html",
               },
-              webpush: {
-                fcm_options: {
-                  link: tournamentId
-                    ? "https://elite-ff-tournaments-nine.vercel.app/user.html?tournament=" + tournamentId
-                    : "https://elite-ff-tournaments-nine.vercel.app/user.html",
-                },
-              },
             },
           }),
         },
