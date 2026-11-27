@@ -596,7 +596,12 @@ const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
 
 const supabaseClient = window.supabase.createClient(
 SUPABASE_URL,
-SUPABASE_KEY
+SUPABASE_KEY,
+{
+  auth: {
+    storageKey: "elite_ff_player_auth"
+  }
+}
 );
 /* REFERRAL LINK */
 
