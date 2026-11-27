@@ -1274,7 +1274,7 @@ button:focus-visible{
     <p class="payment-history-intro">Full payout audit: requested amount, actual amount sent, recipient UPI, UTR, exact payout time and transfer proof. Private proof files are visible only to the player and admins.</p>
     <div id="withdrawalHistoryStats" class="payment-history-stats"></div>
     <div class="payment-history-tools">
-      <input id="withdrawalHistorySearch" type="search" placeholder="Search user ID, UPI, UTR or record ID" oninput="filterAdminWithdrawals()">
+      <input id="withdrawalHistorySearch" type="search" placeholder="Search player, UPI, UTR or record ID" oninput="filterAdminWithdrawals()">
       <select id="withdrawalHistoryStatus" onchange="filterAdminWithdrawals()"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Successful</option><option value="rejected">Rejected</option></select>
     </div>
     <div id="withdrawalsList">
@@ -1883,7 +1883,6 @@ async function renderAdminWithdrawals(rows){
         <div class="payment-history-row"><span>Recipient UPI</span><span>${escapeHtml(withdrawal.upi_id||"-")}</span></div>
         <div class="payment-history-row"><span>UTR / Bank reference</span><span>${escapeHtml(withdrawal.payment_details||"-")}</span></div>
         <div class="payment-history-row"><span>Player</span><span>${escapeHtml(withdrawal.player_profile?.display_name||withdrawal.player_profile?.ff_name||"Player")}${withdrawal.player_profile?.ff_uid?" · UID "+escapeHtml(withdrawal.player_profile.ff_uid):""}</span></div>
-        <div class="payment-history-row"><span>User ID</span><span>${escapeHtml(withdrawal.user_id||"-")}</span></div>
         <div class="payment-history-row"><span>Requested at</span><span>${withdrawal.created_at?new Date(withdrawal.created_at).toLocaleString("en-IN"):"-"}</span></div>
         <div class="payment-history-row"><span>Paid at</span><strong>${withdrawal.paid_at?new Date(withdrawal.paid_at).toLocaleString("en-IN"):(state==="approved"?"Time not recorded":"Not paid")}</strong></div>
         ${withdrawal.rejection_reason?'<p style="color:#fda4af;font-size:12px">Rejection reason: '+escapeHtml(withdrawal.rejection_reason)+'</p>':""}
@@ -5016,10 +5015,6 @@ async function loadPayments(){
         ${escapeHtml(payment.provider_payment_id || "-")}
       </p>
 
-      <p>
-        👤 User ID:
-        ${escapeHtml(payment.user_id || "-")}
-      </p>
 
       <p>
         🏆 Tournament ID:
@@ -5276,7 +5271,6 @@ function filterAdminDeposits(){
         <div class="payment-history-row"><span>Wallet credit</span><strong>₹${Number(deposit.amount||0).toFixed(2)}</strong></div>
         <div class="payment-history-row"><span>Total paid</span><span>₹${Number(deposit.paid_amount??deposit.amount??0).toFixed(2)}</span></div>
         <div class="payment-history-row"><span>Player</span><span>${escapeHtml(deposit.player_profile?.display_name||deposit.player_profile?.ff_name||"Player")}${deposit.player_profile?.ff_uid?" · UID "+escapeHtml(deposit.player_profile.ff_uid):""}</span></div>
-        <div class="payment-history-row"><span>User ID</span><span>${escapeHtml(deposit.user_id||"-")}</span></div>
         <div class="payment-history-row"><span>UTR / Transaction ID</span><span>${escapeHtml(deposit.utr||deposit.transaction_id||"-")}</span></div>
         <div class="payment-history-row"><span>Record ID</span><span>${escapeHtml(deposit.id||"-")}</span></div>
         <div class="payment-history-row"><span>Submitted at</span><span>${deposit.created_at?new Date(deposit.created_at).toLocaleString("en-IN"):"-"}</span></div>
