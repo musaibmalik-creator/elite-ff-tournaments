@@ -950,6 +950,155 @@ button:disabled{
   min-width: 100px;
 }
   
+
+/* =========================
+   ELITE ADMIN PRO WORKSPACE
+========================= */
+:root{
+  --bg:#08090d;
+  --bg2:#101116;
+  --card:#15171e;
+  --card2:#1c1f28;
+  --border:rgba(255,255,255,.085);
+  --text:#f7f7f5;
+  --muted:#9b9da7;
+  --primary:#d6a92e;
+  --primary2:#f4d477;
+}
+body{
+  background:
+    radial-gradient(ellipse at 12% 0%,rgba(214,169,46,.12),transparent 34%),
+    radial-gradient(ellipse at 92% 12%,rgba(214,169,46,.055),transparent 30%),
+    #08090d;
+}
+.container{max-width:1120px}
+button:focus-visible{
+  outline:2px solid #f4d477;
+  outline-offset:3px;
+}
+.admin-hero{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:18px;
+  padding:26px;
+  margin-bottom:18px;
+  border:1px solid rgba(214,169,46,.2);
+  border-radius:22px;
+  background:linear-gradient(130deg,rgba(35,30,19,.98),rgba(20,21,26,.98) 58%,rgba(17,18,23,.98));
+  box-shadow:0 18px 50px rgba(0,0,0,.25);
+}
+.admin-brand{display:flex;align-items:center;gap:16px;min-width:0}
+.admin-brand-mark{
+  width:58px;height:58px;flex:0 0 58px;
+  display:grid;place-items:center;border-radius:17px;
+  color:#17130a;font-size:15px;font-weight:1000;letter-spacing:1px;
+  background:linear-gradient(145deg,#ffe59a,#c18b16);
+  box-shadow:0 8px 24px rgba(214,169,46,.2);
+}
+.admin-eyebrow{
+  color:#d7b75e;font-size:10px;font-weight:850;
+  letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px;
+}
+.admin-brand h1{font-size:clamp(21px,4vw,30px);margin:0 0 5px;letter-spacing:-.8px}
+.admin-brand p,.admin-section-heading p{margin:0;color:#a4a5ad;font-size:13px;line-height:1.5}
+.admin-logout{
+  width:auto;margin:0;padding:11px 16px;border-radius:12px;
+  color:#ffd8d8;background:rgba(180,55,55,.13);
+  border:1px solid rgba(239,68,68,.25);box-shadow:none;
+}
+.admin-logout:hover{background:rgba(180,55,55,.22);box-shadow:none}
+.admin-account{
+  grid-column:1/-1;display:flex;align-items:center;gap:9px;
+  padding-top:14px;border-top:1px solid rgba(255,255,255,.08);
+  color:#a8a9b0;font-size:11px;letter-spacing:.5px;min-width:0;
+}
+.admin-account #userEmail{margin:0;color:#e5e5e7;font-size:12px;overflow-wrap:anywhere}
+.online-dot{width:7px;height:7px;border-radius:50%;background:#35cf83;box-shadow:0 0 10px rgba(53,207,131,.55)}
+.account-divider{color:#666}
+.admin-stats{margin:0 0 30px;gap:14px}
+.admin-stats .stat{
+  text-align:left;padding:19px 21px;border-radius:17px;
+  background:linear-gradient(145deg,#1b1c21,#121318);
+  border-color:rgba(255,255,255,.08);
+}
+.admin-stats .stat::after{background:rgba(214,169,46,.09)}
+.stat-topline{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.stat-icon{font-size:20px}
+.stat-caption{color:#777a84;font-size:9px;font-weight:800;letter-spacing:1.3px}
+.admin-stats .stat-number{
+  color:#f3cf6b;background:none;-webkit-text-fill-color:initial;
+  font-size:34px;margin-bottom:5px;
+}
+.admin-stats .stat-label{color:#a4a5ad;font-size:12px}
+.admin-section-heading{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:12px;margin:0 0 15px;
+}
+.admin-section-heading h2{font-size:22px;margin:0 0 5px}
+.workspace-badge{
+  padding:7px 10px;border-radius:999px;
+  color:#d8bd71;background:rgba(214,169,46,.09);
+  border:1px solid rgba(214,169,46,.2);
+  font-size:9px;font-weight:850;letter-spacing:1px;white-space:nowrap;
+}
+.admin-action-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+}
+.admin-action{
+  display:flex;align-items:center;gap:13px;
+  width:100%;min-width:0;min-height:84px;margin:0;padding:15px;
+  text-align:left;border-radius:16px;
+  color:#f4f4f5;background:linear-gradient(145deg,#1a1c23,#13151b);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 8px 22px rgba(0,0,0,.16);
+}
+.admin-action:hover{
+  transform:translateY(-2px);border-color:rgba(214,169,46,.38);
+  background:linear-gradient(145deg,#24231d,#17181d);
+  box-shadow:0 12px 26px rgba(0,0,0,.25);
+}
+.admin-action.action-gold{
+  border-color:rgba(214,169,46,.3);
+  background:linear-gradient(120deg,rgba(91,68,18,.34),#191a1f 75%);
+}
+.action-icon{
+  width:45px;height:45px;flex:0 0 45px;display:grid;place-items:center;
+  border-radius:13px;background:rgba(214,169,46,.1);font-size:21px;
+}
+.action-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.action-copy strong{font-size:14px;font-weight:800;letter-spacing:.1px}
+.action-copy small{color:#999ba5;font-size:11px;font-weight:500;line-height:1.35}
+.action-arrow{color:#c9a94e;font-size:25px;font-weight:400}
+.admin-footer-note{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:24px 0 8px;color:#73757e;font-size:11px;
+}
+.admin-footer-note span:first-child{color:#d6ad45}
+.footer-separator{color:#454750}
+#dashboard .card{background:transparent;border:0;box-shadow:none;padding:0;backdrop-filter:none}
+#dashboard .card::before{display:none}
+@media(max-width:600px){
+  .admin-hero{padding:19px 16px;border-radius:18px;gap:13px}
+  .admin-brand{gap:11px}
+  .admin-brand-mark{width:48px;height:48px;flex-basis:48px;border-radius:14px;font-size:13px}
+  .admin-brand h1{font-size:21px}
+  .admin-brand p{font-size:11px}
+  .admin-logout{padding:9px 11px;font-size:11px;min-width:0}
+  .admin-stats{margin-bottom:25px}
+  .admin-stats .stat{padding:15px 13px}
+  .admin-action-grid{grid-template-columns:1fr;gap:9px}
+  .admin-action{min-height:76px;padding:13px}
+  .admin-section-heading h2{font-size:20px}
+}
+@media(max-width:360px){
+  .admin-hero{grid-template-columns:1fr}
+  .admin-logout{justify-self:start}
+  .admin-account{grid-column:1}
+  .workspace-badge{font-size:8px}
+}
+
 </style>
 
 </head>
@@ -1001,95 +1150,81 @@ button:disabled{
 
 <div id="dashboard" class="hidden">
 
-  <div class="card">
-
-    <div class="top">
-
-      <h1>🏆 Dashboard</h1>
-
-      <button
-        id="logoutButton"
-        class="danger"
-        type="button"
-      >
-        Logout
-      </button>
-
-    </div>
-
-    <p id="userEmail"></p>
-
-    <div class="stats">
-
-      <div class="stat">
-
-        <div
-          class="stat-number"
-          id="tournamentCount"
-        >
-          0
-        </div>
-
-        <div>
-          Tournaments
-        </div>
-
+  <div class="admin-hero">
+    <div class="admin-brand">
+      <div class="admin-brand-mark">ELITE</div>
+      <div>
+        <div class="admin-eyebrow">ELITE FF TOURNAMENTS</div>
+        <h1>Admin Control Center</h1>
+        <p>Manage your tournaments, players and payments</p>
       </div>
-
-      <div class="stat">
-
-        <div
-          class="stat-number"
-          id="playerCount"
-        >
-          0
-        </div>
-
-        <div>
-          Players
-        </div>
-
-      </div>
-
     </div>
-
-    <button id="openTournamentsButton">
-      🏆 Manage Tournaments
+    <button id="logoutButton" class="admin-logout" type="button">
+      <span>↗</span> Logout
     </button>
+    <div class="admin-account">
+      <span class="online-dot"></span>
+      <span>ADMIN SESSION</span>
+      <span class="account-divider">•</span>
+      <span id="userEmail"></span>
+    </div>
+  </div>
 
-    <button id="openPlayersButton">
-      👥 Manage Players
+  <div class="stats admin-stats">
+    <div class="stat">
+      <div class="stat-topline"><span class="stat-icon">🏆</span><span class="stat-caption">OVERVIEW</span></div>
+      <div class="stat-number" id="tournamentCount">0</div>
+      <div class="stat-label">Total Tournaments</div>
+    </div>
+    <div class="stat">
+      <div class="stat-topline"><span class="stat-icon">👥</span><span class="stat-caption">COMMUNITY</span></div>
+      <div class="stat-number" id="playerCount">0</div>
+      <div class="stat-label">Registered Players</div>
+    </div>
+  </div>
+
+  <div class="admin-section-heading">
+    <div>
+      <div class="admin-eyebrow">WORKSPACE</div>
+      <h2>Management</h2>
+      <p>Choose a section to manage your platform</p>
+    </div>
+    <span class="workspace-badge">● LIVE PANEL</span>
+  </div>
+
+  <div class="admin-action-grid">
+    <button id="openTournamentsButton" class="admin-action action-gold" type="button">
+      <span class="action-icon">🏆</span><span class="action-copy"><strong>Tournaments</strong><small>Create, edit and manage matches</small></span><span class="action-arrow">›</span>
     </button>
-
-    <button id="openTeamsButton">
-      👥 Manage CS Teams
+    <button id="openPlayersButton" class="admin-action" type="button">
+      <span class="action-icon">👤</span><span class="action-copy"><strong>Players</strong><small>View and manage registrations</small></span><span class="action-arrow">›</span>
     </button>
-
-    <button id="openPaymentsButton">
-      💳 Manage Payments
+    <button id="openTeamsButton" class="admin-action" type="button">
+      <span class="action-icon">🛡️</span><span class="action-copy"><strong>CS Teams</strong><small>Manage Clash Squad teams</small></span><span class="action-arrow">›</span>
     </button>
-
-    <button id="openDepositsButton">
-      💰 Manage Deposits
+    <button id="openPaymentsButton" class="admin-action" type="button">
+      <span class="action-icon">💳</span><span class="action-copy"><strong>Payments</strong><small>Review player transactions</small></span><span class="action-arrow">›</span>
     </button>
-
-    <button id="openWithdrawalsButton">
-      💸 Manage Withdrawals
+    <button id="openDepositsButton" class="admin-action" type="button">
+      <span class="action-icon">💰</span><span class="action-copy"><strong>Deposits</strong><small>Verify and manage deposits</small></span><span class="action-arrow">›</span>
     </button>
-
-    <button id="openResultsButton">
-      🏆 Manage Match Results
+    <button id="openWithdrawalsButton" class="admin-action" type="button">
+      <span class="action-icon">💸</span><span class="action-copy"><strong>Withdrawals</strong><small>Approve or reject requests</small></span><span class="action-arrow">›</span>
     </button>
-
-    <button id="openNotificationsButton">
-      🔔 Send User Notification
+    <button id="openResultsButton" class="admin-action" type="button">
+      <span class="action-icon">🥇</span><span class="action-copy"><strong>Match Results</strong><small>Publish kills, ranks and prizes</small></span><span class="action-arrow">›</span>
     </button>
+    <button id="openNotificationsButton" class="admin-action" type="button">
+      <span class="action-icon">🔔</span><span class="action-copy"><strong>Notifications</strong><small>Send announcements to users</small></span><span class="action-arrow">›</span>
+    </button>
+  </div>
 
+  <div class="admin-footer-note">
+    <span>⚡</span> Elite FF Tournaments <span class="footer-separator">•</span> Admin Workspace
   </div>
 
 </div>
   
-
 
   
 <!-- =====================================================
