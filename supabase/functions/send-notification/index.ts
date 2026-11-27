@@ -113,6 +113,14 @@ Deno.serve(async (req) => {
       if (pError) throw new Error("Unable to load registered players");
       const hasRoom = !!(room?.room_id || room?.room_password || room?.custom_id || room?.custom_password);
       if (!hasRoom) throw new Error("Room details are empty");
+      const { data: alreadySent, error: sentCheckError } = await adminClient
+        .from("user_notifications")
+        .select("id")
+        .eq("tournament_id", tournamentId)
+        .eq("notification_type", "room_released")
+        .limit(1);
+      if (sentCheckError) throw new Error("Unable to check previous room notification");
+      if (alreadySent && alreadySent.length) throw new Error("Room release notification was already sent for this tournament");
       recipients = [...new Set((players || []).map((p: any) => p.user_id).filter(Boolean))];
       title = "🎮 Room Details Released!";
       body = tournament.name + ": Room ID and Password are now available. Open your tournament dashboard.";
