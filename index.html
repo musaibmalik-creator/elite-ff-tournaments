@@ -1099,6 +1099,26 @@ button:focus-visible{
   .workspace-badge{font-size:8px}
 }
 
+/* PROFESSIONAL PAYMENT HISTORY */
+.payment-history-intro{color:#9ca3af;font-size:13px;line-height:1.6;margin:0 0 16px}
+.payment-history-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.payment-history-stat{background:linear-gradient(145deg,#171b20,#101216);border:1px solid #303741;border-radius:13px;padding:13px;min-width:0}
+.payment-history-stat small{display:block;color:#9ca3af;font-size:11px;margin-bottom:7px}
+.payment-history-stat strong{display:block;color:#f8fafc;font-size:19px;overflow-wrap:anywhere}
+.payment-history-tools{display:grid;grid-template-columns:1fr 150px;gap:9px;margin:14px 0}
+.payment-history-tools input,.payment-history-tools select{width:100%;min-width:0;box-sizing:border-box}
+.payment-history-card{background:linear-gradient(145deg,#171b20,#101216);border:1px solid #303741;border-radius:15px;padding:15px;margin:12px 0;overflow:hidden}
+.payment-history-card h3{margin:0 0 12px;color:#f8fafc;font-size:15px}
+.payment-history-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid #262d35;font-size:12px}
+.payment-history-row span:first-child{color:#9ca3af;flex:0 0 38%}
+.payment-history-row span:last-child{color:#f3f4f6;text-align:right;overflow-wrap:anywhere}
+.payment-status-pill{display:inline-block;padding:5px 9px;border-radius:30px;font-size:10px;font-weight:800;letter-spacing:.4px;background:#242a32;color:#d1d5db}
+.payment-proof-tools{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px dashed #48515d;border-radius:11px;background:#12161b}
+.payment-proof-tools input{width:100%;font-size:12px}
+.payment-proof-tools button,.payment-proof-link{display:inline-block;text-decoration:none;text-align:center;padding:10px 12px;border-radius:9px;background:#c99718;color:#111;font-weight:800;border:0}
+.payment-proof-link{background:#1b4d3d;color:#a7f3d0}
+@media(max-width:480px){.payment-history-stats{grid-template-columns:1fr 1fr}.payment-history-tools{grid-template-columns:1fr}.payment-history-stat strong{font-size:16px}}
+
 </style>
 
 </head>
@@ -1240,7 +1260,7 @@ button:focus-visible{
 
     <div class="top">
 
-      <h1>💸 Manage Withdrawals</h1>
+      <h1>💸 Withdrawal History · 12 Months</h1>
 
       <button
         id="backWithdrawalsButton"
@@ -1251,6 +1271,12 @@ button:focus-visible{
 
     </div>
 
+    <p class="payment-history-intro">Full payout audit: requested amount, actual amount sent, recipient UPI, UTR, exact payout time and transfer proof. Private proof files are visible only to the player and admins.</p>
+    <div id="withdrawalHistoryStats" class="payment-history-stats"></div>
+    <div class="payment-history-tools">
+      <input id="withdrawalHistorySearch" type="search" placeholder="Search user ID, UPI, UTR or record ID" oninput="filterAdminWithdrawals()">
+      <select id="withdrawalHistoryStatus" onchange="filterAdminWithdrawals()"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Successful</option><option value="rejected">Rejected</option></select>
+    </div>
     <div id="withdrawalsList">
       Loading withdrawals...
     </div>
@@ -1745,7 +1771,7 @@ button:focus-visible{
 
     <div class="top">
 
-      <h2>💰 Deposits</h2>
+      <h2>💰 Deposit History · 12 Months</h2>
 
       <button
         id="backDepositsButton"
@@ -1757,6 +1783,12 @@ button:focus-visible{
 
     </div>
 
+    <p class="payment-history-intro">Verified deposit ledger for the last 12 months. Search by user ID, UTR or deposit ID; filter by status.</p>
+    <div id="depositHistoryStats" class="payment-history-stats"></div>
+    <div class="payment-history-tools">
+      <input id="depositHistorySearch" type="search" placeholder="Search user ID, UTR or record ID" oninput="filterAdminDeposits()">
+      <select id="depositHistoryStatus" onchange="filterAdminDeposits()"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Successful</option><option value="rejected">Rejected</option></select>
+    </div>
     <div id="depositsList">
       Loading deposits...
     </div>
@@ -1825,184 +1857,99 @@ let editingPlayerId = null;
    LOAD WITHDRAWALS
 ========================================= */
 
-async function loadWithdrawals() {
+let adminWithdrawalRows = [];
 
-  const list = $("withdrawalsList");
+async function renderAdminWithdrawals(rows){
+  const list=$("withdrawalsList");
+  if(!rows.length){list.innerHTML='<div class="payment-history-card">No withdrawal records match this filter.</div>';return;}
+  const cards=await Promise.all(rows.map(async withdrawal=>{
+    let proofUrl="";
+    if(withdrawal.payment_proof_path){
+      const signed=await supabase.storage.from("withdrawal-proofs").createSignedUrl(withdrawal.payment_proof_path,3600);
+      if(!signed.error) proofUrl=signed.data.signedUrl;
+    }
+    const state=String(withdrawal.status||"pending").toLowerCase();
+    const color=state==="approved"?"#34d399":state==="rejected"?"#fb7185":"#fbbf24";
+    const id=escapeHtml(withdrawal.id);
+    return `
+      <article class="payment-history-card">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+          <h3>💸 Withdrawal · ₹${Number(withdrawal.amount||0).toFixed(2)}</h3>
+          <span class="payment-status-pill" style="color:${color}">${escapeHtml(state==="approved"?"SUCCESSFUL":state.toUpperCase())}</span>
+        </div>
+        <div class="payment-history-row"><span>Requested</span><span>₹${Number(withdrawal.amount||0).toFixed(2)}</span></div>
+        <div class="payment-history-row"><span>Platform fee</span><span>₹${Number(withdrawal.fee_amount||0).toFixed(2)}</span></div>
+        <div class="payment-history-row"><span>Actually sent</span><strong style="color:#34d399">₹${Number(withdrawal.payout_amount??withdrawal.amount??0).toFixed(2)}</strong></div>
+        <div class="payment-history-row"><span>Recipient UPI</span><span>${escapeHtml(withdrawal.upi_id||"-")}</span></div>
+        <div class="payment-history-row"><span>UTR / Bank reference</span><span>${escapeHtml(withdrawal.payment_details||"-")}</span></div>
+        <div class="payment-history-row"><span>User ID</span><span>${escapeHtml(withdrawal.user_id||"-")}</span></div>
+        <div class="payment-history-row"><span>Requested at</span><span>${withdrawal.created_at?new Date(withdrawal.created_at).toLocaleString("en-IN"):"-"}</span></div>
+        <div class="payment-history-row"><span>Paid at</span><strong>${withdrawal.paid_at?new Date(withdrawal.paid_at).toLocaleString("en-IN"):(state==="approved"?"Time not recorded":"Not paid")}</strong></div>
+        ${withdrawal.rejection_reason?'<p style="color:#fda4af;font-size:12px">Rejection reason: '+escapeHtml(withdrawal.rejection_reason)+'</p>':""}
+        ${proofUrl?'<a class="payment-proof-link" href="'+proofUrl+'" target="_blank" rel="noopener">View payment proof</a>':""}
+        ${state==="approved"?`
+          <div class="payment-proof-tools">
+            <strong style="font-size:12px;color:#e5e7eb">${proofUrl?"Replace transfer proof":"Attach transfer screenshot / PDF"}</strong>
+            <input type="file" id="proofFile_${id}" accept="image/jpeg,image/png,image/webp,application/pdf">
+            <button type="button" onclick="uploadWithdrawalProof('${id}','${escapeHtml(withdrawal.user_id)}','proofFile_${id}')">⬆ SAVE PROOF FOR PLAYER</button>
+            <small style="color:#9ca3af">Player can view this proof in their Withdrawal History.</small>
+          </div>`:state==="pending"?`
+          <div class="withdrawal-actions" style="margin-top:12px">
+            <button class="approve-withdrawal" data-id="${id}" type="button">✓ Mark paid / approve</button>
+            <button class="reject-withdrawal" data-id="${id}" type="button">Reject</button>
+          </div>`:""}
+      </article>`;
+  }));
+  list.innerHTML=cards.join("");
+  bindWithdrawalButtons();
+}
 
-  if (!list) return;
-
-  list.innerHTML = "Loading withdrawals...";
-
-  const {
-    data: withdrawals,
-    error
-  } = await supabase
-    .from("withdrawals")
-    .select(`
-      id,
-      user_id,
-      amount,
-      fee_amount,
-      payout_amount,
-      upi_id,
-      status,
-            created_at,
-      payment_details,
-      rejection_reason
-      
-    `)
-    .order("created_at", {
-      ascending: false
-    });
-
-  if (error) {
-
-    console.error(
-      "Withdrawals Error:",
-      error
-    );
-
-    list.innerHTML =
-      "<p>Failed to load withdrawals.</p>";
-
-    return;
-  }
-
-  if (!withdrawals || withdrawals.length === 0) {
-
-    list.innerHTML =
-      "<p>No withdrawal requests found.</p>";
-
-    return;
-  }
-
-  list.innerHTML = "";
-
-  withdrawals.forEach(function(withdrawal) {
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "withdrawal-card";
-
-    const statusClass =
-      withdrawal.status === "approved"
-        ? "approved"
-        : withdrawal.status === "rejected"
-        ? "rejected"
-        : "pending";
-
-    card.innerHTML = `
-
-      <div class="withdrawal-header">
-
-        <strong>
-          💸 Withdrawal Request
-        </strong>
-
-        <span class="withdrawal-status ${statusClass}">
-          ${withdrawal.status || "pending"}
-        </span>
-
-      </div>
-
-      
-
-      <div class="withdrawal-row">
-        <span>Amount</span>
-        <span>
-          ₹${Number(
-            withdrawal.amount || 0
-          ).toFixed(2)}
-        </span>
-      </div>
-
-      <div class="withdrawal-row">
-        <span>Platform Fee (4%)</span>
-        <span>₹${Number(withdrawal.fee_amount ?? 0).toFixed(2)}</span>
-      </div>
-
-      <div class="withdrawal-row">
-        <span>Send to Player</span>
-        <strong style="color:#20c997">₹${Number(withdrawal.payout_amount ?? withdrawal.amount ?? 0).toFixed(2)}</strong>
-      </div>
-
-      <div class="withdrawal-row">
-        <span>UPI ID</span>
-        <span>
-          ${withdrawal.upi_id || "-"}
-        </span>
-      </div>
-
-      <div class="withdrawal-row">
-        <span>Payment Details</span>
-        <span>
-          ${withdrawal.payment_details || "-"}
-        </span>
-      </div>
-     
-      ${
-        withdrawal.status === "rejected"
-          ? `
-            <div class="withdrawal-row">
-              <span>Rejection Reason</span>
-              <span>
-                ${withdrawal.rejection_reason || "-"}
-              </span>
-            </div>
-          `
-          : ""
-      }
-      
-      
-      <div class="withdrawal-row">
-        <span>Date</span>
-        <span>
-          ${
-            withdrawal.created_at
-              ? new Date(
-                  withdrawal.created_at
-                ).toLocaleString()
-              : "-"
-          }
-        </span>
-      </div>
-
-      ${
-        withdrawal.status === "pending"
-          ? `
-
-            <div class="withdrawal-actions">
-
-              <button
-                class="approve-withdrawal"
-                data-id="${withdrawal.id}"
-                type="button"
-              >
-                ✅ Approve
-              </button>
-
-              <button
-                class="reject-withdrawal"
-                data-id="${withdrawal.id}"
-                type="button"
-              >
-                ❌ Reject
-              </button>
-
-            </div>
-
-          `
-          : ""
-      }
-
-    `;
-
-    list.appendChild(card);
-
+function filterAdminWithdrawals(){
+  const term=String($("withdrawalHistorySearch")?.value||"").trim().toLowerCase();
+  const status=$("withdrawalHistoryStatus")?.value||"all";
+  const rows=adminWithdrawalRows.filter(row=>{
+    const matchesStatus=status==="all"||String(row.status||"pending").toLowerCase()===status;
+    const hay=[row.id,row.user_id,row.upi_id,row.payment_details].join(" ").toLowerCase();
+    return matchesStatus&&hay.includes(term);
   });
-bindWithdrawalButtons();
+  renderAdminWithdrawals(rows);
+}
+window.filterAdminWithdrawals=filterAdminWithdrawals;
+
+window.uploadWithdrawalProof=async function(withdrawalId,userId,inputId){
+  const input=$(inputId),file=input?.files?.[0];
+  if(!file){alert("Pehle payment screenshot ya PDF select karein.");return;}
+  const allowed=["image/jpeg","image/png","image/webp","application/pdf"];
+  if(!allowed.includes(file.type)||file.size>5*1024*1024){alert("JPG, PNG, WEBP ya PDF select karein (max 5 MB).");return;}
+  const ext=file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+  const path=userId+"/"+withdrawalId+"/"+Date.now()+"."+ext;
+  const {error:uploadError}=await supabase.storage.from("withdrawal-proofs").upload(path,file,{upsert:true,contentType:file.type});
+  if(uploadError){alert("Proof upload failed: "+uploadError.message);return;}
+  const {error:updateError}=await supabase.from("withdrawals").update({payment_proof_path:path}).eq("id",withdrawalId);
+  if(updateError){alert("File uploaded but record update failed: "+updateError.message);return;}
+  alert("Payment proof saved. Player can now view it in Withdrawal History.");
+  await loadWithdrawals();
+};
+
+async function loadWithdrawals(){
+  const list=$("withdrawalsList");
+  if(!list)return;
+  list.innerHTML="Loading last 12 months of withdrawals...";
+  const since=new Date();since.setFullYear(since.getFullYear()-1);
+  const {data,error}=await supabase.from("withdrawals")
+    .select("id,user_id,amount,fee_amount,payout_amount,upi_id,status,created_at,paid_at,payment_details,payment_proof_path,rejection_reason")
+    .gte("created_at",since.toISOString())
+    .order("created_at",{ascending:false});
+  if(error){list.innerHTML="Withdrawal history error: "+escapeHtml(error.message);return;}
+  adminWithdrawalRows=data||[];
+  const paid=adminWithdrawalRows.filter(x=>x.status==="approved");
+  const sent=paid.reduce((n,x)=>n+Number(x.payout_amount??x.amount??0),0);
+  const pending=adminWithdrawalRows.filter(x=>x.status==="pending").length;
+  $("withdrawalHistoryStats").innerHTML=`
+    <div class="payment-history-stat"><small>Successfully sent</small><strong>₹${sent.toFixed(2)}</strong></div>
+    <div class="payment-history-stat"><small>Successful payouts</small><strong>${paid.length}</strong></div>
+    <div class="payment-history-stat"><small>Pending requests</small><strong>${pending}</strong></div>`;
+  filterAdminWithdrawals();
 }
 /* =========================================
    OPEN WITHDRAWALS
@@ -2555,6 +2502,7 @@ async function updateWithdrawalStatus(
     newStatus === "approved"
       ? {
           payment_details: paymentDetails,
+          paid_at: new Date().toISOString(),
           rejection_reason: null
         }
       : {
@@ -5288,138 +5236,56 @@ $("backPaymentsButton")
    LOAD DEPOSITS
 ===================================================== */
 
-async function loadDeposits(){
+let adminDepositRows = [];
 
-  const depositsList =
-    $("depositsList");
-
-  depositsList.innerHTML =
-    "Loading deposits...";
-
-  const { data, error } =
-    await supabase
-      .from("deposits")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      );
-
-  if(error){
-
-    depositsList.innerHTML =
-      "Deposit Error: " +
-      escapeHtml(error.message);
-
-    return;
-
-  }
-
-  if(!data || data.length === 0){
-
-    depositsList.innerHTML =
-      "No deposit requests found.";
-
-    return;
-
-  }
-
-  depositsList.innerHTML =
-    data.map(deposit => `
-
-      <div class="tournament-card">
-
-        <h3>
-          💰 Deposit Request
-        </h3>
-        <p>Wallet credit: <b>₹${Number(deposit.amount || 0).toFixed(2)}</b></p>
-        <p>Platform fee: <b>₹${Number(deposit.fee_amount || 0).toFixed(2)}</b></p>
-        <p>Total expected payment: <b style="color:#ffc107">₹${Number(deposit.paid_amount ?? deposit.amount ?? 0).toFixed(2)}</b></p>
-
-        <p>
-          👤 User ID:
-          ${escapeHtml(
-            deposit.user_id || "-"
-          )}
-        </p>
-
-        <p>
-          🔢 UTR:
-          ${escapeHtml(
-            deposit.transaction_id || "-"
-          )}
-        </p>
-
-        <p>
-          📌 Status:
-          <b>
-            ${escapeHtml(
-              deposit.status === "approved"
-                ? "COMPLETE"
-                : (deposit.status || "pending").toUpperCase()
-            )}
-          </b>
-        </p>
-
-        ${deposit.status === "rejected" ? `
-          <p style="color:#ff8b8b">
-            Rejection reason: ${escapeHtml(deposit.rejection_reason || "Not provided")}
-          </p>
-        ` : ""}
-
-        <p>
-          📅 Date:
-          ${deposit.created_at
-            ? new Date(
-                deposit.created_at
-              ).toLocaleString()
-            : "-"
-          }
-        </p>
-
-        ${
-          deposit.status === "pending"
-          ? `
-
-            <button
-              type="button"
-              onclick="approveDeposit('${deposit.id}')"
-            >
-              ✅ Approve Deposit
-            </button>
-
-            <button
-              type="button"
-              class="danger"
-              onclick="rejectDeposit('${deposit.id}')"
-            >
-              ❌ Reject Deposit
-            </button>
-
-          `
-          : deposit.status === "rejected"
-          ? `
-            <button
-              type="button"
-              class="successButton"
-              onclick="approveDeposit('${deposit.id}', true)"
-            >
-              ♻️ Recover & Complete
-            </button>
-          `
-          : `
-            <p>🟢 Deposit Complete — Wallet Credited</p>
-          `
-        }
-
-      </div>
-
-    `).join("");
-
+function filterAdminDeposits(){
+  const term=String($("depositHistorySearch")?.value||"").trim().toLowerCase();
+  const status=$("depositHistoryStatus")?.value||"all";
+  const rows=adminDepositRows.filter(row=>{
+    const matchesStatus=status==="all"||String(row.status||"pending").toLowerCase()===status;
+    const hay=[row.id,row.user_id,row.transaction_id,row.utr].join(" ").toLowerCase();
+    return matchesStatus&&hay.includes(term);
+  });
+  const list=$("depositsList");
+  if(!rows.length){list.innerHTML='<div class="payment-history-card">No deposit records match this filter.</div>';return;}
+  list.innerHTML=rows.map(deposit=>{
+    const state=String(deposit.status||"pending").toLowerCase();
+    const color=state==="approved"?"#34d399":state==="rejected"?"#fb7185":"#fbbf24";
+    return `
+      <article class="payment-history-card">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+          <h3>💰 Deposit · ₹${Number(deposit.amount||0).toFixed(2)}</h3>
+          <span class="payment-status-pill" style="color:${color}">${escapeHtml(state==="approved"?"SUCCESSFUL":state.toUpperCase())}</span>
+        </div>
+        <div class="payment-history-row"><span>Wallet credit</span><strong>₹${Number(deposit.amount||0).toFixed(2)}</strong></div>
+        <div class="payment-history-row"><span>Total paid</span><span>₹${Number(deposit.paid_amount??deposit.amount??0).toFixed(2)}</span></div>
+        <div class="payment-history-row"><span>User ID</span><span>${escapeHtml(deposit.user_id||"-")}</span></div>
+        <div class="payment-history-row"><span>UTR / Transaction ID</span><span>${escapeHtml(deposit.utr||deposit.transaction_id||"-")}</span></div>
+        <div class="payment-history-row"><span>Record ID</span><span>${escapeHtml(deposit.id||"-")}</span></div>
+        <div class="payment-history-row"><span>Submitted at</span><span>${deposit.created_at?new Date(deposit.created_at).toLocaleString("en-IN"):"-"}</span></div>
+        ${deposit.status==="rejected"?'<p style="color:#fda4af;font-size:12px">Reason: '+escapeHtml(deposit.rejection_reason||"Not provided")+'</p>':""}
+        ${state==="pending"?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" onclick="approveDeposit(\''+deposit.id+'\')">Approve deposit</button><button type="button" class="danger" onclick="rejectDeposit(\''+deposit.id+'\')">Reject deposit</button></div>':state==="rejected"?'<button type="button" onclick="approveDeposit(\''+deposit.id+'\', true)">Recover & complete</button>':'<p style="color:#34d399;font-size:12px;font-weight:700">✓ Wallet credit completed</p>'}
+      </article>`;
+  }).join("");
 }
 
+window.filterAdminDeposits=filterAdminDeposits;
+
+async function loadDeposits(){
+  const list=$("depositsList");
+  list.innerHTML="Loading last 12 months of deposits...";
+  const since=new Date();since.setFullYear(since.getFullYear()-1);
+  const {data,error}=await supabase.from("deposits").select("*").gte("created_at",since.toISOString()).order("created_at",{ascending:false});
+  if(error){list.innerHTML="Deposit Error: "+escapeHtml(error.message);return;}
+  adminDepositRows=data||[];
+  const total=adminDepositRows.filter(x=>x.status==="approved").reduce((n,x)=>n+Number(x.amount||0),0);
+  const pending=adminDepositRows.filter(x=>x.status==="pending").length;
+  $("depositHistoryStats").innerHTML=`
+    <div class="payment-history-stat"><small>Successful deposits</small><strong>₹${total.toFixed(2)}</strong></div>
+    <div class="payment-history-stat"><small>All records</small><strong>${adminDepositRows.length}</strong></div>
+    <div class="payment-history-stat"><small>Pending review</small><strong>${pending}</strong></div>`;
+  filterAdminDeposits();
+}
 
 /* =====================================================
    OPEN DEPOSITS
