@@ -619,15 +619,10 @@ SAVE FREE FIRE DETAILS
   📜 TERMS & CONDITIONS <span style="float:right">›</span>
 </button>
 
-<!-- CUSTOMER SUPPORT -->
-
-<div class="profileRow">
-<div class="profileLabel">CUSTOMER SUPPORT</div>
-<div class="profileValue">Telegram Support</div>
-</div>
-
-<button class="btn btnGold" onclick="window.open('https://t.me/NocTyx001','_blank')">
-CONTACT SUPPORT
+<!-- CUSTOMER SUPPORT BUTTON -->
+<button class="btn btnDark" type="button" onclick="showOnly('customerSupportSection')" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:16px;margin:12px 0;border:1px solid #ffc107;color:#ffc107;">
+  <span>💬 CUSTOMER SUPPORT</span>
+  <span style="font-size:22px;">›</span>
 </button>
 
 <button id="logoutButton" class="btn btnDark" onclick="logoutUser()">
@@ -670,6 +665,29 @@ LOGOUT
 
   <p class="eliteTermsNote">By using Elite FF Tournaments, you confirm that you have read and agree to follow these terms and the rules displayed for each tournament.</p>
 </div>
+  <button class="btn btnDark" type="button" onclick="showOnly('profileSection')">← BACK TO PROFILE</button>
+</div>
+
+<!-- CUSTOMER SUPPORT PAGE -->
+<div id="customerSupportSection" class="section">
+  <h2 class="sectionTitle">CUSTOMER SUPPORT</h2>
+  <p style="color:#aaa;text-align:center;margin:0 0 18px;">Choose a platform to contact Elite FF Tournaments support.</p>
+
+  <button class="btn btnDark" type="button" disabled style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:18px;margin:12px 0;border:1px solid #444;opacity:.75;">
+    <span><strong style="color:#fff;">📸 INSTAGRAM</strong><br><small style="color:#aaa;font-weight:400;">Coming Soon</small></span>
+    <span style="color:#aaa;">COMING SOON</span>
+  </button>
+
+  <button class="btn btnDark" type="button" onclick="window.open('https://t.me/NocTyx001','_blank')" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:18px;margin:12px 0;border:1px solid #229ED9;">
+    <span><strong style="color:#fff;">✈️ TELEGRAM</strong><br><small style="color:#aaa;font-weight:400;">Contact our support team</small></span>
+    <span style="color:#229ED9;">OPEN ›</span>
+  </button>
+
+  <button class="btn btnDark" type="button" disabled style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:18px;margin:12px 0;border:1px solid #444;opacity:.75;">
+    <span><strong style="color:#fff;">💚 WHATSAPP</strong><br><small style="color:#aaa;font-weight:400;">Coming Soon</small></span>
+    <span style="color:#aaa;">COMING SOON</span>
+  </button>
+
   <button class="btn btnDark" type="button" onclick="showOnly('profileSection')">← BACK TO PROFILE</button>
 </div>
 
