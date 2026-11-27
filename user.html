@@ -1620,25 +1620,43 @@ async function openTournamentDashboard(id){
   }
 
 
-  /* SHOW EVERY NUMBERED SLOT WITH PLAYER NAME AND UID */
+  /* MODE-WISE SLOT DISPLAY */
 
-  const slotRows = Array.from({length:totalSlots},(_,index)=>{
-    const globalSlot=index+1;
+  const mode=String(tournament.sport || "").toLowerCase();
+  const isGroupedBR=mode==="br_duo" || mode==="br_squad";
+  const cap=tournamentSlotCapacity(mode);
+
+  function dashboardSlotCard(globalSlot){
     const details=slotGroupDetails(tournament,globalSlot);
     const team=teamList.find(t=>t.name===details.name);
     const player=team ? players.find(p=>p.team_id===team.id && Number(p.slot_number)===details.local) : null;
     const mine=player && player.user_id===currentUser?.id;
     return `
-      <div class="infoBox" style="margin:8px 0;padding:12px;border:1px solid ${player?(mine?"#D6A642":"#555"):"#333"};">
-        <b style="color:#D6A642;">SLOT ${String(globalSlot).padStart(2,"0")}</b>
-        <span style="float:right;color:${player?"#ffcf65":"#55d68b"};">${player?(mine?"YOUR SLOT":"BOOKED"):"AVAILABLE"}</span>
-        <div style="margin-top:6px;">${player?escapeHTML(player.name || "Player"):"No player joined yet"}</div>
-        ${player?"<small style='color:#aaa;'>UID: "+escapeHTML(player.uid || "Not set")+"</small>":""}
-        <div><small style="color:#888;">${escapeHTML(details.name)} • Position ${details.local}</small></div>
+      <div class="infoBox" style="margin:0;padding:10px;border:1px solid ${player?(mine?"#D6A642":"#555"):"#333"};min-width:0;">
+        <b style="color:#D6A642;">SLOT ${isGroupedBR?details.local:String(globalSlot).padStart(2,"0")}</b>
+        <span style="display:block;margin-top:4px;color:${player?"#ffcf65":"#55d68b"};font-size:11px;">${player?(mine?"YOUR PLAYER":"BOOKED"):"AVAILABLE"}</span>
+        <div style="margin-top:7px;overflow-wrap:anywhere;">${player?escapeHTML(player.name || "Player"):"Empty"}</div>
+        ${player?"<small style='color:#aaa;overflow-wrap:anywhere;'>UID: "+escapeHTML(player.uid || "Not set")+"</small>":""}
       </div>
     `;
-  });
-  slotsBox.innerHTML=slotRows.join("");
+  }
+
+  if(isGroupedBR){
+    const groupCount=totalSlots/cap;
+    slotsBox.innerHTML=Array.from({length:groupCount},(_,groupIndex)=>{
+      const groupNo=groupIndex+1;
+      const start=groupIndex*cap+1;
+      return `
+        <div class="tournamentCard" style="margin:12px 0;padding:12px;border:1px solid #4a3b1b;">
+          <h3 style="color:#D6A642;margin:0 0 12px;">${mode==="br_duo"?"DUO":"SQUAD"} ${groupNo}</h3>
+          <div style="display:grid;grid-template-columns:repeat(${cap},minmax(0,1fr));gap:8px;">
+            ${Array.from({length:cap},(_,i)=>dashboardSlotCard(start+i)).join("")}
+          </div>
+        </div>`;
+    }).join("");
+  }else{
+    slotsBox.innerHTML=Array.from({length:totalSlots},(_,index)=>dashboardSlotCard(index+1)).join("");
+  }
 
 }
   
@@ -1759,24 +1777,47 @@ async function renderTournamentSlotPicker(tournament){
     if(global>0 && global<=total) occupied.set(global,player);
   }
 
-  box.innerHTML=`
-    <p style="margin:0 0 10px;color:#aaa;">Gold: selected • Dark: available • Grey: already booked</p>
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">
-      ${Array.from({length:total},(_,i)=>{
-        const n=i+1, player=occupied.get(n);
-        const mine=player && player.user_id===currentUser?.id;
-        const label=player?(mine?"YOUR SLOT":(player.name || "Booked")):"SLOT "+n;
-        return `<button type="button" data-tournament-slot="${n}"
-          ${player?"disabled":""}
-          onclick="selectTournamentSlot(${n})"
-          style="min-height:58px;border:1px solid ${player?"#555":"#D6A642"};border-radius:8px;padding:6px 3px;background:${player?(mine?"#8b6a22":"#333"):"#171717"};color:${player?"#bbb":"#D6A642"};font-size:12px;">
-          <b>${player?(mine?"SLOT "+n:"SLOT "+n):"SLOT "+n}</b><br>
-          <span>${player?escapeHTML(player.name || "Booked"):"AVAILABLE"}</span>
-          ${player && player.uid?"<br><small>"+escapeHTML(player.uid)+"</small>":""}
-        </button>`;
+  const mode=String(tournament.sport || "").toLowerCase();
+  const isGroupedBR=mode==="br_duo" || mode==="br_squad";
+  const cap=tournamentSlotCapacity(mode);
+
+  function pickerSlotCard(globalSlot){
+    const player=occupied.get(globalSlot);
+    const mine=player && player.user_id===currentUser?.id;
+    return `<button type="button" data-tournament-slot="${globalSlot}"
+      ${player?"disabled":""}
+      onclick="selectTournamentSlot(${globalSlot})"
+      style="width:100%;min-height:76px;border:1px solid ${player?"#555":(selectedSlotNumber===globalSlot?"#D6A642":"#777")};border-radius:8px;padding:8px 5px;background:${player?(mine?"#66501f":"#303030"):(selectedSlotNumber===globalSlot?"#D6A642":"#171717")};color:${player?"#ddd":(selectedSlotNumber===globalSlot?"#111":"#eee")};font-size:12px;">
+      <b>SLOT ${((globalSlot-1)%cap)+1}</b><br>
+      <span>${player?escapeHTML(player.name || "Booked"):(selectedSlotNumber===globalSlot?"SELECTED":"AVAILABLE")}</span>
+      ${player && player.uid?"<br><small>UID: "+escapeHTML(player.uid)+"</small>":""}
+    </button>`;
+  }
+
+  if(isGroupedBR){
+    const groupCount=total/cap;
+    box.innerHTML=`
+      <p style="margin:0 0 12px;color:#aaa;">Har squad/team ke andar apna slot select karein. Booked slots locked hain.</p>
+      ${Array.from({length:groupCount},(_,groupIndex)=>{
+        const groupNo=groupIndex+1;
+        const start=(groupIndex*cap)+1;
+        return `
+          <div class="tournamentCard" style="margin:10px 0;padding:12px;border:1px solid #4a3b1b;">
+            <h3 style="color:#D6A642;margin:0 0 10px;">${mode==="br_duo"?"DUO":"SQUAD"} ${groupNo}</h3>
+            <div style="display:grid;grid-template-columns:repeat(${cap},minmax(0,1fr));gap:7px;">
+              ${Array.from({length:cap},(_,i)=>pickerSlotCard(start+i)).join("")}
+            </div>
+          </div>`;
       }).join("")}
-    </div>
-  `;
+    `;
+  }else{
+    box.innerHTML=`
+      <p style="margin:0 0 10px;color:#aaa;">Gold: selected • Dark: available • Grey: already booked</p>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">
+        ${Array.from({length:total},(_,i)=>pickerSlotCard(i+1)).join("")}
+      </div>
+    `;
+  }
 }
 
 /* OPEN INDIVIDUAL TOURNAMENT JOIN */
