@@ -1459,16 +1459,13 @@ async function openTournamentDashboard(id){
     players = playerData || [];
   }
 
-  const activeTeamIds = new Set(players.filter(p => p.user_id).map(p => p.team_id));
-  teamList = teamList.filter(team => activeTeamIds.has(team.id));
-  players = players.filter(player => activeTeamIds.has(player.team_id));
-
-  const totalSlots = (String(tournament.sport || '').startsWith('cs_') || tournament.sport === 'lone_wolf') ? 2 : Number(tournament.max_teams || 0);
-  const playersPerSlot = getPlayerCount(tournament.sport);
+  players = players.filter(player => player.user_id);
+  const totalSlots = tournamentTotalSlots(tournament);
+  const playersPerSlot = tournamentSlotCapacity(tournament.sport);
+  const occupiedSlots = players.length;
   const filledSlots = teamList.filter(team =>
     players.filter(player => player.team_id === team.id).length >= playersPerSlot
   ).length;
-  const occupiedSlots = teamList.length;
   const availableSlots = Math.max(0,totalSlots-occupiedSlots);
   const totalPlayers = players.length;
 
@@ -1548,30 +1545,9 @@ async function openTournamentDashboard(id){
   `;
 
 
-  /* CHECK EMPTY TEAMS */
-
-  if(teamList.length === 0){
-
-    slotsBox.innerHTML =
-      '<div class="empty">Abhi koi team join nahi hui.</div>';
-
-    return;
-
-  }
-
-
   /* CHECK PLAYER REGISTRATION */
 
-  const isRegistered = teamList.some(team => {
-
-    return (
-      players.some(player =>
-        player.team_id === team.id &&
-        player.user_id === currentUser?.id
-      )
-    );
-
-  });
+  const isRegistered = players.some(player => player.user_id === currentUser?.id);
 
 
   /* SECURE ROOM DETAILS */
@@ -1644,44 +1620,25 @@ async function openTournamentDashboard(id){
   }
 
 
-  /* SHOW TEAM SLOTS */
+  /* SHOW EVERY NUMBERED SLOT WITH PLAYER NAME AND UID */
 
-  slotsBox.innerHTML = teamList.map((team,index)=>{
-
-    const teamPlayers = players.filter(p => p.team_id === team.id);
-
-    const isMine =
-      teamPlayers.some(p => p.user_id === currentUser?.id);
-
+  const slotRows = Array.from({length:totalSlots},(_,index)=>{
+    const globalSlot=index+1;
+    const details=slotGroupDetails(tournament,globalSlot);
+    const team=teamList.find(t=>t.name===details.name);
+    const player=team ? players.find(p=>p.team_id===team.id && Number(p.slot_number)===details.local) : null;
+    const mine=player && player.user_id===currentUser?.id;
     return `
-
-      <div class="tournamentCard"
-        style="${isMine ? 'border:2px solid #ffc107;' : ''}">
-
-        <h3>
-          SLOT ${String(index+1).padStart(2,"0")}
-          ${isMine ? ' ⭐ YOUR TEAM' : ''}
-        </h3>
-
-        <p>🏆 Team: ${escapeHTML(team.name || "Team")}</p>
-
-        <p>👥 Players: ${teamPlayers.length}/${playersPerSlot}</p>
-
-        ${teamPlayers.map((player,i)=>`
-
-          <div class="infoBox" style="margin:8px 0;padding:10px;">
-
-            ${i+1}. ${escapeHTML(player.name || "Player")}
-
-          </div>
-
-        `).join("")}
-
+      <div class="infoBox" style="margin:8px 0;padding:12px;border:1px solid ${player?(mine?"#D6A642":"#555"):"#333"};">
+        <b style="color:#D6A642;">SLOT ${String(globalSlot).padStart(2,"0")}</b>
+        <span style="float:right;color:${player?"#ffcf65":"#55d68b"};">${player?(mine?"YOUR SLOT":"BOOKED"):"AVAILABLE"}</span>
+        <div style="margin-top:6px;">${player?escapeHTML(player.name || "Player"):"No player joined yet"}</div>
+        ${player?"<small style='color:#aaa;'>UID: "+escapeHTML(player.uid || "Not set")+"</small>":""}
+        <div><small style="color:#888;">${escapeHTML(details.name)} • Position ${details.local}</small></div>
       </div>
-
     `;
-
-  }).join("");
+  });
+  slotsBox.innerHTML=slotRows.join("");
 
 }
   
