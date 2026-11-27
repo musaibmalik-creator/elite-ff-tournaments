@@ -109,4 +109,151 @@ WHERE lower(coalesce(t.status,'')) IN ('complete','completed')
   AND p.user_id IS NOT NULL
 ON CONFLICT (tournament_id,user_id) DO NOTHING;
 
+
+-- Keep one leaderboard row per player per tournament so resubmitting
+-- corrected results updates the amount instead of double-counting it.
+DO $
+DECLARE
+  item record;
+BEGIN
+  FOR item IN
+    SELECT tournament_id,user_id,sum(amount) AS total_amount,
+           (array_agg(id ORDER BY created_at DESC,id DESC))[1] AS keep_id
+    FROM public.leaderboard_winnings
+    WHERE user_id IS NOT NULL
+    GROUP BY tournament_id,user_id
+    HAVING count(*) > 1
+  LOOP
+    UPDATE public.leaderboard_winnings
+    SET amount=item.total_amount
+    WHERE id=item.keep_id;
+
+    DELETE FROM public.leaderboard_winnings
+    WHERE tournament_id=item.tournament_id
+      AND user_id=item.user_id
+      AND id<>item.keep_id;
+  END LOOP;
+END;
+$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS leaderboard_winnings_tournament_user_uidx
+  ON public.leaderboard_winnings(tournament_id,user_id);
+
+-- One secure database transaction saves every player's stats and winnings.
+CREATE OR REPLACE FUNCTION public.admin_save_tournament_results(
+  p_tournament_id uuid,
+  p_results jsonb
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $
+DECLARE
+  result_count integer;
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id=auth.uid() AND role='admin'
+  ) THEN
+    RAISE EXCEPTION 'Only admins can submit match results';
+  END IF;
+
+  IF p_results IS NULL OR jsonb_typeof(p_results)<>'array' THEN
+    RAISE EXCEPTION 'Invalid results data';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM public.tournaments WHERE id=p_tournament_id) THEN
+    RAISE EXCEPTION 'Tournament not found';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_to_recordset(p_results) AS x(
+      user_id uuid,
+      kills integer,
+      prize_amount numeric
+    )
+    WHERE x.user_id IS NULL
+       OR coalesce(x.kills,-1)<0
+       OR coalesce(x.prize_amount,-1)<0
+  ) THEN
+    RAISE EXCEPTION 'Invalid player result values';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_to_recordset(p_results) AS x(user_id uuid)
+    WHERE NOT EXISTS (
+      SELECT 1 FROM public.players p
+      WHERE p.tournament_id=p_tournament_id
+        AND p.user_id=x.user_id
+        AND p.status='confirmed'
+    )
+  ) THEN
+    RAISE EXCEPTION 'A player is not confirmed in this tournament';
+  END IF;
+
+  INSERT INTO public.player_match_results
+    (tournament_id,user_id,player_name,player_uid,kills,is_winner,prize_amount)
+  SELECT
+    p_tournament_id,
+    x.user_id,
+    coalesce(nullif(x.player_name,''),'Player'),
+    coalesce(x.player_uid,''),
+    x.kills,
+    coalesce(x.is_winner,false),
+    x.prize_amount
+  FROM jsonb_to_recordset(p_results) AS x(
+    user_id uuid,
+    player_name text,
+    player_uid text,
+    kills integer,
+    is_winner boolean,
+    prize_amount numeric
+  )
+  ON CONFLICT (tournament_id,user_id) DO UPDATE SET
+    player_name=EXCLUDED.player_name,
+    player_uid=EXCLUDED.player_uid,
+    kills=EXCLUDED.kills,
+    is_winner=EXCLUDED.is_winner,
+    prize_amount=EXCLUDED.prize_amount;
+
+  INSERT INTO public.leaderboard_winnings
+    (user_id,player_name,player_uid,tournament_id,amount)
+  SELECT
+    x.user_id,
+    coalesce(nullif(x.player_name,''),'Player'),
+    coalesce(x.player_uid,''),
+    p_tournament_id,
+    x.prize_amount
+  FROM jsonb_to_recordset(p_results) AS x(
+    user_id uuid,
+    player_name text,
+    player_uid text,
+    prize_amount numeric
+  )
+  WHERE x.prize_amount>0
+  ON CONFLICT (tournament_id,user_id) DO UPDATE SET
+    player_name=EXCLUDED.player_name,
+    player_uid=EXCLUDED.player_uid,
+    amount=EXCLUDED.amount,
+    created_at=now();
+
+  DELETE FROM public.leaderboard_winnings lw
+  USING jsonb_to_recordset(p_results) AS x(user_id uuid,prize_amount numeric)
+  WHERE lw.tournament_id=p_tournament_id
+    AND lw.user_id=x.user_id
+    AND coalesce(x.prize_amount,0)=0;
+
+  SELECT count(*) INTO result_count
+  FROM jsonb_to_recordset(p_results) AS x(user_id uuid);
+
+  RETURN jsonb_build_object('saved',true,'players',result_count);
+END;
+$;
+
+GRANT EXECUTE ON FUNCTION public.admin_save_tournament_results(uuid,jsonb)
+  TO authenticated;
+
 COMMIT;
