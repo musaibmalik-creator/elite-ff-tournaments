@@ -32,6 +32,8 @@ DECLARE
   player_id_value uuid;
   entry_id_value uuid;
   team_players integer;
+  match_players integer;
+  is_match_mode boolean;
 BEGIN
   IF u IS NULL THEN RAISE EXCEPTION 'Please login first.'; END IF;
   IF p_slot_number IS NULL OR p_slot_number < 1 THEN
@@ -79,6 +81,8 @@ BEGIN
   IF total_slots < 1 OR p_slot_number > total_slots THEN
     RAISE EXCEPTION 'Selected slot is outside the tournament capacity.';
   END IF;
+
+  is_match_mode := mode IN ('cs_1v1','cs_2v2','cs_4v4','lone_wolf');
 
   IF mode IN ('cs_1v1','cs_2v2','cs_4v4') THEN
     group_no := ((p_slot_number-1) / capacity) + 1;
@@ -164,7 +168,23 @@ BEGIN
   FROM public.players
   WHERE team_id=team_id_value AND user_id IS NOT NULL;
 
-  IF team_players >= capacity THEN
+  SELECT count(*) INTO match_players
+  FROM public.players
+  WHERE tournament_id=p_tournament_id AND user_id IS NOT NULL;
+
+  IF is_match_mode THEN
+    -- CS and Lone Wolf are one head-to-head match: both sides must fill
+    -- before any player or team entry is marked confirmed.
+    IF match_players >= total_slots THEN
+      UPDATE public.tournament_entries
+      SET status='confirmed'
+      WHERE tournament_id=p_tournament_id;
+      UPDATE public.players
+      SET status='confirmed'
+      WHERE tournament_id=p_tournament_id;
+    END IF;
+  ELSIF team_players >= capacity THEN
+    -- BR Solo/Duo/Squad registrations confirm independently by squad.
     UPDATE public.tournament_entries SET status='confirmed' WHERE id=entry_id_value;
     UPDATE public.players SET status='confirmed' WHERE team_id=team_id_value;
   END IF;
@@ -176,9 +196,15 @@ BEGIN
     'player_id',player_id_value,
     'slot_number',p_slot_number,
     'team_slot_number',local_slot,
-    'team_players',team_players,
-    'team_capacity',capacity,
-    'team_status',CASE WHEN team_players>=capacity THEN 'confirmed' ELSE 'pending' END,
+    'team_players',CASE WHEN is_match_mode THEN match_players ELSE team_players END,
+    'team_capacity',CASE WHEN is_match_mode THEN total_slots ELSE capacity END,
+    'match_players',match_players,
+    'match_capacity',total_slots,
+    'team_status',CASE
+      WHEN is_match_mode AND match_players>=total_slots THEN 'confirmed'
+      WHEN NOT is_match_mode AND team_players>=capacity THEN 'confirmed'
+      ELSE 'pending'
+    END,
     'charged',coalesce(tour.entry_fee,0)
   );
 END;
