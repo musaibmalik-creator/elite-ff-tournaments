@@ -2564,7 +2564,27 @@ async function login() {
    DASHBOARD
 ===================================================== */
 
-function showDashboard(user){
+async function showDashboard(user){
+
+  // Verify the signed-in account is an administrator before showing admin data.
+  const { data: adminProfile, error: adminProfileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if(adminProfileError || adminProfile?.role !== "admin"){
+    await supabase.auth.signOut();
+    hideSections();
+    $("loginCard").classList.remove("hidden");
+    showMessage(
+      $("message"),
+      adminProfileError
+        ? "Unable to verify admin access. Please try again."
+        : "Access denied. Admin account required."
+    );
+    return;
+  }
 
   /* Hide login page */
 
