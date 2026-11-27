@@ -179,24 +179,24 @@ button{cursor:pointer}
 
 
 /* TERMS & CONDITIONS CARD */
-#profileSection .eliteTermsCard{
+#termsSection .eliteTermsCard{
   margin:18px 0;padding:18px 15px;border-radius:15px;
   background:linear-gradient(145deg,#191919,#0c0c0c);
   border:1px solid #454545;box-shadow:0 8px 20px rgba(0,0,0,.22);
 }
-#profileSection .eliteTermsTitle{
+#termsSection .eliteTermsTitle{
   margin:0 0 8px;color:#ffc107;font-size:17px;font-weight:900;letter-spacing:.7px;
 }
-#profileSection .eliteTermsIntro{
+#termsSection .eliteTermsIntro{
   margin:0 0 16px;color:#bbb;font-size:12px;line-height:1.65;
 }
-#profileSection .eliteTermsCard h4{
+#termsSection .eliteTermsCard h4{
   margin:16px 0 7px;color:#f2f2f2;font-size:12px;font-weight:900;letter-spacing:.45px;
 }
-#profileSection .eliteTermsCard p{
+#termsSection .eliteTermsCard p{
   margin:0 0 9px;color:#aaa;font-size:12px;line-height:1.75;
 }
-#profileSection .eliteTermsCard .eliteTermsNote{
+#termsSection .eliteTermsCard .eliteTermsNote{
   margin:16px 0 0;padding:12px;border-radius:10px;
   background:#202020;border-left:3px solid #ffc107;color:#ddd;
 }
@@ -634,8 +634,34 @@ SAVE FREE FIRE DETAILS
 
 
 
-<!-- TERMS & CONDITIONS -->
-<div class="eliteTermsCard">
+<!-- TERMS & CONDITIONS BUTTON -->
+<button class="btn btnDark" type="button" style="margin:18px 0;border:1px solid #ffc107;color:#ffc107;" onclick="showOnly('termsSection')">
+  📜 TERMS & CONDITIONS <span style="float:right">›</span>
+</button>
+
+<!-- CUSTOMER SUPPORT -->
+
+<div class="profileRow">
+<div class="profileLabel">CUSTOMER SUPPORT</div>
+<div class="profileValue">Telegram Support</div>
+</div>
+
+<button class="btn btnGold" onclick="window.open('https://t.me/NocTyx001','_blank')">
+CONTACT SUPPORT
+</button>
+
+<button id="logoutButton" class="btn btnDark" onclick="logoutUser()">
+LOGOUT
+</button>
+
+</div>
+</div>
+  
+
+<!-- TERMS & CONDITIONS PAGE -->
+<div id="termsSection" class="section">
+  <h2 class="sectionTitle">TERMS & CONDITIONS</h2>
+  <div class="eliteTermsCard">
   <h3 class="eliteTermsTitle">TERMS & CONDITIONS</h3>
   <p class="eliteTermsIntro">Please read these terms carefully before joining tournaments or using wallet services on Elite FF Tournaments.</p>
 
@@ -664,25 +690,8 @@ SAVE FREE FIRE DETAILS
 
   <p class="eliteTermsNote">By using Elite FF Tournaments, you confirm that you have read and agree to follow these terms and the rules displayed for each tournament.</p>
 </div>
-
-<!-- CUSTOMER SUPPORT -->
-
-<div class="profileRow">
-<div class="profileLabel">CUSTOMER SUPPORT</div>
-<div class="profileValue">Telegram Support</div>
+  <button class="btn btnDark" type="button" onclick="showOnly('profileSection')">← BACK TO PROFILE</button>
 </div>
-
-<button class="btn btnGold" onclick="window.open('https://t.me/NocTyx001','_blank')">
-CONTACT SUPPORT
-</button>
-
-<button id="logoutButton" class="btn btnDark" onclick="logoutUser()">
-LOGOUT
-</button>
-
-</div>
-</div>
-  
 
 <!-- TOP PLAYERS -->
 
