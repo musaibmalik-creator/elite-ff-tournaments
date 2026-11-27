@@ -275,13 +275,14 @@ button{cursor:pointer}
       Tournament select karein.
     </div>
 
-    <input
-      id="teamName"
-      class="input"
-      placeholder="Team Name"
-    >
+    <div id="joiningPlayerInfo" class="infoBox">
+      Your Free Fire profile details will appear here.
+    </div>
 
-    <div id="playersContainer"></div>
+    <p style="color:#aaa;">
+      Aapka slot system automatically assign karega. Entry fee
+      aapke apne wallet se deduct hogi.
+    </p>
 
     <button
       id="registerTeamButton"
@@ -289,7 +290,7 @@ button{cursor:pointer}
       type="button"
       onclick="registerTeam()"
     >
-      REGISTER TEAM & JOIN
+      JOIN TOURNAMENT & PAY
     </button>
 
     <button
@@ -301,64 +302,6 @@ button{cursor:pointer}
     </button>
 
     <div id="teamMessage" class="message"></div>
-
-  </div>
-
-<!-- CAPTAIN INVITE CODES -->
-
-<div
-  id="teamInviteBox"
-  class="formBox"
-  style="display:none; margin-top:20px;"
->
-
-  <h3>TEAM INVITE CODES</h3>
-
-  <p>
-    Apne teammates ko unka unique invite code share karein.
-  </p>
-
-  <button
-    class="btn btnGold"
-    type="button"
-    onclick="loadMyTeamInvites()"
-  >
-    LOAD MY TEAM INVITE CODES
-  </button>
-
-  <div id="teamInviteList"></div>
-
-</div>
-  
-
-
-  <!-- CLAIM PLAYER SLOT -->
-
-  <div class="formBox" style="margin-top:20px;">
-
-    <h3>CLAIM YOUR PLAYER SLOT</h3>
-
-    <p>
-      Apni Free Fire UID profile mein save karein,
-      phir captain se mila invite code enter karein.
-    </p>
-
-    <input
-      id="playerInviteCode"
-      class="input"
-      type="text"
-      placeholder="Enter Team Invite Code"
-    >
-
-    <button
-      class="btn btnGold"
-      type="button"
-      onclick="claimPlayerSlot()"
-    >
-      CLAIM PLAYER SLOT
-    </button>
-
-    <div id="claimMessage" class="message"></div>
 
   </div>
 
@@ -1475,7 +1418,7 @@ async function openTournamentDashboard(id){
 
   const {data:teams,error:teamError} = await supabaseClient
     .from("teams")
-    .select("id,name,captain_id,created_at")
+    .select("id,name,created_at")
     .eq("tournament_id",id)
     .order("created_at",{ascending:true});
 
@@ -1486,7 +1429,7 @@ async function openTournamentDashboard(id){
   }
 
 
-  const teamList = teams || [];
+  let teamList = teams || [];
   const teamIds = teamList.map(t => t.id);
 
   let players = [];
@@ -1507,8 +1450,10 @@ async function openTournamentDashboard(id){
     players = playerData || [];
   }
 
+  const activeTeamIds = new Set(players.filter(p => p.user_id).map(p => p.team_id));
+  teamList = teamList.filter(team => activeTeamIds.has(team.id));
 
-  const totalSlots = Number(tournament.max_teams || 0);
+  const totalSlots = (String(tournament.sport || '').startsWith('cs_') || tournament.sport === 'lone_wolf') ? 2 : Number(tournament.max_teams || 0);
   const filledSlots = teamList.length;
   const availableSlots = Math.max(0,totalSlots-filledSlots);
   const totalPlayers = players.length;
@@ -1606,7 +1551,6 @@ async function openTournamentDashboard(id){
   const isRegistered = teamList.some(team => {
 
     return (
-      team.captain_id === currentUser?.id ||
       players.some(player =>
         player.team_id === team.id &&
         player.user_id === currentUser?.id
@@ -1693,7 +1637,6 @@ async function openTournamentDashboard(id){
     const teamPlayers = players.filter(p => p.team_id === team.id);
 
     const isMine =
-      team.captain_id === currentUser?.id ||
       teamPlayers.some(p => p.user_id === currentUser?.id);
 
     return `
@@ -1755,123 +1698,142 @@ function getPlayerCount(sport){
     br_solo: 1,
     br_duo: 2,
     br_squad: 4,
-    lone_wolf: 2
+    lone_wolf: 1
   };
 
   return playerCount[sport] || 1;
 }
 
-/* OPEN TEAM REGISTRATION */
+/* OPEN INDIVIDUAL TOURNAMENT JOIN */
 
 async function openTeamRegistration(id){
 
   selectedTournamentId = id;
 
-  const text =
-    document.getElementById("selectedTournamentText");
-
-  const container =
-    document.getElementById("playersContainer");
-
-  if(!container){
-    alert("Players container nahi mila.");
-    return;
-  }
+  const text = document.getElementById("selectedTournamentText");
+  const playerInfo = document.getElementById("joiningPlayerInfo");
+  const container = document.getElementById("playersContainer");
 
   if(!currentUser){
     alert("Please login first.");
     return;
   }
 
-  container.innerHTML = "Loading tournament...";
-
   showOnly("teamSection");
+  setMessage("teamMessage","Loading tournament and profile...");
 
-  const {data: tournament, error} =
-    await supabaseClient
-      .from("tournaments")
-      .select("id,name,sport")
-      .eq("id",id)
-      .single();
+  const {data:tournament,error:tournamentError} = await supabaseClient
+    .from("tournaments")
+    .select("id,name,sport,entry_fee")
+    .eq("id",id)
+    .single();
 
-  if(error){
-    container.innerHTML = "";
-    setMessage("teamMessage",error.message);
+  if(tournamentError){
+    setMessage("teamMessage",tournamentError.message);
     return;
   }
 
-  /* LOAD PROFILE DETAILS */
-
-  const {data: profile, error: profileError} =
-    await supabaseClient
-      .from("profiles")
-      .select("ff_name,ff_uid")
-      .eq("id",currentUser.id)
-      .maybeSingle();
+  const {data:profile,error:profileError} = await supabaseClient
+    .from("profiles")
+    .select("ff_name,ff_uid")
+    .eq("id",currentUser.id)
+    .maybeSingle();
 
   if(profileError){
-    container.innerHTML = "";
     setMessage("teamMessage",profileError.message);
     return;
   }
 
-  const totalPlayers = getPlayerCount(tournament.sport);
-
   if(text){
-    text.textContent =
-      "Tournament: " + tournament.name +
-      " | Mode: " + tournament.sport +
-      " | Players: " + totalPlayers;
+    text.innerHTML =
+      "<b>Tournament:</b> " + escapeHTML(tournament.name) +
+      "<br><b>Mode:</b> " + escapeHTML(tournament.sport) +
+      "<br><b>Entry Fee:</b> ₹" + Number(tournament.entry_fee || 0);
   }
 
-  container.innerHTML = "";
-
-  for(let i = 1; i <= totalPlayers; i++){
-
-    container.innerHTML += `
-      <div class="playerBox">
-
-        <div class="playerTitle">
-          Player ${i}
-        </div>
-
-        <input
-          id="player${i}Name"
-          class="input"
-          placeholder="Player ${i} Free Fire Name"
-        >
-
-        <input
-          id="player${i}UID"
-          class="input"
-          placeholder="Player ${i} Free Fire UID"
-        >
-
-      </div>
-    `;
-
+  if(playerInfo){
+    playerInfo.innerHTML =
+      "<b>Your Player Details</b><br>" +
+      "Free Fire Name: " + escapeHTML(profile?.ff_name || "Not set") +
+      "<br>Free Fire UID: " + escapeHTML(profile?.ff_uid || "Not set");
   }
 
-  /* AUTO FILL PLAYER 1 */
-
-  if(profile){
-
-    document.getElementById("player1Name").value =
-      profile.ff_name || "";
-
-    document.getElementById("player1UID").value =
-      profile.ff_uid || "";
-
-  }
-
+  if(container) container.innerHTML = "";
   setMessage("teamMessage","");
+}
 
+
+/* INDIVIDUAL WALLET-PAID JOIN */
+
+async function registerTeam(){
+
+  const rulesCheckbox = document.getElementById("agreeTournamentRules");
+
+  if(!rulesCheckbox || !rulesCheckbox.checked){
+    setMessage("teamMessage","Please read and accept tournament rules first.");
+    return;
+  }
+
+  if(!currentUser){
+    setMessage("teamMessage","Pehle login karo.");
+    return;
+  }
+
+  if(!selectedTournamentId){
+    setMessage("teamMessage","Tournament select karo.");
+    return;
+  }
+
+  const button = document.getElementById("registerTeamButton");
+  if(button){
+    button.disabled = true;
+    button.textContent = "PROCESSING PAYMENT...";
+  }
+
+  setMessage("teamMessage","Checking profile, slot and wallet...");
+
+  try{
+    const {data,error} = await supabaseClient.rpc(
+      "join_tournament_with_wallet",
+      {p_tournament_id:selectedTournamentId}
+    );
+
+    if(error) throw error;
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    setMessage(
+      "teamMessage",
+      "Payment successful! ₹" + Number(result.charged || 0) +
+      " deducted. You joined " + escapeHTML(result.team_name || "your slot") +
+      ". Players: " + result.team_players + "/" + result.team_capacity +
+      ". Status: " + (result.team_status === "confirmed" ? "CONFIRMED ✅" : "WAITING FOR TEAMMATES")
+    );
+
+    if(typeof loadWallet === "function"){
+      await loadWallet();
+    }
+
+    if(typeof loadProfile === "function"){
+      await loadProfile();
+    }
+
+    if(typeof openTournamentDashboard === "function"){
+      setTimeout(() => openTournamentDashboard(selectedTournamentId), 700);
+    }
+
+  }catch(error){
+    setMessage("teamMessage",error.message || "Tournament join failed.");
+  }finally{
+    if(button){
+      button.disabled = false;
+      button.textContent = "JOIN TOURNAMENT & PAY";
+    }
+  }
 }
 
 
 
-
-/* REGISTER TEAM + GENERATE INVITE CODES */
 
 async function registerTeam(){
 
@@ -2024,95 +1986,6 @@ async function registerTeam(){
 
 
   
-/* LOAD MY TEAM INVITES */
-
-async function loadMyTeamInvites(){
-
-  if(!currentUser) return;
-
-  setMessage("teamMessage","Loading team invites...");
-
-  const {data: team,error} = await supabaseClient
-    .from("teams")
-    .select("id")
-    .eq("captain_id",currentUser.id)
-    .order("created_at",{ascending:false})
-    .limit(1)
-    .maybeSingle();
-
-  if(error || !team){
-    setMessage("teamMessage","Registered team not found.");
-    return;
-  }
-
-  const {data: invites,error: inviteError} =
-    await supabaseClient.rpc(
-      "create_team_player_invites",
-      {p_team_id:team.id}
-    );
-
-  if(inviteError){
-    setMessage("teamMessage","Error: "+inviteError.message);
-    return;
-  }
-
-  const inviteBox = document.getElementById("teamInviteBox");
-  const inviteList = document.getElementById("teamInviteList");
-
-  inviteList.innerHTML = invites.map(item => `
-    <div class="infoBox" style="margin:10px 0;padding:12px;">
-      <b>${escapeHTML(item.player_name)}</b>
-      <p>Invite Code: <strong>${escapeHTML(item.invite_code)}</strong></p>
-    </div>
-  `).join("");
-
-  inviteBox.style.display = "block";
-
-  setMessage("teamMessage","Invite codes ready! ✅");
-}
-  
-
-/* CLAIM PLAYER SLOT */
-
-async function claimPlayerSlot(){
-
-  if(!currentUser){
-    setMessage("claimMessage","Pehle login karo.");
-    return;
-  }
-
-  const input = document.getElementById("playerInviteCode");
-  const code = input.value.trim();
-
-  if(!code){
-    setMessage("claimMessage","Invite code enter karo.");
-    return;
-  }
-
-  setMessage("claimMessage","Verifying invite code...");
-
-  const {data,error} = await supabaseClient.rpc(
-    "claim_player_invite",
-    {p_invite_code:code}
-  );
-
-  if(error){
-    setMessage("claimMessage","Error: "+error.message);
-    return;
-  }
-
-  input.value="";
-
-  setMessage("claimMessage","Player slot successfully linked to your account! ✅");
-
-  if(typeof loadProfile === "function"){
-    await loadProfile();
-  }
-}
-  
-
-  
-
 /* COPY UPI */
 
 function copyUPI(){
