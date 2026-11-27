@@ -56,11 +56,29 @@ button{cursor:pointer}
 .sectionTitle{font-size:22px;color:#ffc107;margin:8px 0 15px}
 .empty{padding:25px;text-align:center;border:1px dashed #444;border-radius:15px;color:#888}
 
-.tournamentCard{background:#121212;border:1px solid #303030;border-radius:17px;padding:17px;margin-bottom:13px}
-.tournamentTitle{font-size:18px;font-weight:900}
-.tournamentInfo{color:#aaa;font-size:13px;margin:9px 0;line-height:1.7}
+.tournamentCard{background:#121212;border:1px solid #303030;border-radius:17px;padding:0;margin-bottom:15px;overflow:hidden}
+.tournamentTitle{font-size:17px;font-weight:900;line-height:1.35}
+.tournamentInfo{color:#aaa;font-size:13px;margin:10px 0;line-height:1.7}
 .badge{padding:5px 9px;border-radius:20px;background:#2a2100;color:#ffc107;font-size:11px}
 .joinBtn{width:100%;padding:12px;border:0;border-radius:10px;background:#ffc107;color:#000;font-weight:900}
+.tournamentPoster{height:145px;position:relative;background:#181818;overflow:hidden}
+.tournamentPoster img{width:100%;height:100%;object-fit:cover;display:block;opacity:.82}
+.tournamentPoster:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+.tournamentPosterLabel{position:absolute;z-index:1;left:14px;bottom:13px;color:#fff;font-size:20px;font-weight:900;text-transform:uppercase;text-shadow:0 2px 8px #000}
+.tournamentCardBody{padding:15px}
+.tournamentMatchTitle{font-size:17px;font-weight:900;color:#fff;line-height:1.4}
+.tournamentDate{color:#c9c9c9;font-size:12px;margin-top:6px}
+.tournamentMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:14px 0}
+.tournamentMetric{padding:10px 5px;border:1px solid #333;border-radius:10px;background:#191919;text-align:center;min-width:0}
+.tournamentMetric small{display:block;color:#999;font-size:10px;font-weight:800}
+.tournamentMetric strong{display:block;color:#ffc107;font-size:17px;margin-top:5px;overflow-wrap:anywhere}
+.tournamentMetaGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 13px}
+.tournamentMeta{padding:9px 4px;border-radius:9px;background:#1b1b1b;text-align:center}
+.tournamentMeta small{display:block;color:#888;font-size:9px;font-weight:800}
+.tournamentMeta strong{display:block;color:#eee;font-size:11px;margin-top:5px;overflow-wrap:anywhere}
+.tournamentStatusTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 15px}
+.tournamentStatusTab{padding:11px 4px;border:1px solid #383838;border-radius:10px;background:#151515;color:#999;font-size:11px;font-weight:900}
+.tournamentStatusTab.active{background:#ffc107;border-color:#ffc107;color:#111}
 .floatingJoinBtn{position:fixed;z-index:120;right:max(16px,calc((100vw - 760px)/2 + 16px));bottom:88px;width:auto;min-width:145px;padding:15px 19px;border:1px solid #ffe082;border-radius:30px;background:#ffc107;color:#111;font-weight:900;box-shadow:0 5px 22px rgba(255,193,7,.3)}
 
 .formBox{background:#111;border:1px solid #292929;padding:18px;border-radius:17px}
@@ -326,7 +344,12 @@ button{cursor:pointer}
 <!-- TOURNAMENTS -->
 
 <div id="tournamentsSection" class="section">
-<h2 class="sectionTitle">Available Tournaments</h2>
+<h2 class="sectionTitle">Tournaments</h2>
+<div class="tournamentStatusTabs" role="tablist" aria-label="Tournament status">
+  <button type="button" class="tournamentStatusTab active" data-tournament-status="upcoming" onclick="setTournamentStatusFilter('upcoming')">UPCOMING</button>
+  <button type="button" class="tournamentStatusTab" data-tournament-status="ongoing" onclick="setTournamentStatusFilter('ongoing')">ONGOING</button>
+  <button type="button" class="tournamentStatusTab" data-tournament-status="complete" onclick="setTournamentStatusFilter('complete')">COMPLETE</button>
+</div>
 <div id="tournamentList"><div class="empty">Loading tournaments...</div></div>
 </div>
 
@@ -1547,69 +1570,126 @@ return String(value??"")
 }
 
 /* TOURNAMENTS */
+let currentTournamentModeFilter = "all";
+let currentTournamentStatusFilter = "upcoming";
 
-async function loadTournaments(filter="all"){
+function normalizeTournamentStatus(status){
+  const value=String(status||"upcoming").toLowerCase();
+  if(value==="registration_open" || value==="open" || value==="upcoming") return "upcoming";
+  if(value==="live" || value==="ongoing") return "ongoing";
+  if(value==="completed" || value==="complete") return "complete";
+  return value;
+}
 
-  const list = document.getElementById("tournamentList");
+function tournamentModeDetails(sport){
+  const mode=String(sport||"").toLowerCase();
+  if(mode==="br_solo") return {family:"BR",poster:"assets/battle-royale.jpg",banner:"BATTLE ROYALE",type:"SOLO",version:"BATTLE ROYALE",match:"Solo vs Solo Battle Royale"};
+  if(mode==="br_duo") return {family:"BR",poster:"assets/battle-royale.jpg",banner:"BATTLE ROYALE",type:"DUO",version:"BATTLE ROYALE",match:"Duo vs Duo Battle Royale"};
+  if(mode==="br_squad") return {family:"BR",poster:"assets/battle-royale.jpg",banner:"BATTLE ROYALE",type:"SQUAD",version:"BATTLE ROYALE",match:"Squad vs Squad Battle Royale"};
+  if(mode==="cs_1v1") return {family:"CS",poster:"assets/clash-squad.jpg",banner:"CLASH SQUAD",type:"1 VS 1",version:"CLASH SQUAD",match:"1v1 Clash Squad"};
+  if(mode==="cs_2v2") return {family:"CS",poster:"assets/clash-squad.jpg",banner:"CLASH SQUAD",type:"2 VS 2",version:"CLASH SQUAD",match:"2v2 Clash Squad"};
+  if(mode==="cs_4v4") return {family:"CS",poster:"assets/clash-squad.jpg",banner:"CLASH SQUAD",type:"4 VS 4",version:"CLASH SQUAD",match:"4v4 Clash Squad"};
+  return {family:"LONE WOLF",poster:"assets/lone-wolf.jpg",banner:"LONE WOLF",type:"1 VS 1",version:"LONE WOLF",match:"Lone Wolf Battle"};
+}
+
+function formatTournamentDate(value){
+  if(!value) return "Date not set";
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime())) return "Date not set";
+  return new Intl.DateTimeFormat("en-IN",{
+    day:"2-digit",month:"short",year:"numeric",
+    hour:"2-digit",minute:"2-digit",hour12:true
+  }).format(date);
+}
+
+function tournamentMatchNumber(id){
+  const source=String(id||"");
+  let hash=0;
+  for(let i=0;i<source.length;i++) hash=(hash*31+source.charCodeAt(i))>>>0;
+  return String(10000+(hash%90000));
+}
+
+function filterTournaments(filter){
+  currentTournamentModeFilter=filter||"all";
+  showOnly("tournamentsSection");
+  loadTournaments();
+}
+
+function setTournamentStatusFilter(status){
+  currentTournamentStatusFilter=status;
+  document.querySelectorAll("[data-tournament-status]").forEach(button=>{
+    button.classList.toggle("active",button.getAttribute("data-tournament-status")===status);
+  });
+  loadTournaments();
+}
+
+async function loadTournaments(filter=currentTournamentModeFilter){
+  if(filter!==undefined) currentTournamentModeFilter=filter||"all";
+  const list=document.getElementById("tournamentList");
   if(!list) return;
+  list.innerHTML='<div class="empty">Loading tournaments...</div>';
 
-  list.innerHTML = '<div class="empty">Loading tournaments...</div>';
-
-  let query = supabaseClient
-    .from("tournaments")
-    .select("id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at")
+  let query=supabaseClient.from("tournaments")
+    .select("id,name,sport,description,entry_fee,prize_pool,per_kill,map_name,max_teams,status,starts_at")
     .order("starts_at",{ascending:true});
-
-  if(filter !== "all"){
-    query = query.eq("sport",filter);
-  }
-
-  const {data,error} = await query;
-
+  const {data,error}=await query;
   if(error){
-    list.innerHTML = '<div class="empty">' + escapeHTML(error.message) + '</div>';
+    list.innerHTML='<div class="empty">'+escapeHTML(error.message)+'</div>';
     return;
   }
 
-  if(!data || data.length === 0){
-    list.innerHTML = '<div class="empty">Abhi koi tournament available nahi hai.</div>';
+  const modes={
+    BR:["br_solo","br_duo","br_squad"],
+    CS:["cs_1v1","cs_2v2","cs_4v4"],
+    "Lone Wolf":["lone_wolf"]
+  };
+  const modeList=modes[currentTournamentModeFilter];
+  const filtered=(data||[]).filter(t=>{
+    const mode=String(t.sport||"").toLowerCase();
+    const modeMatch=currentTournamentModeFilter==="all" ||
+      (modeList ? modeList.includes(mode) : mode===String(currentTournamentModeFilter).toLowerCase());
+    return modeMatch && normalizeTournamentStatus(t.status)===currentTournamentStatusFilter;
+  });
+
+  if(!filtered.length){
+    const label=currentTournamentStatusFilter==="complete"?"completed":currentTournamentStatusFilter;
+    list.innerHTML='<div class="empty">No '+label+' tournaments available in this game mode.</div>';
     return;
   }
 
-  list.innerHTML = data.map(t=>{
-
-    const date = t.starts_at
-      ? new Date(t.starts_at).toLocaleString()
-      : "Date not set";
-
+  list.innerHTML=filtered.map(t=>{
+    const details=tournamentModeDetails(t.sport);
+    const date=formatTournamentDate(t.starts_at);
+    const matchTitle=details.match+" Match #"+tournamentMatchNumber(t.id);
+    const status=normalizeTournamentStatus(t.status);
     return `
-      <div class="tournamentCard"
-        onclick="openTournamentDashboard('${t.id}')"
-        style="cursor:pointer;">
-
-        <div class="tournamentTitle">
-          ${escapeHTML(t.name || "Tournament")}
+      <div class="tournamentCard" onclick="openTournamentDashboard('${t.id}')" style="cursor:pointer;">
+        <div class="tournamentPoster">
+          <img src="${details.poster}" alt="${escapeHTML(details.banner)}" onerror="this.onerror=null;this.src='elite-logo.jpg'">
+          <div class="tournamentPosterLabel">${escapeHTML(details.banner)}</div>
         </div>
-
-        <div class="tournamentInfo">
-          🎮 ${escapeHTML(t.sport || "")}
-          <br>🎟 Entry: ₹${Number(t.entry_fee || 0)}
-          <br>💰 Prize Pool: ₹${Number(t.prize_pool || 0)}
-          <br>👥 Max Teams: ${Number(t.max_teams || 0)}
-          <br>📅 ${escapeHTML(date)}
-          <br>📌 Status: ${escapeHTML(t.status || "")}
+        <div class="tournamentCardBody">
+          <div class="tournamentMatchTitle">${escapeHTML(matchTitle)}</div>
+          <div class="tournamentDate">📅 ${escapeHTML(date)}</div>
+          <div class="tournamentMetrics">
+            <div class="tournamentMetric"><small>PRIZE POOL</small><strong>₹${Number(t.prize_pool||0)}</strong></div>
+            <div class="tournamentMetric"><small>PER KILL</small><strong>₹${Number(t.per_kill||0)}</strong></div>
+            <div class="tournamentMetric"><small>ENTRY FEE</small><strong>₹${Number(t.entry_fee||0)}</strong></div>
+          </div>
+          <div class="tournamentMetaGrid">
+            <div class="tournamentMeta"><small>TYPE</small><strong>${escapeHTML(details.type)}</strong></div>
+            <div class="tournamentMeta"><small>VERSION</small><strong>${escapeHTML(details.version)}</strong></div>
+            <div class="tournamentMeta"><small>MAP</small><strong>${escapeHTML(t.map_name||"Not set")}</strong></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;">
+            <span class="badge">${escapeHTML(status.toUpperCase())}</span>
+            <span style="color:#999;font-size:11px;">${Number(t.max_teams||0)} slots/groups</span>
+          </div>
+          <button class="joinBtn" onclick="event.stopPropagation();openTournamentDashboard('${t.id}')">VIEW TOURNAMENT</button>
         </div>
-
-        <button class="joinBtn"
-          onclick="event.stopPropagation(); openTournamentDashboard('${t.id}')">
-          JOIN TOURNAMENT
-        </button>
-
       </div>
     `;
-
   }).join("");
-
 }
 
 
@@ -1636,7 +1716,7 @@ async function openTournamentDashboard(id){
 
   const {data:tournament,error} = await supabaseClient
     .from("tournaments")
-    .select("id,name,sport,description,entry_fee,prize_pool,max_teams,status,starts_at")
+    .select("id,name,sport,description,entry_fee,prize_pool,per_kill,map_name,max_teams,status,starts_at")
     .eq("id",id)
     .single();
 
@@ -1694,24 +1774,28 @@ async function openTournamentDashboard(id){
 
   /* TOURNAMENT INFORMATION + MATCH INSTRUCTIONS */
 
+  const modeDetails=tournamentModeDetails(tournament.sport);
   info.innerHTML = `
-
     <div class="tournamentCard">
-
-      <h2>${escapeHTML(tournament.name)}</h2>
-
-      <p>🎮 ${escapeHTML(tournament.sport || "")}</p>
-
-      <p>🎟 Entry Fee: ₹${Number(tournament.entry_fee || 0)}</p>
-
-      <p>🏆 Prize Pool: ₹${Number(tournament.prize_pool || 0)}</p>
-
-      <p>📌 Status: ${escapeHTML(tournament.status || "")}</p>
-
-      <p>📅 ${tournament.starts_at
-        ? escapeHTML(new Date(tournament.starts_at).toLocaleString())
-        : "Date not set"}</p>
-
+      <div class="tournamentPoster">
+        <img src="${modeDetails.poster}" alt="${escapeHTML(modeDetails.banner)}" onerror="this.onerror=null;this.src='elite-logo.jpg'">
+        <div class="tournamentPosterLabel">${escapeHTML(modeDetails.banner)}</div>
+      </div>
+      <div class="tournamentCardBody">
+        <h2 class="tournamentMatchTitle">${escapeHTML(modeDetails.match)} Match #${tournamentMatchNumber(tournament.id)}</h2>
+        <p class="tournamentDate">📅 ${escapeHTML(formatTournamentDate(tournament.starts_at))}</p>
+        <div class="tournamentMetrics">
+          <div class="tournamentMetric"><small>PRIZE POOL</small><strong>₹${Number(tournament.prize_pool||0)}</strong></div>
+          <div class="tournamentMetric"><small>PER KILL</small><strong>₹${Number(tournament.per_kill||0)}</strong></div>
+          <div class="tournamentMetric"><small>ENTRY FEE</small><strong>₹${Number(tournament.entry_fee||0)}</strong></div>
+        </div>
+        <div class="tournamentMetaGrid">
+          <div class="tournamentMeta"><small>TYPE</small><strong>${escapeHTML(modeDetails.type)}</strong></div>
+          <div class="tournamentMeta"><small>VERSION</small><strong>${escapeHTML(modeDetails.version)}</strong></div>
+          <div class="tournamentMeta"><small>MAP</small><strong>${escapeHTML(tournament.map_name||"Not set")}</strong></div>
+        </div>
+        <p style="color:#aaa;font-size:12px;">📌 Status: ${escapeHTML(normalizeTournamentStatus(tournament.status).toUpperCase())}</p>
+      </div>
     </div>
 
 
