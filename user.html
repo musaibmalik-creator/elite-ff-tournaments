@@ -1983,70 +1983,76 @@ async function openTournamentDashboard(id){
   const isRegistered = players.some(player => player.user_id === currentUser?.id && player.status === "confirmed");
 
 
-  /* SECURE ROOM DETAILS */
+  /* ROOM DETAILS: SHOW ONLY FROM 7 MINUTES BEFORE MATCH */
 
   if(isRegistered){
 
-    const {data:room,error:roomError} = await supabaseClient
-      .from("tournament_room_details")
-      .select("room_id,room_password,custom_id,custom_password")
-      .eq("tournament_id",id)
-      .maybeSingle();
+    const matchStart = tournament.starts_at
+      ? new Date(tournament.starts_at).getTime()
+      : NaN;
 
+    const releaseAt = matchStart - (7 * 60 * 1000);
+    const now = Date.now();
 
-    if(roomError){
+    if(!Number.isFinite(matchStart)){
 
       info.innerHTML += `
         <div class="tournamentCard">
-          Room details could not be loaded.
+          <h3>🔒 ROOM DETAILS</h3>
+          <p>Admin ne match ka start time set nahi kiya hai. Room details abhi available nahi hain.</p>
         </div>
       `;
 
-    }else if(room){
+    }else if(now < releaseAt){
+
+      const minutesLeft = Math.ceil((releaseAt - now) / 60000);
 
       info.innerHTML += `
-
         <div class="tournamentCard">
-
-          <h3>🎮 YOUR ROOM DETAILS</h3>
-
-          <p>
-            <b>Room ID:</b>
-            ${escapeHTML(room.room_id || "Not released")}
-          </p>
-
-          <p>
-            <b>Room Password:</b>
-            ${escapeHTML(room.room_password || "Not released")}
-          </p>
-
-          <p>
-            <b>Custom ID:</b>
-            ${escapeHTML(room.custom_id || "Not available")}
-          </p>
-
-          <p>
-            <b>Custom Password:</b>
-            ${escapeHTML(room.custom_password || "Not available")}
-          </p>
-
+          <h3>🔒 ROOM DETAILS LOCKED</h3>
+          <p>Room ID aur Password match start hone se 7 minutes pehle release honge.</p>
+          <p style="color:#D6A642;font-weight:bold;">Release in approximately ${minutesLeft} minute(s).</p>
         </div>
-
       `;
 
     }else{
 
-      info.innerHTML += `
+      const {data:room,error:roomError} = await supabaseClient
+        .from("tournament_room_details")
+        .select("room_id,room_password,custom_id,custom_password")
+        .eq("tournament_id",id)
+        .maybeSingle();
 
-        <div class="tournamentCard">
+      if(roomError){
 
-          <h3>🎮 ROOM DETAILS</h3>
+        info.innerHTML += `
+          <div class="tournamentCard">
+            Room details could not be loaded. Please refresh.
+          </div>
+        `;
 
-          <p>Admin ne abhi room details release nahi ki hain.</p>
+      }else if(room && (room.room_id || room.room_password || room.custom_id || room.custom_password)){
 
-        </div>
+        info.innerHTML += `
+          <div class="tournamentCard">
+            <h3>🎮 YOUR ROOM DETAILS</h3>
+            <p><b>Room ID:</b> ${escapeHTML(room.room_id || "Not released")}</p>
+            <p><b>Room Password:</b> ${escapeHTML(room.room_password || "Not released")}</p>
+            <p><b>Custom ID:</b> ${escapeHTML(room.custom_id || "Not available")}</p>
+            <p><b>Custom Password:</b> ${escapeHTML(room.custom_password || "Not available")}</p>
+          </div>
+        `;
 
-      `;
+      }else{
+
+        info.innerHTML += `
+          <div class="tournamentCard">
+            <h3>🎮 ROOM DETAILS</h3>
+            <p>Match ka release time aa gaya hai, lekin admin ne abhi room details add nahi ki hain.</p>
+          </div>
+        `;
+
+      }
 
     }
 
