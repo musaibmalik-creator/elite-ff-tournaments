@@ -1297,7 +1297,7 @@ async function loadWallet(){
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
     .from("withdrawals")
-    .select("amount,fee_amount,payout_amount,upi_id,status,created_at,rejection_reason")
+    .select("amount,fee_amount,payout_amount,upi_id,status,created_at,paid_at,payment_details,payment_proof_path,rejection_reason")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -1305,6 +1305,18 @@ async function loadWallet(){
     console.error("Withdrawal History Error:",withdrawError.message);
     if(withdrawHistory) withdrawHistory.textContent = "Unable to load withdrawals."; 
     return;
+  }
+
+  // Private payout proof: create a short-lived URL only for this signed-in player.
+  if(withdrawals && withdrawals.length){
+    await Promise.all(withdrawals.map(async item=>{
+      if(item.payment_proof_path){
+        const {data:proofData,error:proofError}=await supabaseClient
+          .storage.from("withdrawal-proofs")
+          .createSignedUrl(item.payment_proof_path,3600);
+        if(!proofError) item.payment_proof_url=proofData.signedUrl;
+      }
+    }));
   }
 
   const {data:wallet,error:walletError} =
@@ -1455,6 +1467,18 @@ if(depositHistory){
           <div style="color:#aaa;font-size:12px;margin-top:7px">
             UPI: ${safe(item.upi_id || "Not available")}
           </div>
+          <div style="color:#aaa;font-size:12px;margin-top:7px">
+            UTR / Bank reference: ${safe(item.payment_details || "Not available")}
+          </div>
+          <div style="color:#aaa;font-size:12px;margin-top:7px">
+            Paid at: ${safe(item.paid_at ? dateFormat(item.paid_at) : "Not paid / time unavailable")}
+          </div>
+          ${item.payment_proof_url ? `
+            <a href="${item.payment_proof_url}" target="_blank" rel="noopener"
+              style="display:block;text-align:center;margin-top:10px;padding:10px;border-radius:9px;background:#174b39;color:#a7f3d0;text-decoration:none;font-weight:800;font-size:12px">
+              VIEW OFFICIAL PAYMENT PROOF
+            </a>
+          ` : ""}
 
           ${
             item.status === "rejected"
