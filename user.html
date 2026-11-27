@@ -2037,11 +2037,11 @@ async function openTournamentDashboard(id){
   if(isMatchComplete){
     const {data:matchResults,error:resultsError}=await supabaseClient
       .from("player_match_results")
-      .select("user_id,kills,is_winner,prize_amount")
+      .select("user_id,kills,is_winner,prize_amount,results_submitted")
       .eq("tournament_id",id);
 
     if(!resultsError){
-      (matchResults || []).forEach(result=>{
+      (matchResults || []).filter(result=>result.results_submitted).forEach(result=>{
         matchResultsByUser.set(result.user_id,result);
       });
     }
