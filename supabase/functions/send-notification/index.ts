@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
         adminClient.from("tournament_room_details")
           .select("room_id,room_password,custom_id,custom_password")
           .eq("tournament_id", tournamentId).maybeSingle(),
-        adminClient.from("players").select("user_id").eq("tournament_id", tournamentId).not("user_id", "is", null),
+        adminClient.from("players").select("user_id").eq("tournament_id", tournamentId).eq("status", "confirmed").not("user_id", "is", null),
       ]);
       if (tError || !tournament) throw new Error("Tournament not found");
       if (rError) throw new Error("Unable to verify room details");
