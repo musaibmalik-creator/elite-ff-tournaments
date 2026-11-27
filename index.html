@@ -1638,7 +1638,12 @@ const SUPABASE_KEY =
 const supabase =
 createClient(
   SUPABASE_URL,
-  SUPABASE_KEY
+  SUPABASE_KEY,
+  {
+    auth: {
+      storageKey: "elite_ff_admin_auth"
+    }
+  }
 );
 
 
