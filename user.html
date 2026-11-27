@@ -27,7 +27,7 @@ button{cursor:pointer}
 #appSection{min-height:100vh;padding-bottom:85px}
 .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:15px;background:rgba(8,8,8,.96);border-bottom:1px solid #252525}
 .topTitle{color:#ffc107;font-weight:900;font-size:19px}
-.notification{width:40px;height:40px;border-radius:50%;border:1px solid #444;background:#151515;color:#ffc107}
+.notification{position:relative;width:40px;height:40px;border-radius:50%;border:1px solid #444;background:#151515;color:#ffc107}
 .container{width:100%;max-width:760px;margin:auto;padding:15px}
 .section{display:none}
 .section.active{display:block}
@@ -141,7 +141,9 @@ button{cursor:pointer}
 
 <header class="topbar">
 <div class="topTitle">ELITE FF TOURNAMENTS</div>
-<button class="notification" onclick="showOnly('myTournamentsSection')">🔔</button>
+<button class="notification" onclick="showOnly('notificationsSection')" aria-label="Notifications">
+  🔔<span id="notificationBadge" style="display:none;position:absolute;top:0;right:0;background:#e53935;color:#fff;border-radius:20px;font-size:10px;padding:2px 5px;">0</span>
+</button>
 </header>
 
 <main class="container">
@@ -153,6 +155,8 @@ button{cursor:pointer}
 <div class="hero">
 <h1>Welcome to Elite FF</h1>
 <p>Play tournaments, compete with players and manage your wallet easily.</p>
+<button class="btn btnGold" type="button" onclick="enablePushNotifications()">🔔 ENABLE NOTIFICATIONS</button>
+<div id="pushMessage" style="font-size:12px;color:#aaa;margin-top:9px;"></div>
 </div>
 
 <div class="wallet">
@@ -370,6 +374,15 @@ button{cursor:pointer}
 <div id="myTournamentsSection" class="section">
 <h2 class="sectionTitle">My Tournaments</h2>
 <div id="myTournamentList"><div class="empty">Loading...</div></div>
+</div>
+
+<!-- NOTIFICATIONS -->
+
+<div id="notificationsSection" class="section">
+<h2 class="sectionTitle">🔔 Notifications</h2>
+<button class="btn btnGold" type="button" onclick="enablePushNotifications()">ENABLE PHONE NOTIFICATIONS</button>
+<div id="notificationPermissionMessage" class="message">Allow notifications to receive match updates when your screen is off.</div>
+<div id="userNotificationsList"><div class="empty">Loading notifications...</div></div>
 </div>
 
 
@@ -602,6 +615,17 @@ LOGOUT
 const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
 
+/* Firebase Web App values: fill these after Firebase setup. */
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_FIREBASE_API_KEY",
+  authDomain: "PASTE_FIREBASE_PROJECT_ID.firebaseapp.com",
+  projectId: "PASTE_FIREBASE_PROJECT_ID",
+  storageBucket: "PASTE_FIREBASE_PROJECT_ID.appspot.com",
+  messagingSenderId: "PASTE_FIREBASE_SENDER_ID",
+  appId: "PASTE_FIREBASE_APP_ID"
+};
+const FIREBASE_VAPID_KEY = "PASTE_FIREBASE_WEB_PUSH_CERTIFICATE_KEY";
+
 const supabaseClient = window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY,
@@ -778,6 +802,10 @@ if(sectionId==="myTournamentsSection"){
 loadMyTournaments();
 }
 
+if(sectionId==="notificationsSection"){
+loadUserNotifications();
+}
+
 if(sectionId==="depositSection" || sectionId==="withdrawSection"){
 loadWallet();
 }
@@ -898,6 +926,10 @@ document.getElementById("appSection").classList.remove("hidden");
 showOnly("homeSection");
 await loadWallet();
 await loadProfile();
+await loadUserNotifications();
+
+const targetTournament=new URLSearchParams(window.location.search).get("tournament");
+if(targetTournament) await openTournamentDashboard(targetTournament);
 
 }else{
 
@@ -2118,6 +2150,75 @@ async function submitWithdraw(){
   setMessage("withdrawMessage","✅ Withdrawal request submit ho gayi.");
       }
 
+
+/* PUSH NOTIFICATIONS */
+
+async function enablePushNotifications(){
+  const message=document.getElementById("pushMessage") || document.getElementById("notificationPermissionMessage");
+  const say=text=>{if(message) message.textContent=text;};
+  if(!currentUser){say("Pehle login karo.");return;}
+  if(!("serviceWorker" in navigator) || !("Notification" in window)){
+    say("Is browser mein push notifications supported nahi hain.");return;
+  }
+  if(FIREBASE_CONFIG.apiKey.startsWith("PASTE_") || FIREBASE_VAPID_KEY.startsWith("PASTE_")){
+    say("Firebase keys add karna baqi hai.");return;
+  }
+  try{
+    say("Notification permission maang rahe hain...");
+    const permission=await Notification.requestPermission();
+    if(permission!=="granted"){say("Notification permission allow nahi hui.");return;}
+    const registration=await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    const [appModule,messagingModule]=await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js")
+    ]);
+    const app=appModule.getApps().length?appModule.getApp():appModule.initializeApp(FIREBASE_CONFIG);
+    const messaging=messagingModule.getMessaging(app);
+    const token=await messagingModule.getToken(messaging,{vapidKey:FIREBASE_VAPID_KEY,serviceWorkerRegistration:registration});
+    if(!token){say("Push token nahi mila. Browser settings check karo.");return;}
+    const {error}=await supabaseClient.from("push_subscriptions").upsert({
+      user_id:currentUser.id,fcm_token:token,updated_at:new Date().toISOString()
+    },{onConflict:"fcm_token"});
+    if(error) throw error;
+    say("✅ Phone notifications enabled!");
+    const permissionMessage=document.getElementById("notificationPermissionMessage");
+    if(permissionMessage) permissionMessage.textContent="✅ Phone notifications enabled!";
+  }catch(error){
+    console.error("Push setup:",error);
+    say("Notification setup failed: "+(error.message||error));
+  }
+}
+
+/* USER NOTIFICATION INBOX */
+
+async function loadUserNotifications(){
+  if(!currentUser) return;
+  const list=document.getElementById("userNotificationsList");
+  if(!list) return;
+  list.innerHTML='<div class="empty">Loading notifications...</div>';
+  const {data,error}=await supabaseClient.from("user_notifications")
+    .select("id,title,body,notification_type,tournament_id,created_at,read_at")
+    .eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(50);
+  if(error){list.innerHTML='<div class="empty">'+escapeHTML(error.message)+'</div>';return;}
+  const unread=(data||[]).filter(n=>!n.read_at).length;
+  const badge=document.getElementById("notificationBadge");
+  if(badge){badge.textContent=unread>9?"9+":String(unread);badge.style.display=unread?"inline-block":"none";}
+  if(!data||!data.length){list.innerHTML='<div class="empty">Abhi koi notification nahi hai.</div>';return;}
+  list.innerHTML=data.map(n=>`
+    <div class="tournamentCard" style="border-color:${n.read_at?"#303030":"#8a6a00"};cursor:pointer;"
+      onclick="openUserNotification('${n.id}','${n.tournament_id||""}')">
+      <div class="tournamentTitle">${escapeHTML(n.title)}</div>
+      <div class="tournamentInfo">${escapeHTML(n.body)}<br>${new Date(n.created_at).toLocaleString()}</div>
+      ${n.read_at?"":"<span class='badge'>NEW</span>"}
+    </div>`).join("");
+}
+
+async function openUserNotification(notificationId,tournamentId){
+  await supabaseClient.from("user_notifications").update({read_at:new Date().toISOString()})
+    .eq("id",notificationId).eq("user_id",currentUser.id);
+  await loadUserNotifications();
+  if(tournamentId) await openTournamentDashboard(tournamentId);
+}
 
 /* MY TOURNAMENTS */
 
