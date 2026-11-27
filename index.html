@@ -1214,6 +1214,9 @@ button:focus-visible{
     <button id="openResultsButton" class="admin-action" type="button">
       <span class="action-icon">🥇</span><span class="action-copy"><strong>Match Results</strong><small>Publish kills, ranks and prizes</small></span><span class="action-arrow">›</span>
     </button>
+    <button id="openLeaderboardButton" class="admin-action" type="button">
+      <span class="action-icon">🏅</span><span class="action-copy"><strong>Leaderboard</strong><small>View all-time player rankings and stats</small></span><span class="action-arrow">›</span>
+    </button>
     <button id="openNotificationsButton" class="admin-action" type="button">
       <span class="action-icon">🔔</span><span class="action-copy"><strong>Notifications</strong><small>Send announcements to users</small></span><span class="action-arrow">›</span>
     </button>
@@ -1302,6 +1305,27 @@ button:focus-visible{
   
     
     <!-- =====================================================
+     ADMIN LEADERBOARD
+===================================================== -->
+
+<div id="leaderboardSection" class="hidden">
+  <div class="card">
+    <div class="top">
+      <h2>🏅 Player Leaderboard</h2>
+      <button id="backLeaderboardButton" class="secondary" type="button">← Back</button>
+    </div>
+    <p class="info">Players ki ranking submitted match results ke basis par hai. Ranking: total winnings, phir wins, phir kills.</p>
+    <label for="leaderboardTournament">Tournament Filter</label>
+    <select id="leaderboardTournament">
+      <option value="">All Tournaments</option>
+    </select>
+    <div id="leaderboardSummary" class="message">Loading leaderboard...</div>
+    <div id="adminLeaderboardList"></div>
+    <button id="refreshLeaderboardButton" class="secondary" type="button">↻ Refresh Leaderboard</button>
+  </div>
+</div>
+
+<!-- =====================================================
      SEND NOTIFICATION
 ===================================================== -->
 
@@ -2289,6 +2313,92 @@ if (backResultsButton) {
 
 }
   
+
+/* =========================================
+   ADMIN LEADERBOARD
+========================================= */
+
+const openLeaderboardButton=$("openLeaderboardButton");
+if(openLeaderboardButton){
+  openLeaderboardButton.addEventListener("click",async()=>{
+    $("dashboard").classList.add("hidden");
+    $("leaderboardSection").classList.remove("hidden");
+    await loadAdminLeaderboardTournaments();
+    await loadAdminLeaderboard();
+  });
+}
+
+$("backLeaderboardButton").addEventListener("click",()=>{
+  $("leaderboardSection").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+});
+
+$("refreshLeaderboardButton").addEventListener("click",loadAdminLeaderboard);
+$("leaderboardTournament").addEventListener("change",loadAdminLeaderboard);
+
+async function loadAdminLeaderboardTournaments(){
+  const select=$("leaderboardTournament");
+  const {data,error}=await supabase.from("tournaments")
+    .select("id,name").order("starts_at",{ascending:false});
+  if(error){
+    select.innerHTML='<option value="">All Tournaments</option>';
+    $("leaderboardSummary").textContent="Tournament filter load error: "+error.message;
+    return;
+  }
+  select.innerHTML='<option value="">All Tournaments</option>'+
+    (data||[]).map(t=>'<option value="'+escapeHtml(t.id)+'">'+escapeHtml(t.name||"Tournament")+'</option>').join("");
+}
+
+async function loadAdminLeaderboard(){
+  const list=$("adminLeaderboardList");
+  const summary=$("leaderboardSummary");
+  list.innerHTML="Loading leaderboard...";
+  summary.textContent="Submitted match results load ho rahe hain...";
+  let query=supabase.from("player_match_results")
+    .select("user_id,player_name,player_uid,kills,is_winner,prize_amount,results_submitted")
+    .eq("results_submitted",true);
+  const tournamentId=$("leaderboardTournament").value;
+  if(tournamentId) query=query.eq("tournament_id",tournamentId);
+  const {data,error}=await query;
+  if(error){
+    summary.textContent="Leaderboard error: "+error.message;
+    list.innerHTML="";
+    return;
+  }
+  const ranking=new Map();
+  (data||[]).forEach(row=>{
+    const key=String(row.user_id||row.player_uid||row.player_name);
+    if(!ranking.has(key)){
+      ranking.set(key,{name:row.player_name||"Player",uid:row.player_uid||"-",
+        matches:0,wins:0,kills:0,winnings:0});
+    }
+    const player=ranking.get(key);
+    player.matches+=1;
+    player.wins+=row.is_winner?1:0;
+    player.kills+=Number(row.kills||0);
+    player.winnings+=Number(row.prize_amount||0);
+  });
+  const players=Array.from(ranking.values()).sort((a,b)=>
+    b.winnings-a.winnings || b.wins-a.wins || b.kills-a.kills || a.name.localeCompare(b.name)
+  );
+  summary.textContent=players.length+" ranked players • "+(data||[]).length+" submitted match results";
+  if(!players.length){
+    list.innerHTML='<div class="message">Abhi leaderboard ke liye submitted results available nahi hain.</div>';
+    return;
+  }
+  list.innerHTML=players.map((p,index)=>`
+    <div class="tournament-card">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+        <h3 style="margin:0">${index===0?"🥇":index===1?"🥈":index===2?"🥉":"#"+(index+1)} ${escapeHtml(p.name)}</h3>
+        <span class="badge">Rank ${index+1}</span>
+      </div>
+      <p>🆔 UID: ${escapeHtml(p.uid)}</p>
+      <p>🎮 Matches: <b>${p.matches}</b> &nbsp; • &nbsp; 🏆 Wins: <b>${p.wins}</b></p>
+      <p>💀 Total Kills: <b>${p.kills}</b></p>
+      <p>💰 Total Winnings: <strong>₹${p.winnings.toFixed(2)}</strong></p>
+    </div>
+  `).join("");
+}
 
 /* =========================================
    APPROVE / REJECT BUTTONS
