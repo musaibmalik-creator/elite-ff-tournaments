@@ -1432,24 +1432,25 @@ button:focus-visible{
       value="8"
     >
 
+    <input
+      id="perKill"
+      type="number"
+      min="0"
+      placeholder="Per Kill Reward (₹)"
+      value="0"
+    >
+
+    <input
+      id="mapName"
+      type="text"
+      placeholder="Map Name (e.g. Bermuda)"
+    >
+
+    <label for="tournamentStatus">Tournament Status</label>
     <select id="tournamentStatus">
-
-      <option value="registration_open">
-        Registration Open
-      </option>
-
-      <option value="upcoming">
-        Upcoming
-      </option>
-
-      <option value="live">
-        Live
-      </option>
-
-      <option value="completed">
-        Completed
-      </option>
-
+      <option value="upcoming">Upcoming</option>
+      <option value="ongoing">Ongoing</option>
+      <option value="complete">Complete</option>
     </select>
 
     <input
@@ -2715,6 +2716,12 @@ function getTournamentForm(){
     max_teams:
       Number($("maxTeams").value || 8),
 
+    per_kill:
+      Number($("perKill").value || 0),
+
+    map_name:
+      $("mapName").value.trim() || null,
+
     status:
       $("tournamentStatus").value,
 
@@ -3014,6 +3021,16 @@ function tournamentCard(t){
 
         <br>
 
+        🎯 Per Kill:
+        ₹${escapeHtml(t.per_kill ?? 0)}
+
+        <br>
+
+        🗺️ Map:
+        ${escapeHtml(t.map_name || "Not set")}
+
+        <br>
+
         👥 Max Teams:
         ${escapeHtml(t.max_teams ?? 0)}
 
@@ -3150,9 +3167,18 @@ async function(id){
   $("maxTeams").value =
     data.max_teams ?? 8;
 
+  $("perKill").value =
+    data.per_kill ?? 0;
 
+  $("mapName").value =
+    data.map_name || "";
+
+
+  const savedStatus = String(data.status || "upcoming").toLowerCase();
   $("tournamentStatus").value =
-    data.status || "registration_open";
+    savedStatus === "live" ? "ongoing" :
+    (savedStatus === "completed" ? "complete" :
+    (savedStatus === "registration_open" ? "upcoming" : savedStatus));
 
 
   $("startsAt").value =
@@ -3377,8 +3403,14 @@ function resetTournamentForm(){
   $("maxTeams").value =
     8;
 
+  $("perKill").value =
+    0;
+
+  $("mapName").value =
+    "";
+
   $("tournamentStatus").value =
-    "registration_open";
+    "upcoming";
 
   $("startsAt").value =
     "";
