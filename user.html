@@ -842,6 +842,9 @@ document.getElementById("appSection").classList.remove("hidden");
 showOnly("homeSection");
 await loadWallet();
 await loadProfile();
+await loadUserNotifications();
+const targetTournament=new URLSearchParams(window.location.search).get("tournament");
+if(targetTournament) await openTournamentDashboard(targetTournament);
 }
 
 /* SIGNUP */
