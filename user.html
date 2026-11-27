@@ -2157,8 +2157,12 @@ async function submitWithdraw(){
 /* PUSH NOTIFICATIONS */
 
 async function enablePushNotifications(){
-  const message=document.getElementById("pushMessage") || document.getElementById("notificationPermissionMessage");
-  const say=text=>{if(message) message.textContent=text;};
+  const say=text=>{
+    ["pushMessage","notificationPermissionMessage"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent=text;
+    });
+  };
   if(!currentUser){say("Pehle login karo.");return;}
   if(!("serviceWorker" in navigator) || !("Notification" in window)){
     say("Is browser mein push notifications supported nahi hain.");return;
