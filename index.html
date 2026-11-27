@@ -5122,13 +5122,28 @@ $("sendNotificationButton").addEventListener("click",async()=>{
   button.disabled=false;
   button.textContent="📣 SEND TO ALL USERS";
   if(error){
-    showMessage($("notificationMessage"),"Send failed: "+error.message);
+    let errorText=error.message||"Unknown error";
+    try{
+      if(error.context && typeof error.context.json==="function"){
+        const details=await error.context.json();
+        errorText=details.error||details.message||JSON.stringify(details);
+      }
+    }catch(e){}
+    showMessage($("notificationMessage"),"Send failed: "+errorText);
     return;
   }
   $("notificationTitle").value="";
   $("notificationBody").value="";
-  showMessage($("notificationMessage"),
-    "Notification saved for "+(data?.recipients||0)+" users. Push sent: "+(data?.pushSent||0),true);
+  let resultText="Recipients: "+(data?.recipients||0)+
+    " | Phone tokens: "+(data?.phoneTokens||0)+
+    " | Push sent: "+(data?.pushSent||0)+
+    " | Push failed: "+(data?.pushFailed||0);
+  if(data?.firebaseErrors?.length){
+    resultText+=" | Firebase error: "+data.firebaseErrors.join(" || ");
+  }else if(data?.message){
+    resultText+=" | "+data.message;
+  }
+  showMessage($("notificationMessage"),resultText,(data?.pushFailed||0)===0);
 });
 
 /* =====================================================
