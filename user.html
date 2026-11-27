@@ -1473,7 +1473,7 @@ if(depositHistory){
           <div style="color:#aaa;font-size:12px;margin-top:7px">
             Paid at: ${safe(item.paid_at ? dateFormat(item.paid_at) : "Not paid / time unavailable")}
           </div>
-          ${item.payment_proof_url ? `
+          ${item.status === "approved" && item.payment_proof_url ? `
             <a href="${item.payment_proof_url}" target="_blank" rel="noopener"
               style="display:block;text-align:center;margin-top:10px;padding:10px;border-radius:9px;background:#174b39;color:#a7f3d0;text-decoration:none;font-weight:800;font-size:12px">
               VIEW OFFICIAL PAYMENT PROOF
