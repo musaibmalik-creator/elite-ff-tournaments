@@ -6,7 +6,7 @@ firebase.initializeApp({
   apiKey: "PASTE_FIREBASE_API_KEY",
   authDomain: "PASTE_FIREBASE_PROJECT_ID.firebaseapp.com",
   projectId: "PASTE_FIREBASE_PROJECT_ID",
-  storageBucket: "PASTE_FIREBASE_PROJECT_ID.appspot.com",
+  storageBucket: "PASTE_FIREBASE_STORAGE_BUCKET",
   messagingSenderId: "PASTE_FIREBASE_SENDER_ID",
   appId: "PASTE_FIREBASE_APP_ID"
 });
