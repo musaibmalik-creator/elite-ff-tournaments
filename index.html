@@ -1278,58 +1278,27 @@ button:focus-visible{
 
     </div>
 
-    <h3>Enter Match Results</h3>
+    <h3>🏆 Add Tournament Winning</h3>
+    <p class="info">Sirf actual tournament winning amount yahan add hogi. Ye player ki total leaderboard earnings mein judegi.</p>
 
     <label>Select Tournament</label>
     <select id="resultTournament">
-      <option value="">Select Tournament</option>
+      <option value="">Loading tournaments...</option>
     </select>
 
-    <label>Select Player</label>
-    <select id="resultPlayer">
-      <option value="">Select Player</option>
+    <label>Select Registered Player</label>
+    <select id="resultPlayer" disabled>
+      <option value="">Pehle tournament select karein</option>
     </select>
 
-    <label>Player Kills</label>
-    <input
-      type="number"
-      id="resultKills"
-      min="0"
-      placeholder="Enter total kills"
-    >
+    <label>Winning Amount (₹)</label>
+    <input type="number" id="resultPrize" min="1" step="0.01" placeholder="Enter winning amount">
 
-    <label>Player Position</label>
-    <select id="resultPosition">
-      <option value="">Select Position</option>
-      <option value="1">1st Place</option>
-      <option value="2">2nd Place</option>
-      <option value="3">3rd Place</option>
-      <option value="4">4th Place</option>
-      <option value="5">Other</option>
-    </select>
+    <button id="saveResultButton" type="button">🏆 ADD WINNING TO LEADERBOARD</button>
+    <div id="resultMessage" class="message"></div>
 
-    <label>Prize Amount (₹)</label>
-    <input
-      type="number"
-      id="resultPrize"
-      min="0"
-      placeholder="Enter prize amount"
-    >
-
-    <button
-      id="saveResultButton"
-      type="button"
-    >
-      🏆 Save Match Result
-    </button>
-
-    <div id="resultMessage"></div>
-
-    <h3>Previous Match Results</h3>
-
-    <div id="resultsList">
-      Loading results...
-    </div>
+    <h3>Recent Winning Entries</h3>
+    <div id="resultsList">Loading winning history...</div>
 
   </div>
 
@@ -2068,11 +2037,172 @@ if (openResultsButton) {
         .classList
         .remove("hidden");
 
-      await loadMatchResults();
+      await loadWinningForm();
 
     }
   );
 
+}
+
+/* =========================================
+   LEADERBOARD WINNINGS
+========================================= */
+
+async function loadWinningForm(){
+  const tournamentSelect=$("resultTournament");
+  const playerSelect=$("resultPlayer");
+  if(!tournamentSelect || !playerSelect) return;
+
+  tournamentSelect.innerHTML='<option value="">Loading tournaments...</option>';
+  playerSelect.innerHTML='<option value="">Pehle tournament select karein</option>';
+  playerSelect.disabled=true;
+
+  const {data:tournaments,error}=await supabase
+    .from("tournaments")
+    .select("id,name,starts_at")
+    .order("starts_at",{ascending:false});
+
+  if(error){
+    tournamentSelect.innerHTML='<option value="">Tournament load error</option>';
+    showMessage($("resultMessage"),"Tournament load error: "+error.message);
+    return;
+  }
+
+  tournamentSelect.innerHTML='<option value="">Select Tournament</option>'+
+    (tournaments||[]).map(t=>'<option value="'+escapeHtml(t.id)+'">'+escapeHtml(t.name||"Tournament")+'</option>').join("");
+
+  tournamentSelect.onchange=loadWinningPlayers;
+  await loadMatchResults();
+}
+
+async function loadWinningPlayers(){
+  const tournamentId=$("resultTournament").value;
+  const playerSelect=$("resultPlayer");
+  playerSelect.disabled=true;
+
+  if(!tournamentId){
+    playerSelect.innerHTML='<option value="">Pehle tournament select karein</option>';
+    return;
+  }
+
+  playerSelect.innerHTML='<option value="">Loading players...</option>';
+  const {data,error}=await supabase
+    .from("players")
+    .select("id,name,uid,user_id,status,tournament_id")
+    .eq("tournament_id",tournamentId)
+    .order("name",{ascending:true});
+
+  if(error){
+    playerSelect.innerHTML='<option value="">Players load error</option>';
+    showMessage($("resultMessage"),"Players load error: "+error.message);
+    return;
+  }
+
+  const unique=new Map();
+  (data||[]).forEach(player=>{
+    if(!player.uid) return;
+    const key=String(player.user_id||player.uid);
+    if(!unique.has(key)) unique.set(key,player);
+  });
+
+  const players=Array.from(unique.values());
+  if(!players.length){
+    playerSelect.innerHTML='<option value="">Is tournament mein registered players nahi mile</option>';
+    return;
+  }
+
+  playerSelect.innerHTML='<option value="">Select Player</option>'+
+    players.map(player=>'<option value="'+escapeHtml(player.id)+'">'+escapeHtml((player.name||"Player")+" | UID: "+player.uid)+'</option>').join("");
+  playerSelect.disabled=false;
+}
+
+async function loadMatchResults(){
+  const list=$("resultsList");
+  if(!list) return;
+  list.innerHTML="Loading winning history...";
+
+  const {data,error}=await supabase
+    .from("leaderboard_winnings")
+    .select("id,player_name,player_uid,amount,created_at,tournament_id")
+    .order("created_at",{ascending:false})
+    .limit(50);
+
+  if(error){
+    list.innerHTML="Winning history error: "+escapeHtml(error.message);
+    return;
+  }
+  if(!data || !data.length){
+    list.innerHTML="No winning entries yet.";
+    return;
+  }
+
+  const tournamentIds=[...new Set(data.map(row=>row.tournament_id).filter(Boolean))];
+  let tournamentNames={};
+  if(tournamentIds.length){
+    const {data:tournaments}=await supabase.from("tournaments").select("id,name").in("id",tournamentIds);
+    (tournaments||[]).forEach(t=>tournamentNames[t.id]=t.name);
+  }
+
+  list.innerHTML=data.map(row=>`
+    <div class="tournament-card">
+      <h3>🏆 ${escapeHtml(row.player_name||"Player")}</h3>
+      <p>🎮 UID: ${escapeHtml(row.player_uid||"-")}</p>
+      <p>🏅 Tournament: ${escapeHtml(tournamentNames[row.tournament_id]||"Tournament")}</p>
+      <p>💰 Winning Added: <strong>₹${Number(row.amount||0).toFixed(2)}</strong></p>
+      <p>📅 ${row.created_at?new Date(row.created_at).toLocaleString():"-"}</p>
+    </div>
+  `).join("");
+}
+
+const saveResultButton=$("saveResultButton");
+if(saveResultButton){
+  saveResultButton.addEventListener("click",async()=>{
+    const tournamentId=$("resultTournament").value;
+    const playerId=$("resultPlayer").value;
+    const amount=Number($("resultPrize").value);
+    const message=$("resultMessage");
+
+    if(!tournamentId || !playerId || !Number.isFinite(amount) || amount<=0){
+      showMessage(message,"Tournament, player aur valid winning amount enter karein.");
+      return;
+    }
+
+    const {data:player,error:playerError}=await supabase
+      .from("players")
+      .select("user_id,name,uid")
+      .eq("id",playerId)
+      .single();
+
+    if(playerError){
+      showMessage(message,"Player details error: "+playerError.message);
+      return;
+    }
+
+    if(!confirm("Add ₹"+amount.toFixed(2)+" winning to "+(player.name||"this player")+"'s leaderboard total?")) return;
+
+    saveResultButton.disabled=true;
+    saveResultButton.textContent="Saving Winning...";
+
+    const {error}=await supabase.from("leaderboard_winnings").insert({
+      user_id:player.user_id||null,
+      player_name:player.name||"Player",
+      player_uid:player.uid,
+      tournament_id:tournamentId,
+      amount:amount
+    });
+
+    saveResultButton.disabled=false;
+    saveResultButton.textContent="🏆 ADD WINNING TO LEADERBOARD";
+
+    if(error){
+      showMessage(message,"Save failed: "+error.message);
+      return;
+    }
+
+    $("resultPrize").value="";
+    showMessage(message,"Winning added successfully! Leaderboard updated. ✅",true);
+    await loadMatchResults();
+  });
 }
 
 /* =========================================
