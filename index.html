@@ -2037,15 +2037,30 @@ async function updateWithdrawalStatus(
 
   if (!confirmed) return;
 
-  const {
-    error
-  } = await supabase.rpc(
-    "admin_update_withdrawal_status",
-    {
-      p_withdrawal_id: withdrawalId,
-      p_new_status: newStatus
-    }
-  );
+  let result;
+
+  if (newStatus === "approved") {
+
+    result = await supabase.rpc(
+      "approve_withdrawal_and_debit_wallet",
+      {
+        p_withdrawal_id: withdrawalId
+      }
+    );
+
+  } else {
+
+    result = await supabase.rpc(
+      "admin_update_withdrawal_status",
+      {
+        p_withdrawal_id: withdrawalId,
+        p_new_status: "rejected"
+      }
+    );
+
+  }
+
+  const { error } = result;
 
   if (error) {
     alert("Withdrawal failed: " + error.message);
