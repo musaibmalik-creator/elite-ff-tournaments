@@ -517,7 +517,9 @@ button{cursor:pointer}
       <div style="color:#aaa;font-size:12px;margin-top:6px">Wallet credit: <b id="depositUTRCredit">₹0.00</b> · Total paid: <b id="depositUTRTotal">₹0.00</b></div>
     </div>
     <input id="depositUTR" class="input" type="text" inputmode="numeric" autocomplete="off" placeholder="Enter UTR / Transaction ID">
-    <button id="depositButton" class="btn btnGold" onclick="submitDeposit()">SUBMIT UTR</button>
+    <label style="display:block;color:#ddd;font-size:13px;margin:10px 0 6px">Upload payment screenshot (JPG / PNG / WEBP, max 5 MB)</label>
+    <input id="depositScreenshot" class="input" type="file" accept="image/jpeg,image/png,image/webp">
+    <button id="depositButton" class="btn btnGold" onclick="submitDeposit()">SUBMIT UTR & SCREENSHOT</button>
     <button class="copyBtn" type="button" style="width:100%;margin-top:8px" onclick="backToDepositPayment()">← BACK TO PAYMENT</button>
   </div>
 
@@ -525,6 +527,10 @@ button{cursor:pointer}
   <div class="historyBox">
     <h3>Deposit History</h3>
     <div id="depositHistory">Loading history...</div>
+    <div class="infoBox" style="margin-top:12px;border-color:#8a6a00">
+      <p style="color:#ffd76a;font-size:13px;line-height:1.6">Deposit 24 hours ke andar wallet mein credit na ho, to Customer Support ko Telegram par message karein aur apna payment screenshot bhejein.</p>
+      <a href="https://t.me/NocTyx001" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:9px;padding:10px;background:#ffc107;color:#111;border-radius:9px;text-decoration:none;font-weight:900">MESSAGE CUSTOMER SUPPORT</a>
+    </div>
   </div>
 </div>
 </div>
@@ -553,6 +559,10 @@ button{cursor:pointer}
   <h3>Withdrawal History</h3>
   <div id="withdrawHistory">
     Loading history...
+  </div>
+  <div class="infoBox" style="margin-top:12px;border-color:#8a6a00">
+    <p style="color:#ffd76a;font-size:13px;line-height:1.6">Withdrawal request ke 3 din baad bhi paisa receive na ho, to Customer Support ko Telegram par message karein aur apna bank statement PDF bhejein.</p>
+    <a href="https://t.me/NocTyx001" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:9px;padding:10px;background:#ffc107;color:#111;border-radius:9px;text-decoration:none;font-weight:900">MESSAGE CUSTOMER SUPPORT</a>
   </div>
 </div>
 </div>
@@ -1284,7 +1294,7 @@ async function loadWallet(){
   const {data:deposits,error:depositError} =
     await supabaseClient
     .from("deposits")
-    .select("amount,fee_amount,paid_amount,status,transaction_id,utr,created_at")
+    .select("id,amount,fee_amount,paid_amount,status,transaction_id,utr,created_at,payment_proof_path")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -1297,7 +1307,7 @@ async function loadWallet(){
   const {data:withdrawals,error:withdrawError} =
     await supabaseClient
     .from("withdrawals")
-    .select("amount,fee_amount,payout_amount,upi_id,status,created_at,paid_at,payment_details,payment_proof_path,rejection_reason")
+    .select("id,amount,fee_amount,payout_amount,upi_id,status,created_at,paid_at,payment_details,payment_proof_path,user_bank_statement_path,rejection_reason")
     .eq("user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -1307,7 +1317,15 @@ async function loadWallet(){
     return;
   }
 
-  // Private payout proof: create a short-lived URL only for this signed-in player.
+  // Private player-uploaded proofs: create short-lived URLs for the signed-in player.
+  if(deposits && deposits.length){
+    await Promise.all(deposits.map(async item=>{
+      if(item.payment_proof_path){
+        const signed=await supabaseClient.storage.from("deposit-proofs").createSignedUrl(item.payment_proof_path,3600);
+        if(!signed.error) item.payment_proof_url=signed.data.signedUrl;
+      }
+    }));
+  }
   if(withdrawals && withdrawals.length){
     await Promise.all(withdrawals.map(async item=>{
       if(item.payment_proof_path){
@@ -1315,6 +1333,10 @@ async function loadWallet(){
           .storage.from("withdrawal-proofs")
           .createSignedUrl(item.payment_proof_path,3600);
         if(!proofError) item.payment_proof_url=proofData.signedUrl;
+      }
+      if(item.user_bank_statement_path){
+        const statement=await supabaseClient.storage.from("withdrawal-bank-statements").createSignedUrl(item.user_bank_statement_path,3600);
+        if(!statement.error) item.user_bank_statement_url=statement.data.signedUrl;
       }
     }));
   }
@@ -1420,6 +1442,7 @@ if(depositHistory){
             : ""
         }
 
+        ${item.payment_proof_url ? '<a href="'+item.payment_proof_url+'" target="_blank" rel="noopener" style="display:block;margin-top:9px;padding:9px;text-align:center;background:#174b39;color:#a7f3d0;border-radius:8px;text-decoration:none;font-weight:800;font-size:12px">VIEW PAYMENT SCREENSHOT</a>' : '<div style="color:#888;font-size:11px;margin-top:8px">Payment screenshot not uploaded.</div>'}
         <div style="color:#888;font-size:11px;margin-top:5px">
           ${safe(dateFormat(item.created_at))}
         </div>
@@ -1474,11 +1497,10 @@ if(depositHistory){
             Paid at: ${safe(item.paid_at ? dateFormat(item.paid_at) : "Not paid / time unavailable")}
           </div>
           ${item.status === "approved" && item.payment_proof_url ? `
-            <a href="${item.payment_proof_url}" target="_blank" rel="noopener"
-              style="display:block;text-align:center;margin-top:10px;padding:10px;border-radius:9px;background:#174b39;color:#a7f3d0;text-decoration:none;font-weight:800;font-size:12px">
-              VIEW OFFICIAL PAYMENT PROOF
-            </a>
+            <a href="${item.payment_proof_url}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:10px;padding:10px;border-radius:9px;background:#174b39;color:#a7f3d0;text-decoration:none;font-weight:800;font-size:12px">VIEW OFFICIAL PAYMENT PROOF</a>
           ` : ""}
+          ${item.user_bank_statement_url ? '<a href="'+item.user_bank_statement_url+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:8px;padding:10px;border-radius:9px;background:#26364d;color:#bfdbfe;text-decoration:none;font-weight:800;font-size:12px">VIEW YOUR BANK STATEMENT PDF</a>' : ""}
+          ${item.status === "approved" && item.created_at && (Date.now()-new Date(item.created_at).getTime()) >= 3*24*60*60*1000 && !item.user_bank_statement_path ? '<div style="margin-top:12px;padding:10px;border:1px solid #665000;border-radius:9px"><label style="display:block;color:#ffd76a;font-size:12px;margin-bottom:7px">Upload bank statement PDF (max 5 MB)</label><input id="bankStatement_'+safe(item.id)+'" type="file" accept="application/pdf,.pdf" style="width:100%;color:#ddd;font-size:12px"><button type="button" onclick="uploadWithdrawalBankStatement(\''+safe(item.id)+'\')" style="width:100%;margin-top:8px;padding:10px;background:#ffc107;border:0;border-radius:8px;font-weight:900">UPLOAD BANK STATEMENT PDF</button></div>' : ""}
 
           ${
             item.status === "rejected"
@@ -2619,20 +2641,29 @@ async function submitDeposit(){
   button.disabled=true;
   button.textContent="SUBMITTING...";
 
-  const {error}=await supabaseClient
-    .from("deposits")
-    .insert({
-      user_id:currentUser.id,
-      amount:amount,
-      fee_amount:Math.round((amount*0.10+Number.EPSILON)*100)/100,
-      paid_amount:Math.round((amount+Math.round((amount*0.10+Number.EPSILON)*100)/100+Number.EPSILON)*100)/100,
-      transaction_id:utr,
-      utr:utr,
-      status:"pending"
-    });
-
+  const screenshot=document.getElementById("depositScreenshot")?.files?.[0];
+  if(!screenshot){setMessage("depositMessage","Payment screenshot upload karna zaroori hai.");return;}
+  if(!["image/jpeg","image/png","image/webp"].includes(screenshot.type)||screenshot.size>5*1024*1024){
+    setMessage("depositMessage","Sirf JPG, PNG ya WEBP screenshot upload karein (max 5 MB).");return;
+  }
+  button.disabled=true;
+  button.textContent="UPLOADING SCREENSHOT...";
+  const ext=screenshot.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+  const proofPath=currentUser.id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2)+"."+ext;
+  const {error:uploadError}=await supabaseClient.storage.from("deposit-proofs").upload(proofPath,screenshot,{upsert:false,contentType:screenshot.type});
+  if(uploadError){
+    button.disabled=false;button.textContent="SUBMIT UTR & SCREENSHOT";
+    setMessage("depositMessage","Screenshot upload failed: "+uploadError.message);return;
+  }
+  const {error}=await supabaseClient.from("deposits").insert({
+    user_id:currentUser.id,amount:amount,
+    fee_amount:Math.round((amount*0.10+Number.EPSILON)*100)/100,
+    paid_amount:Math.round((amount+Math.round((amount*0.10+Number.EPSILON)*100)/100+Number.EPSILON)*100)/100,
+    transaction_id:utr,utr:utr,payment_proof_path:proofPath,status:"pending"
+  });
+  if(error) await supabaseClient.storage.from("deposit-proofs").remove([proofPath]);
   button.disabled=false;
-  button.textContent="SUBMIT UTR";
+  button.textContent="SUBMIT UTR & SCREENSHOT";
 
   if(error){
     if(error.code==="23505" &&
@@ -2646,6 +2677,7 @@ async function submitDeposit(){
 
   document.getElementById("depositAmount").value="";
   document.getElementById("depositUTR").value="";
+  document.getElementById("depositScreenshot").value="";
   pendingDepositAmount=0;
   document.getElementById("depositStepUTR").style.display="none";
   document.getElementById("depositStepPayment").style.display="none";
@@ -2657,6 +2689,37 @@ async function submitDeposit(){
   );
   await loadWallet();
 }
+
+/* PLAYER BANK STATEMENT UPLOAD: only after 3 days on approved withdrawals */
+
+window.uploadWithdrawalBankStatement=async function(withdrawalId){
+  if(!currentUser){alert("Please login again.");return;}
+  const input=document.getElementById("bankStatement_"+withdrawalId);
+  const file=input?.files?.[0];
+  if(!file){alert("Pehle bank statement PDF select karein.");return;}
+  if(file.type!=="application/pdf"||file.size>5*1024*1024){alert("Sirf PDF file upload karein (max 5 MB).");return;}
+  const {data:row,error:rowError}=await supabaseClient.from("withdrawals")
+    .select("id,status,created_at,user_bank_statement_path")
+    .eq("id",withdrawalId).eq("user_id",currentUser.id).maybeSingle();
+  if(rowError||!row){alert("Withdrawal record nahi mila.");return;}
+  if(row.status!=="approved"||!row.created_at||Date.now()-new Date(row.created_at).getTime()<3*24*60*60*1000){
+    alert("Bank statement upload 3 din baad aur approved withdrawal par hi available hai.");return;
+  }
+  if(row.user_bank_statement_path){alert("Bank statement pehle hi upload ho chuka hai.");return;}
+  const path=currentUser.id+"/"+withdrawalId+"/"+Date.now()+".pdf";
+  const {error:uploadError}=await supabaseClient.storage.from("withdrawal-bank-statements")
+    .upload(path,file,{upsert:false,contentType:"application/pdf"});
+  if(uploadError){alert("PDF upload failed: "+uploadError.message);return;}
+  const {error:saveError}=await supabaseClient.rpc("submit_withdrawal_bank_statement",{
+    p_withdrawal_id:withdrawalId,p_file_path:path
+  });
+  if(saveError){
+    await supabaseClient.storage.from("withdrawal-bank-statements").remove([path]);
+    alert("Statement record save nahi hua: "+saveError.message);return;
+  }
+  alert("Bank statement PDF successfully submitted.");
+  await loadWallet();
+};
 
 /* WITHDRAW */
 
