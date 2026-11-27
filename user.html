@@ -1534,7 +1534,7 @@ async function openTournamentDashboard(id){
 
       <p>✅ Completed Slots: ${filledSlots}</p>
 
-      <p>🟡 Teams/Slots Occupied: ${occupiedSlots}</p>
+      <p>🟡 Player Slots Occupied: ${occupiedSlots}</p>
 
       <p>🟢 Available Slots: ${availableSlots}</p>
 
@@ -1760,7 +1760,7 @@ async function renderTournamentSlotPicker(tournament){
   }
 
   box.innerHTML=`
-    <p style="margin:0 0 10px;color:#aaa;">Green nahi: available • Gold: selected • Grey: already booked</p>
+    <p style="margin:0 0 10px;color:#aaa;">Gold: selected • Dark: available • Grey: already booked</p>
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">
       ${Array.from({length:total},(_,i)=>{
         const n=i+1, player=occupied.get(n);
