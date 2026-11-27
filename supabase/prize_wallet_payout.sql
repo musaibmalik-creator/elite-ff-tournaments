@@ -68,14 +68,9 @@ BEGIN
     SET balance=balance+delta, updated_at=now()
     WHERE user_id=NEW.user_id;
 
+    -- The wallet_transactions_type_check constraint allows the existing 'prize' type.
     INSERT INTO public.wallet_transactions(user_id,amount,type,status,reference_id)
-    VALUES(
-      NEW.user_id,
-      delta,
-      CASE WHEN delta > 0 THEN 'tournament_prize' ELSE 'tournament_prize_adjustment' END,
-      'completed',
-      NEW.id
-    );
+    VALUES(NEW.user_id,delta,'prize','completed',NEW.id);
 
     UPDATE public.player_prize_payouts
     SET user_id=NEW.user_id,
