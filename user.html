@@ -270,8 +270,10 @@ button{cursor:pointer}
 <div class="hero">
 <h1>Welcome to Elite FF</h1>
 <p>Play tournaments, compete with players and manage your wallet easily.</p>
-<button class="btn btnGold" type="button" onclick="enablePushNotifications()">🔔 ENABLE NOTIFICATIONS</button>
-<div id="pushMessage" style="font-size:12px;color:#aaa;margin-top:9px;"></div>
+<div id="homeNotificationPrompt">
+  <button class="btn btnGold" type="button" onclick="enablePushNotifications()">🔔 ENABLE NOTIFICATIONS</button>
+  <div id="pushMessage" style="font-size:12px;color:#aaa;margin-top:9px;"></div>
+</div>
 </div>
 
 <div class="wallet">
@@ -495,8 +497,10 @@ button{cursor:pointer}
 
 <div id="notificationsSection" class="section">
 <h2 class="sectionTitle">🔔 Notifications</h2>
-<button class="btn btnGold" type="button" onclick="enablePushNotifications()">ENABLE PHONE NOTIFICATIONS</button>
-<div id="notificationPermissionMessage" class="message">Allow notifications to receive match updates when your screen is off.</div>
+<div id="notificationPagePrompt">
+  <button class="btn btnGold" type="button" onclick="enablePushNotifications()">ENABLE PHONE NOTIFICATIONS</button>
+  <div id="notificationPermissionMessage" class="message">Allow notifications to receive match updates when your screen is off.</div>
+</div>
 <div id="userNotificationsList"><div class="empty">Loading notifications...</div></div>
 </div>
 
@@ -914,6 +918,8 @@ supabaseClient.auth.onAuthStateChange((event, session)=>{
 
 function showOnly(sectionId){
 
+refreshNotificationPrompt();
+
 document.querySelectorAll("#appSection .section").forEach(section=>{
 section.classList.remove("active");
 section.style.display="none";
@@ -995,6 +1001,7 @@ document.getElementById("loginSection").style.display="none";
 document.getElementById("appSection").classList.remove("hidden");
 
 showOnly("homeSection");
+refreshNotificationPrompt();
 await loadWallet();
 await loadProfile();
 await loadUserNotifications();
@@ -2311,6 +2318,14 @@ async function submitWithdraw(){
 
 /* PUSH NOTIFICATIONS */
 
+function refreshNotificationPrompt(){
+  const enabled = ("Notification" in window) && Notification.permission === "granted";
+  ["homeNotificationPrompt","notificationPagePrompt"].forEach(id=>{
+    const box=document.getElementById(id);
+    if(box) box.style.display=enabled ? "none" : "block";
+  });
+}
+
 async function enablePushNotifications(){
   const say=text=>{
     ["pushMessage","notificationPermissionMessage"].forEach(id=>{
@@ -2322,13 +2337,22 @@ async function enablePushNotifications(){
   if(!("serviceWorker" in navigator) || !("Notification" in window)){
     say("Is browser mein push notifications supported nahi hain.");return;
   }
+  if(Notification.permission==="denied"){
+    say("Notifications browser/site settings se OFF hain. Wahan Allow karke app dobara kholo.");
+    refreshNotificationPrompt();
+    return;
+  }
   if(FIREBASE_CONFIG.apiKey.startsWith("PASTE_") || FIREBASE_VAPID_KEY.startsWith("PASTE_")){
     say("Firebase keys add karna baqi hai.");return;
   }
   try{
     say("Notification permission maang rahe hain...");
     const permission=await Notification.requestPermission();
-    if(permission!=="granted"){say("Notification permission allow nahi hui.");return;}
+    if(permission!=="granted"){
+      say("Notification permission allow nahi hui.");
+      refreshNotificationPrompt();
+      return;
+    }
     const registration=await navigator.serviceWorker.register("/firebase-messaging-sw.js");
     const [appModule,messagingModule]=await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
@@ -2337,19 +2361,25 @@ async function enablePushNotifications(){
     const app=appModule.getApps().length?appModule.getApp():appModule.initializeApp(FIREBASE_CONFIG);
     const messaging=messagingModule.getMessaging(app);
     const token=await messagingModule.getToken(messaging,{vapidKey:FIREBASE_VAPID_KEY,serviceWorkerRegistration:registration});
-    if(!token){say("Push token nahi mila. Browser settings check karo.");return;}
+    if(!token) throw new Error("Push token nahi mila. Browser settings check karo.");
     const {error}=await supabaseClient.from("push_subscriptions").upsert({
       user_id:currentUser.id,fcm_token:token,updated_at:new Date().toISOString()
     },{onConflict:"fcm_token"});
     if(error) throw error;
     say("✅ Phone notifications enabled!");
-    const permissionMessage=document.getElementById("notificationPermissionMessage");
-    if(permissionMessage) permissionMessage.textContent="✅ Phone notifications enabled!";
+    refreshNotificationPrompt();
   }catch(error){
     console.error("Push setup:",error);
     say("Notification setup failed: "+(error.message||error));
+    refreshNotificationPrompt();
   }
 }
+
+/* Refresh when user returns after changing browser notification settings */
+window.addEventListener("focus",refreshNotificationPrompt);
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden) refreshNotificationPrompt();
+});
 
 /* USER NOTIFICATION INBOX */
 
