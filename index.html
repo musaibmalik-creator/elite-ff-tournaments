@@ -3278,7 +3278,10 @@ async function updateTournament(){
 
   const {error:roomError} = await supabase
     .from("tournament_room_details")
-    .upsert(roomDetails);
+    .upsert({
+      tournament_id: editingTournamentId,
+      ...roomDetails
+    }, { onConflict: "tournament_id" });
 
 
   if(roomError){
