@@ -2112,7 +2112,7 @@ async function renderTournamentSlotPicker(tournament){
       ${player?"disabled":""}
       onclick="selectTournamentSlot(${globalSlot})"
       style="width:100%;min-height:76px;border:1px solid ${player?"#555":(selectedSlotNumber===globalSlot?"#D6A642":"#777")};border-radius:8px;padding:8px 5px;background:${player?(mine?"#66501f":"#303030"):(selectedSlotNumber===globalSlot?"#D6A642":"#171717")};color:${player?"#ddd":(selectedSlotNumber===globalSlot?"#111":"#eee")};font-size:12px;">
-      <b>SLOT ${((globalSlot-1)%cap)+1}</b><br>
+      <b>SLOT ${mode==="br_solo"?globalSlot:((globalSlot-1)%cap)+1}</b><br>
       <span>${player?escapeHTML(player.name || "Booked"):(selectedSlotNumber===globalSlot?"SELECTED":"AVAILABLE")}</span>
       ${player && player.uid?"<br><small>UID: "+escapeHTML(player.uid)+"</small>":""}
     </button>`;
