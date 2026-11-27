@@ -1979,9 +1979,10 @@ if(!list||!currentUser) return;
 list.innerHTML='<div class="empty">Loading...</div>';
 
 const {data,error}=await supabaseClient
-.from("tournament_entries")
+.from("players")
 .select("id,tournament_id,team_id,status")
-.eq("user_id",currentUser.id);
+.eq("user_id",currentUser.id)
+.order("created_at",{ascending:false});
 
 if(error){
 list.innerHTML='<div class="empty">'+escapeHTML(error.message)+'</div>';
