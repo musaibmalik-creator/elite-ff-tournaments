@@ -1807,6 +1807,8 @@ async function loadWithdrawals() {
       id,
       user_id,
       amount,
+      fee_amount,
+      payout_amount,
       upi_id,
       status,
             created_at,
@@ -1879,6 +1881,16 @@ async function loadWithdrawals() {
             withdrawal.amount || 0
           ).toFixed(2)}
         </span>
+      </div>
+
+      <div class="withdrawal-row">
+        <span>Platform Fee (4%)</span>
+        <span>₹${Number(withdrawal.fee_amount ?? 0).toFixed(2)}</span>
+      </div>
+
+      <div class="withdrawal-row">
+        <span>Send to Player</span>
+        <strong style="color:#20c997">₹${Number(withdrawal.payout_amount ?? withdrawal.amount ?? 0).toFixed(2)}</strong>
       </div>
 
       <div class="withdrawal-row">
@@ -2327,8 +2339,31 @@ async function updateWithdrawalStatus(
 
   if (newStatus === "approved") {
 
+    const {data: withdrawalInfo,error: withdrawalInfoError} = await supabase
+      .from("withdrawals")
+      .select("amount,fee_amount,payout_amount,upi_id")
+      .eq("id",withdrawalId)
+      .maybeSingle();
+
+    if(withdrawalInfoError || !withdrawalInfo){
+      alert("Withdrawal details load nahi ho sake. Please refresh.");
+      return;
+    }
+
+    const requested=Number(withdrawalInfo.amount||0);
+    const fee=Number(withdrawalInfo.fee_amount||0);
+    const payout=Number(withdrawalInfo.payout_amount ?? requested);
+
+    if(!confirm(
+      "Player ko UPI par ₹"+payout.toFixed(2)+" bhejein.\n"+
+      "Requested: ₹"+requested.toFixed(2)+"\n"+
+      "Platform fee: ₹"+fee.toFixed(2)+"\n"+
+      "UPI: "+(withdrawalInfo.upi_id||"-")+"\n\n"+
+      "Payment bhejne ke baad UTR enter karein."
+    )) return;
+
     paymentDetails = prompt(
-      "UPI payment ke baad UTR number enter karein:"
+      "₹"+payout.toFixed(2)+" transfer karne ke baad UTR number enter karein:"
     );
 
     if (paymentDetails === null) return;
@@ -5176,10 +5211,11 @@ async function loadDeposits(){
       <div class="tournament-card">
 
         <h3>
-          💰 Deposit ₹${Number(
-            deposit.amount || 0
-          ).toFixed(2)}
+          💰 Deposit Request
         </h3>
+        <p>Wallet credit: <b>₹${Number(deposit.amount || 0).toFixed(2)}</b></p>
+        <p>Platform fee: <b>₹${Number(deposit.fee_amount || 0).toFixed(2)}</b></p>
+        <p>Total expected payment: <b style="color:#ffc107">₹${Number(deposit.paid_amount ?? deposit.amount ?? 0).toFixed(2)}</b></p>
 
         <p>
           👤 User ID:
@@ -5312,7 +5348,7 @@ $("backDepositsButton")
 window.approveDeposit = async function(id){
 
   if(!confirm(
-    "Approve this deposit and add amount to wallet?"
+    "Approve this deposit? Verify the total payment received, including the ₹1 platform fee. Wallet credit is the deposit amount."
   )){
     return;
   }
@@ -5340,7 +5376,7 @@ window.approveDeposit = async function(id){
 
   alert(
     "Deposit approved successfully! ✅\n\n" +
-    "Added: ₹" +
+    "Wallet credited: ₹" +
     amount.toFixed(2) +
     "\n\n" +
     "New Wallet Balance: ₹" +
