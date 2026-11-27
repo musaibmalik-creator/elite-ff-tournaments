@@ -465,28 +465,50 @@ button{cursor:pointer}
 <div id="depositSection" class="section">
 <h2 class="sectionTitle">Deposit</h2>
 
-<div class="infoBox">
-<div style="color:#aaa;font-size:13px">UPI ID</div>
-<div class="upi">elightffarena@ptaxis</div>
-<button class="copyBtn" onclick="copyUPI()">📋 Copy UPI</button>
-</div>
-
 <div class="formBox">
-<div class="infoBox" style="margin-bottom:12px">
-<div style="font-weight:700">Deposit fee: ₹1 fixed</div>
-<div style="color:#aaa;font-size:13px">Example: Wallet credit ₹10 + fee ₹1 = Pay ₹11</div>
-<div id="depositFeePreview" style="color:#ffc107;margin-top:8px">Enter amount to see total payment.</div>
-</div>
-<input id="depositAmount" class="input" type="number" min="10" step="0.01" placeholder="Wallet Credit (Minimum ₹10)">
-<input id="depositUTR" class="input" type="text" placeholder="Enter UTR Number">
-<button id="depositButton" class="btn btnGold" onclick="submitDeposit()">SUBMIT DEPOSIT</button>
-<div id="depositMessage" class="message"></div>
-<div class="historyBox">
-  <h3>Deposit History</h3>
-  <div id="depositHistory">
-    Loading history...
+  <div id="depositStepAmount">
+    <div class="infoBox">
+      <div style="font-weight:800">Add Money to Wallet</div>
+      <div style="color:#aaa;font-size:13px;margin-top:5px">Minimum deposit ₹10 · Fixed platform fee ₹1</div>
+      <div id="depositFeePreview" style="color:#ffc107;margin-top:10px">Enter amount to see total payment.</div>
+    </div>
+    <input id="depositAmount" class="input" type="number" min="10" step="0.01" placeholder="Enter Amount (Minimum ₹10)">
+    <button id="continueDepositButton" class="btn btnGold" onclick="continueDepositToPayment()">CONTINUE TO PAYMENT</button>
   </div>
-</div>
+
+  <div id="depositStepPayment" style="display:none">
+    <div class="infoBox">
+      <div style="font-weight:800;color:#ffc107">Complete Your Payment</div>
+      <div style="margin-top:10px">Wallet credit: <b id="depositPayCredit">₹0.00</b></div>
+      <div>Platform fee: <b>₹1.00</b></div>
+      <div style="font-size:20px;margin-top:8px">Total to pay: <b id="depositPayTotal" style="color:#ffc107">₹0.00</b></div>
+    </div>
+    <div class="infoBox">
+      <div style="color:#aaa;font-size:13px">UPI ID</div>
+      <div class="upi">elightffarena@ptaxis</div>
+      <button class="copyBtn" type="button" onclick="copyUPI()">📋 COPY UPI ID</button>
+    </div>
+    <button class="btn btnGold" type="button" onclick="openDepositUPI()">PAY NOW · OPEN UPI APP</button>
+    <button class="copyBtn" type="button" style="width:100%;margin-top:10px" onclick="showDepositUTRStep()">I HAVE COMPLETED PAYMENT</button>
+    <button class="copyBtn" type="button" style="width:100%;margin-top:8px" onclick="backToDepositAmount()">← CHANGE AMOUNT</button>
+  </div>
+
+  <div id="depositStepUTR" style="display:none">
+    <div class="infoBox" style="border-color:#20c997">
+      <div style="font-weight:800;color:#20c997">Payment Completed?</div>
+      <div style="color:#ccc;font-size:13px;margin-top:6px">UPI app se payment ke baad 12-digit UTR / transaction reference number enter karo.</div>
+      <div style="color:#aaa;font-size:12px;margin-top:6px">Wallet credit: <b id="depositUTRCredit">₹0.00</b> · Total paid: <b id="depositUTRTotal">₹0.00</b></div>
+    </div>
+    <input id="depositUTR" class="input" type="text" inputmode="numeric" autocomplete="off" placeholder="Enter UTR / Transaction ID">
+    <button id="depositButton" class="btn btnGold" onclick="submitDeposit()">SUBMIT UTR</button>
+    <button class="copyBtn" type="button" style="width:100%;margin-top:8px" onclick="backToDepositPayment()">← BACK TO PAYMENT</button>
+  </div>
+
+  <div id="depositMessage" class="message"></div>
+  <div class="historyBox">
+    <h3>Deposit History</h3>
+    <div id="depositHistory">Loading history...</div>
+  </div>
 </div>
 </div>
 
@@ -2449,72 +2471,128 @@ alert("UPI ID: "+upi);
 }
 }
 
-/* DEPOSIT */
+/* DEPOSIT - TWO STEP UPI FLOW */
+
+let pendingDepositAmount = 0;
+
+function continueDepositToPayment(){
+  if(!currentUser){
+    setMessage("depositMessage","Pehle login karo.");
+    return;
+  }
+  const amount=Number(document.getElementById("depositAmount").value);
+  if(!Number.isFinite(amount)||amount<10){
+    setMessage("depositMessage","Minimum deposit ₹10 hai.");
+    return;
+  }
+  pendingDepositAmount=Math.round((amount+Number.EPSILON)*100)/100;
+  const total=pendingDepositAmount+1;
+  document.getElementById("depositPayCredit").textContent="₹"+pendingDepositAmount.toFixed(2);
+  document.getElementById("depositPayTotal").textContent="₹"+total.toFixed(2);
+  document.getElementById("depositUTRCredit").textContent="₹"+pendingDepositAmount.toFixed(2);
+  document.getElementById("depositUTRTotal").textContent="₹"+total.toFixed(2);
+  document.getElementById("depositStepAmount").style.display="none";
+  document.getElementById("depositStepPayment").style.display="block";
+  document.getElementById("depositStepUTR").style.display="none";
+  setMessage("depositMessage","");
+}
+
+function openDepositUPI(){
+  if(!pendingDepositAmount || pendingDepositAmount<10){
+    setMessage("depositMessage","Pehle deposit amount select karo.");
+    return;
+  }
+  const total=(pendingDepositAmount+1).toFixed(2);
+  const params=new URLSearchParams({
+    pa:"elightffarena@ptaxis",
+    pn:"Elite FF Tournaments",
+    am:total,
+    cu:"INR",
+    tn:"Elite FF wallet deposit"
+  });
+  window.location.href="upi://pay?"+params.toString();
+}
+
+function showDepositUTRStep(){
+  if(!pendingDepositAmount || pendingDepositAmount<10){
+    setMessage("depositMessage","Pehle deposit amount select karo.");
+    return;
+  }
+  document.getElementById("depositStepPayment").style.display="none";
+  document.getElementById("depositStepUTR").style.display="block";
+  document.getElementById("depositUTR").focus();
+  setMessage("depositMessage","");
+}
+
+function backToDepositAmount(){
+  document.getElementById("depositStepPayment").style.display="none";
+  document.getElementById("depositStepAmount").style.display="block";
+}
+
+function backToDepositPayment(){
+  document.getElementById("depositStepUTR").style.display="none";
+  document.getElementById("depositStepPayment").style.display="block";
+}
 
 async function submitDeposit(){
+  if(!currentUser){
+    setMessage("depositMessage","Pehle login karo.");
+    return;
+  }
 
-if(!currentUser){
-setMessage("depositMessage","Pehle login karo.");
-return;
-}
+  const amount=Number(pendingDepositAmount);
+  const utr=document.getElementById("depositUTR").value.trim();
 
-const amount=Number(document.getElementById("depositAmount").value);
-const utr=document.getElementById("depositUTR").value.trim();
+  if(!Number.isFinite(amount)||amount<10){
+    setMessage("depositMessage","Deposit amount dobara enter karo.");
+    return;
+  }
+  if(!utr){
+    setMessage("depositMessage","UTR number enter karo.");
+    return;
+  }
 
-if(!Number.isFinite(amount)||amount<10){
-setMessage("depositMessage","Minimum deposit ₹10 hai.");
-return;
-}
+  const button=document.getElementById("depositButton");
+  button.disabled=true;
+  button.textContent="SUBMITTING...";
 
-if(!utr){
-setMessage("depositMessage","UTR number enter karo.");
-return;
-}
+  const {error}=await supabaseClient
+    .from("deposits")
+    .insert({
+      user_id:currentUser.id,
+      amount:amount,
+      fee_amount:1,
+      paid_amount:amount+1,
+      transaction_id:utr,
+      utr:utr,
+      status:"pending"
+    });
 
-const button=document.getElementById("depositButton");
-button.disabled=true;
-button.textContent="SUBMITTING...";
+  button.disabled=false;
+  button.textContent="SUBMIT UTR";
 
-const {error}=await supabaseClient
-.from("deposits")
-.insert({
-user_id:currentUser.id,
-amount:amount,
-fee_amount:1,
-paid_amount:amount+1,
-transaction_id:utr,
-utr:utr,
-status:"pending"
-});
+  if(error){
+    if(error.code==="23505" &&
+      (error.message.includes("deposits_unique_utr") || error.message.includes("deposits_transaction_id_key"))){
+      setMessage("depositMessage","❌ This UTR has already been used. Please enter a different UTR.");
+      return;
+    }
+    setMessage("depositMessage",error.message);
+    return;
+  }
 
-button.disabled=false;
-button.textContent="SUBMIT DEPOSIT";
+  document.getElementById("depositAmount").value="";
+  document.getElementById("depositUTR").value="";
+  pendingDepositAmount=0;
+  document.getElementById("depositStepUTR").style.display="none";
+  document.getElementById("depositStepPayment").style.display="none";
+  document.getElementById("depositStepAmount").style.display="block";
 
-if(error){
-
-if(error.code==="23505" &&
-(error.message.includes("deposits_unique_utr") || error.message.includes("deposits_transaction_id_key"))){
-
-setMessage(
-"depositMessage",
-"❌ This UTR has already been used. Please enter a different UTR."
-);
-
-return;
-}
-
-setMessage("depositMessage",error.message);
-return;
-}
-
-document.getElementById("depositAmount").value="";
-document.getElementById("depositUTR").value="";
-
-setMessage(
-"depositMessage",
-"✅ Deposit request submit ho gayi."
-);
-
+  setMessage(
+    "depositMessage",
+    "✅ Deposit request submitted! Your payment is under verification. It is usually processed within 5–10 minutes. Wallet credit will appear after admin verification."
+  );
+  await loadWallet();
 }
 
 /* WITHDRAW */
