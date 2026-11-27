@@ -1278,23 +1278,18 @@ button:focus-visible{
 
     </div>
 
-    <h3>🏆 Add Tournament Winning</h3>
-    <p class="info">Sirf actual tournament winning amount yahan add hogi. Ye player ki total leaderboard earnings mein judegi.</p>
+    <h3>📋 Enter All Players' Match Results</h3>
+    <p class="info">Tournament select karein. Saare confirmed players ek hi list mein aayenge. Har player ke kills, winner status aur winning amount bharein, phir ek baar submit karein.</p>
 
     <label>Select Tournament</label>
     <select id="resultTournament">
       <option value="">Loading tournaments...</option>
     </select>
 
-    <label>Select Registered Player</label>
-    <select id="resultPlayer" disabled>
-      <option value="">Pehle tournament select karein</option>
-    </select>
+    <div id="resultPlayerCount" class="message">Pehle tournament select karein.</div>
+    <div id="bulkResultsPlayers"></div>
 
-    <label>Winning Amount (₹)</label>
-    <input type="number" id="resultPrize" min="1" step="0.01" placeholder="Enter winning amount">
-
-    <button id="saveResultButton" type="button">🏆 ADD WINNING TO LEADERBOARD</button>
+    <button id="saveResultButton" type="button" disabled>✅ SUBMIT ALL RESULTS</button>
     <div id="resultMessage" class="message"></div>
 
     <h3>Recent Winning Entries</h3>
@@ -2050,12 +2045,12 @@ if (openResultsButton) {
 
 async function loadWinningForm(){
   const tournamentSelect=$("resultTournament");
-  const playerSelect=$("resultPlayer");
-  if(!tournamentSelect || !playerSelect) return;
+  if(!tournamentSelect) return;
 
   tournamentSelect.innerHTML='<option value="">Loading tournaments...</option>';
-  playerSelect.innerHTML='<option value="">Pehle tournament select karein</option>';
-  playerSelect.disabled=true;
+  $("bulkResultsPlayers").innerHTML="";
+  $("saveResultButton").disabled=true;
+  $("resultPlayerCount").textContent="Pehle tournament select karein.";
 
   const {data:tournaments,error}=await supabase
     .from("tournaments")
@@ -2077,43 +2072,80 @@ async function loadWinningForm(){
 
 async function loadWinningPlayers(){
   const tournamentId=$("resultTournament").value;
-  const playerSelect=$("resultPlayer");
-  playerSelect.disabled=true;
+  const container=$("bulkResultsPlayers");
+  const submitButton=$("saveResultButton");
+  container.innerHTML="";
+  submitButton.disabled=true;
 
   if(!tournamentId){
-    playerSelect.innerHTML='<option value="">Pehle tournament select karein</option>';
+    $("resultPlayerCount").textContent="Pehle tournament select karein.";
     return;
   }
 
-  playerSelect.innerHTML='<option value="">Loading players...</option>';
+  $("resultPlayerCount").textContent="Players load ho rahe hain...";
   const {data,error}=await supabase
     .from("players")
     .select("id,name,uid,user_id,status,tournament_id")
     .eq("tournament_id",tournamentId)
+    .eq("status","confirmed")
+    .not("user_id","is",null)
     .order("name",{ascending:true});
 
   if(error){
-    playerSelect.innerHTML='<option value="">Players load error</option>';
+    $("resultPlayerCount").textContent="Players load error.";
     showMessage($("resultMessage"),"Players load error: "+error.message);
     return;
   }
 
   const unique=new Map();
   (data||[]).forEach(player=>{
-    if(!player.uid) return;
-    const key=String(player.user_id||player.uid);
+    const key=String(player.user_id);
     if(!unique.has(key)) unique.set(key,player);
   });
-
   const players=Array.from(unique.values());
+
   if(!players.length){
-    playerSelect.innerHTML='<option value="">Is tournament mein registered players nahi mile</option>';
+    $("resultPlayerCount").textContent="Is tournament mein confirmed players nahi mile.";
     return;
   }
 
-  playerSelect.innerHTML='<option value="">Select Player</option>'+
-    players.map(player=>'<option value="'+escapeHtml(player.id)+'">'+escapeHtml((player.name||"Player")+" | UID: "+player.uid)+'</option>').join("");
-  playerSelect.disabled=false;
+  const {data:existing,error:existingError}=await supabase
+    .from("player_match_results")
+    .select("user_id,kills,is_winner,prize_amount")
+    .eq("tournament_id",tournamentId);
+
+  if(existingError){
+    $("resultPlayerCount").textContent="Match result table ready nahi hai.";
+    showMessage($("resultMessage"),"Pehle player_match_results SQL run karein: "+existingError.message);
+    return;
+  }
+
+  const saved=new Map((existing||[]).map(row=>[String(row.user_id),row]));
+
+  $("resultPlayerCount").textContent="👥 "+players.length+" confirmed players — sabka result yahan bharein.";
+  container.innerHTML=players.map((player,index)=>{
+    const old=saved.get(String(player.user_id))||{};
+    return `
+      <div class="tournament-card bulk-result-row"
+        data-user-id="${escapeHtml(player.user_id)}"
+        data-player-name="${escapeHtml(player.name||"Player")}"
+        data-player-uid="${escapeHtml(player.uid||"")}">
+        <h3>${index+1}. ${escapeHtml(player.name||"Player")}</h3>
+        <p>🆔 UID: ${escapeHtml(player.uid||"-")}</p>
+        <label>Total Kills</label>
+        <input class="bulk-kills" type="number" min="0" step="1" inputmode="numeric" value="${Number(old.kills||0)}" placeholder="Kills">
+        <label>Match Won?</label>
+        <select class="bulk-winner">
+          <option value="false" ${old.is_winner?"":"selected"}>No</option>
+          <option value="true" ${old.is_winner?"selected":""}>Yes</option>
+        </select>
+        <label>Winning Amount (₹)</label>
+        <input class="bulk-prize" type="number" min="0" step="0.01" inputmode="decimal" value="${Number(old.prize_amount||0)}" placeholder="0">
+      </div>
+    `;
+  }).join("");
+
+  submitButton.disabled=false;
 }
 
 async function loadMatchResults(){
@@ -2158,49 +2190,52 @@ const saveResultButton=$("saveResultButton");
 if(saveResultButton){
   saveResultButton.addEventListener("click",async()=>{
     const tournamentId=$("resultTournament").value;
-    const playerId=$("resultPlayer").value;
-    const amount=Number($("resultPrize").value);
     const message=$("resultMessage");
+    const rows=Array.from(document.querySelectorAll("#bulkResultsPlayers .bulk-result-row"));
 
-    if(!tournamentId || !playerId || !Number.isFinite(amount) || amount<=0){
-      showMessage(message,"Tournament, player aur valid winning amount enter karein.");
+    if(!tournamentId || !rows.length){
+      showMessage(message,"Pehle tournament select karein aur players load hone dein.");
       return;
     }
 
-    const {data:player,error:playerError}=await supabase
-      .from("players")
-      .select("user_id,name,uid")
-      .eq("id",playerId)
-      .single();
-
-    if(playerError){
-      showMessage(message,"Player details error: "+playerError.message);
-      return;
+    const results=[];
+    for(const row of rows){
+      const kills=Number(row.querySelector(".bulk-kills").value);
+      const prize=Number(row.querySelector(".bulk-prize").value);
+      if(!Number.isInteger(kills)||kills<0||!Number.isFinite(prize)||prize<0){
+        showMessage(message,"Har player ke kills aur winning amount valid (0 ya usse zyada) hone chahiye.");
+        return;
+      }
+      results.push({
+        user_id:row.dataset.userId,
+        player_name:row.dataset.playerName,
+        player_uid:row.dataset.playerUid,
+        kills,
+        is_winner:row.querySelector(".bulk-winner").value==="true",
+        prize_amount:prize
+      });
     }
 
-    if(!confirm("Add ₹"+amount.toFixed(2)+" winning to "+(player.name||"this player")+"'s leaderboard total?")) return;
+    if(!confirm("Is tournament ke "+results.length+" players ke saare results ek saath submit karein?")) return;
 
     saveResultButton.disabled=true;
-    saveResultButton.textContent="Saving Winning...";
+    saveResultButton.textContent="Submitting All Results...";
 
-    const {error}=await supabase.from("leaderboard_winnings").insert({
-      user_id:player.user_id||null,
-      player_name:player.name||"Player",
-      player_uid:player.uid,
-      tournament_id:tournamentId,
-      amount:amount
+    const {data,error}=await supabase.rpc("admin_save_tournament_results",{
+      p_tournament_id:tournamentId,
+      p_results:results
     });
 
     saveResultButton.disabled=false;
-    saveResultButton.textContent="🏆 ADD WINNING TO LEADERBOARD";
+    saveResultButton.textContent="✅ SUBMIT ALL RESULTS";
 
     if(error){
-      showMessage(message,"Save failed: "+error.message);
+      showMessage(message,"Submit failed: "+error.message);
       return;
     }
 
-    $("resultPrize").value="";
-    showMessage(message,"Winning added successfully! Leaderboard updated. ✅",true);
+    showMessage(message,"✅ "+results.length+" players ke results ek saath save ho gaye. Leaderboard bhi update ho gaya.",true);
+    await loadWinningPlayers();
     await loadMatchResults();
   });
 }
