@@ -1317,6 +1317,17 @@ button:focus-visible{
     <button id="sendNotificationButton" type="button">📣 SEND TO ALL USERS</button>
     <div id="notificationMessage"></div>
   </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3>🎮 Release Room Details Notification</h3>
+    <p class="info">Ye notification sirf selected tournament ke confirmed players ko jayegi. Release match start se aakhri 7 minutes mein allowed hai.</p>
+    <label for="roomReleaseTournament">Select Tournament</label>
+    <select id="roomReleaseTournament">
+      <option value="">Loading tournaments...</option>
+    </select>
+    <button id="sendRoomReleaseButton" type="button">🔐 NOTIFY CONFIRMED PLAYERS</button>
+    <div id="roomReleaseMessage" class="message"></div>
+  </div>
 </div>
 
 <!-- =====================================================
@@ -5501,9 +5512,60 @@ async function loadCounts(){
    GENERAL USER NOTIFICATION
 ===================================================== */
 
-$("openNotificationsButton").addEventListener("click",()=>{
+$("openNotificationsButton").addEventListener("click",async()=>{
   $("dashboard").classList.add("hidden");
   $("notificationsSection").classList.remove("hidden");
+  await loadRoomReleaseTournaments();
+});
+
+async function loadRoomReleaseTournaments(){
+  const select=$("roomReleaseTournament");
+  if(!select) return;
+  select.innerHTML='<option value="">Loading tournaments...</option>';
+  const {data,error}=await supabase
+    .from("tournaments")
+    .select("id,name,starts_at")
+    .order("starts_at",{ascending:false});
+  if(error){
+    select.innerHTML='<option value="">Could not load tournaments</option>';
+    showMessage($("roomReleaseMessage"),"Tournament load error: "+error.message);
+    return;
+  }
+  select.innerHTML='<option value="">Select Tournament</option>'+
+    (data||[]).map(t=>'<option value="'+escapeHtml(t.id)+'">'+
+      escapeHtml(t.name||"Tournament")+' — '+(t.starts_at?new Date(t.starts_at).toLocaleString():"No start time")+
+    '</option>').join("");
+}
+
+$("sendRoomReleaseButton").addEventListener("click",async()=>{
+  const button=$("sendRoomReleaseButton");
+  const tournamentId=$("roomReleaseTournament").value;
+  if(!tournamentId){
+    showMessage($("roomReleaseMessage"),"Pehle tournament select karein.");
+    return;
+  }
+  if(!confirm("Selected tournament ke sabhi confirmed players ko room release notification bhejein?")) return;
+  button.disabled=true;
+  button.textContent="Sending...";
+  const {data,error}=await supabase.functions.invoke("send-notification",{
+    body:{type:"room_released",tournament_id:tournamentId}
+  });
+  button.disabled=false;
+  button.textContent="🔐 NOTIFY CONFIRMED PLAYERS";
+  if(error){
+    let detail=error.message||"Notification failed";
+    try{
+      if(error.context && typeof error.context.json==="function"){
+        const response=await error.context.json();
+        detail=response.error||response.message||JSON.stringify(response);
+      }
+    }catch(e){}
+    showMessage($("roomReleaseMessage"),"Failed: "+detail);
+    return;
+  }
+  showMessage($("roomReleaseMessage"),
+    "✅ Notification saved for "+(data?.recipients||0)+" players. Push sent: "+
+    (data?.pushSent||0)+" | Failed: "+(data?.pushFailed||0),true);
 });
 
 $("backNotificationsButton").addEventListener("click",()=>{
