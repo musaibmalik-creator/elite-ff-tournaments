@@ -1882,6 +1882,7 @@ async function renderAdminWithdrawals(rows){
         <div class="payment-history-row"><span>Actually sent</span><strong style="color:#34d399">₹${Number(withdrawal.payout_amount??withdrawal.amount??0).toFixed(2)}</strong></div>
         <div class="payment-history-row"><span>Recipient UPI</span><span>${escapeHtml(withdrawal.upi_id||"-")}</span></div>
         <div class="payment-history-row"><span>UTR / Bank reference</span><span>${escapeHtml(withdrawal.payment_details||"-")}</span></div>
+        <div class="payment-history-row"><span>Player</span><span>${escapeHtml(withdrawal.player_profile?.display_name||withdrawal.player_profile?.ff_name||"Player")}${withdrawal.player_profile?.ff_uid?" · UID "+escapeHtml(withdrawal.player_profile.ff_uid):""}</span></div>
         <div class="payment-history-row"><span>User ID</span><span>${escapeHtml(withdrawal.user_id||"-")}</span></div>
         <div class="payment-history-row"><span>Requested at</span><span>${withdrawal.created_at?new Date(withdrawal.created_at).toLocaleString("en-IN"):"-"}</span></div>
         <div class="payment-history-row"><span>Paid at</span><strong>${withdrawal.paid_at?new Date(withdrawal.paid_at).toLocaleString("en-IN"):(state==="approved"?"Time not recorded":"Not paid")}</strong></div>
@@ -1946,6 +1947,12 @@ async function loadWithdrawals(){
     .order("created_at",{ascending:false});
   if(error){list.innerHTML="Withdrawal history error: "+escapeHtml(error.message);return;}
   adminWithdrawalRows=data||[];
+  const withdrawalUserIds=[...new Set(adminWithdrawalRows.map(x=>x.user_id).filter(Boolean))];
+  if(withdrawalUserIds.length){
+    const {data:profiles}=await supabase.from("profiles").select("id,display_name,ff_name,ff_uid").in("id",withdrawalUserIds);
+    const profileMap=new Map((profiles||[]).map(p=>[p.id,p]));
+    adminWithdrawalRows=adminWithdrawalRows.map(row=>({...row,player_profile:profileMap.get(row.user_id)}));
+  }
   const paid=adminWithdrawalRows.filter(x=>x.status==="approved");
   const sent=paid.reduce((n,x)=>n+Number(x.payout_amount??x.amount??0),0);
   const pending=adminWithdrawalRows.filter(x=>x.status==="pending").length;
@@ -5268,6 +5275,7 @@ function filterAdminDeposits(){
         </div>
         <div class="payment-history-row"><span>Wallet credit</span><strong>₹${Number(deposit.amount||0).toFixed(2)}</strong></div>
         <div class="payment-history-row"><span>Total paid</span><span>₹${Number(deposit.paid_amount??deposit.amount??0).toFixed(2)}</span></div>
+        <div class="payment-history-row"><span>Player</span><span>${escapeHtml(deposit.player_profile?.display_name||deposit.player_profile?.ff_name||"Player")}${deposit.player_profile?.ff_uid?" · UID "+escapeHtml(deposit.player_profile.ff_uid):""}</span></div>
         <div class="payment-history-row"><span>User ID</span><span>${escapeHtml(deposit.user_id||"-")}</span></div>
         <div class="payment-history-row"><span>UTR / Transaction ID</span><span>${escapeHtml(deposit.utr||deposit.transaction_id||"-")}</span></div>
         <div class="payment-history-row"><span>Record ID</span><span>${escapeHtml(deposit.id||"-")}</span></div>
@@ -5287,6 +5295,12 @@ async function loadDeposits(){
   const {data,error}=await supabase.from("deposits").select("*").gte("created_at",since.toISOString()).order("created_at",{ascending:false});
   if(error){list.innerHTML="Deposit Error: "+escapeHtml(error.message);return;}
   adminDepositRows=data||[];
+  const depositUserIds=[...new Set(adminDepositRows.map(x=>x.user_id).filter(Boolean))];
+  if(depositUserIds.length){
+    const {data:profiles}=await supabase.from("profiles").select("id,display_name,ff_name,ff_uid").in("id",depositUserIds);
+    const profileMap=new Map((profiles||[]).map(p=>[p.id,p]));
+    adminDepositRows=adminDepositRows.map(row=>({...row,player_profile:profileMap.get(row.user_id)}));
+  }
   const total=adminDepositRows.filter(x=>x.status==="approved").reduce((n,x)=>n+Number(x.amount||0),0);
   const pending=adminDepositRows.filter(x=>x.status==="pending").length;
   $("depositHistoryStats").innerHTML=`
