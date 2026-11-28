@@ -851,11 +851,6 @@ button:active{transform:scale(.985)}
 <div id="profileUID" class="profileValue">Not Added</div>
 </div>
 
-<div class="profileRow">
-<div class="profileLabel">TEAM NAME</div>
-<div id="profileTeamName" class="profileValue">Not Linked</div>
-</div>
-
 <!-- SAVE FREE FIRE DETAILS -->
 
 <div style="margin:15px 0;">
@@ -1832,7 +1827,6 @@ async function loadProfile(){
   const uidInput = document.getElementById("ffUidInput");
 
   const ffName = document.getElementById("profileFFName");
-  const teamName = document.getElementById("profileTeamName");
 
   if(email){
     email.textContent = currentUser.email || "";
@@ -1872,7 +1866,6 @@ if(!profileError){
   const {data: player, error: playerError} =
     await supabaseClient
       .from("players")
-      .select("name,uid,team_name")
       .eq("user_id",currentUser.id)
       .order("created_at",{ascending:false})
       .limit(1)
@@ -1888,14 +1881,9 @@ if(!profileError){
       uid.textContent = player.uid || "Not Added";
     }
 
-    if(teamName){
-      teamName.textContent = player.team_name || "Not Added";
-    }
-
   }else{
 
     if(ffName) ffName.textContent = profile?.ff_name || "Not Added";
-    if(teamName) teamName.textContent = "Not Linked";
 
     if(uid){
       uid.textContent = profile?.ff_uid || "Not Added";
