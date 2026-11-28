@@ -13,7 +13,7 @@ The notification feature is prepared in this repository. It needs one-time Fireb
 
 ## 2. Supabase database
 
-Run the complete SQL in `supabase/notifications.sql` once in Supabase SQL Editor.
+Run `supabase/FINAL_CORE_SETUP.sql` once in Supabase SQL Editor. It includes the notifications tables and the other core tournament migrations; do not run `notifications.sql` separately if you have run the master file.
 
 ## 3. Supabase Edge Function
 
@@ -45,13 +45,7 @@ Push can arrive while the screen is off if the phone is powered on, connected to
 
 ## 5. Prize wallet credit and room security
 
-Run these SQL files in Supabase SQL Editor (each file once):
-
-1. `supabase/leaderboard_winnings.sql`
-2. `supabase/player_match_results.sql`
-3. `supabase/prize_wallet_payout.sql`
-4. `supabase/secure_room_details_confirmed_players.sql`
-5. `supabase/notifications.sql`
+Run `supabase/FINAL_CORE_SETUP.sql` once in Supabase SQL Editor. It bundles the leaderboard, match results, prize wallet credit, room security, notifications, individual slot registration, and admin entry-fee ledger migrations in dependency order. Deposit and withdrawal migrations are excluded.
 
 The prize payout migration credits submitted prizes to each winner's wallet automatically. It is idempotent: resubmitting unchanged results does not pay twice; correcting a prize applies only the difference. A downward correction is rejected if the player has already spent the amount being reversed.
 
