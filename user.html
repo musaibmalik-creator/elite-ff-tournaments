@@ -448,6 +448,10 @@ button:active{transform:scale(.985)}
 <div class="hero">
 <h1>Welcome to Elite FF</h1>
 <p>Play tournaments, compete with players and manage your wallet easily.</p>
+<div id="homeBanAnnouncement" style="display:none;margin-top:14px;padding:13px;border:1px solid #a16207;border-radius:12px;background:#241800;color:#ffe08a;line-height:1.5">
+  <div style="font-weight:900;color:#ffc107;margin-bottom:5px">🚫 PLAYER BAN NOTICE</div>
+  <div id="homeBanAnnouncementText"></div>
+</div>
 <div id="homeNotificationPrompt">
   <button class="btn btnGold" type="button" onclick="enablePushNotifications()">🔔 ENABLE NOTIFICATIONS</button>
   <div id="pushMessage" style="font-size:12px;color:#aaa;margin-top:9px;"></div>
@@ -1153,6 +1157,9 @@ async function shareReferralLink() {
 }
 let currentUser = null;
 let selectedTournamentId = null;
+let playerBanAnnouncements = [];
+let banAnnouncementShownThisVisit = false;
+let banAnnouncementHideTimer = null;
 let selectedSlotNumber = null;
 
 /* MESSAGES */
@@ -1353,7 +1360,7 @@ async function checkPlayerAccess(user,showMessageBox=true){
     if(elitePresenceTimer){clearInterval(elitePresenceTimer);elitePresenceTimer=null;}
     document.getElementById("appSection").classList.add("hidden");
     document.getElementById("loginSection").style.display="flex";
-    setMessage("authMessage","🚫 Your account is banned. Reason: "+(data.reason||"Rules violation")+". Admin se contact karein.");
+    setMessage("authMessage","🚫 You are banned by admin due to: "+(data.reason||"Rules violation")+". You cannot access Elite FF Tournaments. Please contact support if you think this is a mistake.");
     return false;
   }
   return true;
@@ -1393,7 +1400,7 @@ showOnly("homeSection");
 refreshNotificationPrompt();
 await loadWallet();
 await loadProfile();
-await loadUserNotifications();
+await loadUserNotifications(true);
 const targetTournament=new URLSearchParams(window.location.search).get("tournament");
 if(targetTournament) await openTournamentDashboard(targetTournament);
 }
@@ -1476,6 +1483,8 @@ return;
 }
 
 currentUser=null;
+banAnnouncementShownThisVisit=false;
+if(banAnnouncementHideTimer){clearTimeout(banAnnouncementHideTimer);banAnnouncementHideTimer=null;}
 
 document.getElementById("appSection").classList.add("hidden");
 document.getElementById("loginSection").style.display="flex";
@@ -1504,7 +1513,7 @@ document.getElementById("appSection").classList.remove("hidden");
 showOnly("homeSection");
 await loadWallet();
 await loadProfile();
-await loadUserNotifications();
+await loadUserNotifications(true);
 
 const targetTournament=new URLSearchParams(window.location.search).get("tournament");
 if(targetTournament) await openTournamentDashboard(targetTournament);
@@ -3243,26 +3252,66 @@ document.addEventListener("visibilitychange",()=>{
 
 /* USER NOTIFICATION INBOX */
 
-async function loadUserNotifications(){
+async function loadUserNotifications(showBanWelcome=false){
   if(!currentUser) return;
   const list=document.getElementById("userNotificationsList");
   if(!list) return;
   list.innerHTML='<div class="empty">Loading notifications...</div>';
-  const {data,error}=await supabaseClient.from("user_notifications")
-    .select("id,title,body,notification_type,tournament_id,created_at,read_at")
-    .eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(50);
-  if(error){list.innerHTML='<div class="empty">'+escapeHTML(error.message)+'</div>';return;}
-  const unread=(data||[]).filter(n=>!n.read_at).length;
+  const [normalResult,banResult]=await Promise.all([
+    supabaseClient.from("user_notifications")
+      .select("id,title,body,notification_type,tournament_id,created_at,read_at")
+      .eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(50),
+    supabaseClient.rpc("get_player_ban_announcements")
+  ]);
+  if(normalResult.error){list.innerHTML='<div class="empty">'+escapeHTML(normalResult.error.message)+'</div>';return;}
+  const data=normalResult.data||[];
+  playerBanAnnouncements=banResult.error?[]:(banResult.data||[]);
+  if(banResult.error)console.warn("Ban announcements:",banResult.error.message);
+
+  if(showBanWelcome&&!banAnnouncementShownThisVisit){
+    banAnnouncementShownThisVisit=true;
+    const latest=playerBanAnnouncements[0];
+    const box=document.getElementById("homeBanAnnouncement");
+    const text=document.getElementById("homeBanAnnouncementText");
+    if(latest&&box&&text){
+      text.textContent=(latest.player_name||latest.ff_name||"A player")+" (UID: "+(latest.ff_uid||"Not added")+") has been banned by Admin. Reason: "+(latest.reason||"Rules violation")+".";
+      box.style.display="block";
+      if(banAnnouncementHideTimer)clearTimeout(banAnnouncementHideTimer);
+      banAnnouncementHideTimer=setTimeout(()=>{
+        box.style.display="none";
+        banAnnouncementHideTimer=null;
+      },8000);
+    }
+  }
+
+  const unreadNormal=data.filter(n=>!n.read_at).length;
+  const unreadBan=playerBanAnnouncements.filter(n=>!n.is_read).length;
+  const unread=unreadNormal+unreadBan;
   const badge=document.getElementById("notificationBadge");
   if(badge){badge.textContent=unread>9?"9+":String(unread);badge.style.display=unread?"inline-block":"none";}
-  if(!data||!data.length){list.innerHTML='<div class="empty">Abhi koi notification nahi hai.</div>';return;}
-  list.innerHTML=data.map(n=>`
+
+  const normalHtml=data.map(n=>`
     <div class="tournamentCard" style="border-color:${n.read_at?"#303030":"#8a6a00"};cursor:pointer;"
       onclick="openUserNotification('${n.id}','${n.tournament_id||""}')">
       <div class="tournamentTitle">${escapeHTML(n.title)}</div>
       <div class="tournamentInfo">${escapeHTML(n.body)}<br>${new Date(n.created_at).toLocaleString()}</div>
       ${n.read_at?"":"<span class='badge'>NEW</span>"}
     </div>`).join("");
+
+  const banHtml=playerBanAnnouncements.map(n=>`
+    <div class="tournamentCard" style="border-color:${n.is_read?"#303030":"#a16207"};cursor:pointer;"
+      onclick="openPlayerBanAnnouncement(${Number(n.id)})">
+      <div class="tournamentTitle">🚫 Player Banned: ${escapeHTML(n.player_name||n.ff_name||"Player")}</div>
+      <div class="tournamentInfo">FF Name: ${escapeHTML(n.ff_name||"Not added")}<br>UID: ${escapeHTML(n.ff_uid||"Not added")}<br>Reason: ${escapeHTML(n.reason)}<br>${new Date(n.created_at).toLocaleString()}</div>
+      ${n.is_read?"":"<span class='badge'>NEW</span>"}
+    </div>`).join("");
+
+  list.innerHTML=(banHtml+normalHtml)||'<div class="empty">Abhi koi notification nahi hai.</div>';
+}
+
+async function openPlayerBanAnnouncement(announcementId){
+  await supabaseClient.rpc("mark_player_ban_announcement_read",{p_announcement_id:announcementId});
+  await loadUserNotifications(false);
 }
 
 async function openUserNotification(notificationId,tournamentId){
