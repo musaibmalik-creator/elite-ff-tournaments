@@ -1361,7 +1361,14 @@ button:focus-visible{
       <h2>🔔 Send Notification</h2>
       <button id="backNotificationsButton" class="secondary" type="button">Back</button>
     </div>
-    <p class="info">Ye announcement sabhi registered app users ko jayegi.</p>
+    <p class="info">Selected category ke mutabiq users ki notification settings respect hongi.</p>
+    <label for="notificationCategory">Notification Category</label>
+    <select id="notificationCategory">
+      <option value="announcement">📢 Important Announcement</option>
+      <option value="match">🎯 Match Update</option>
+      <option value="tournament">🏆 Tournament Update</option>
+      <option value="wallet">💰 Wallet / Entry Fee Update</option>
+    </select>
     <input id="notificationTitle" maxlength="100" placeholder="Notification Title">
     <textarea id="notificationBody" maxlength="500" placeholder="Write announcement message"></textarea>
     <button id="sendNotificationButton" type="button">📣 SEND TO ALL USERS</button>
@@ -3041,6 +3048,7 @@ async function createTournament(){
     const { error: notificationError } = await supabase.functions.invoke("send-notification", {
       body: {
         type: "broadcast",
+        category: "tournament",
         title: "🏆 New Tournament Available!",
         body: (value.name || "A new tournament") + " is now open. Join from Elite FF Tournaments."
       }
@@ -5187,7 +5195,7 @@ $("sendNotificationButton").addEventListener("click",async()=>{
   button.disabled=true;
   button.textContent="Sending...";
   const {data,error}=await supabase.functions.invoke("send-notification",{
-    body:{type:"broadcast",title,body}
+    body:{type:"broadcast",category:$("notificationCategory").value,title,body}
   });
   button.disabled=false;
   button.textContent="📣 SEND TO ALL USERS";
