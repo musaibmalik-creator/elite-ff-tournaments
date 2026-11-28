@@ -1656,7 +1656,7 @@ button:focus-visible{
       <button id="backTeamsButton" class="secondary" type="button">Back</button>
     </div>
     <p>Har player apni entry fee apne wallet se pay karta hai. Slot aur team placement automatic hai; admin approval ya manual team generation ki zaroorat nahi.</p>
-    <select id="teamTournament" onchange="loadTeams()">
+    <select id="teamTournament">
       <option value="">Select Tournament</option>
     </select>
     <button id="generateTeamsButton" type="button">🔄 REFRESH SLOT OVERVIEW</button>
@@ -4597,6 +4597,7 @@ async function generateCSTeams(){
   await loadTeams();
 }
 
+$("teamTournament").addEventListener("change",loadTeams);
 $("generateTeamsButton").addEventListener("click",loadTeams);
 
 /* =====================================================
