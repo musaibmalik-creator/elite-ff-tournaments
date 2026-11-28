@@ -17,8 +17,8 @@ messaging.onBackgroundMessage((payload) => {
   const title = payload.notification?.title || "Elite FF Tournaments";
   const options = {
     body: payload.notification?.body || "You have a new notification.",
-    icon: "/elite-logo.jpg",
-    badge: "/elite-logo.jpg",
+    icon: "/assets/battle-royale.jpg",
+    badge: "/assets/battle-royale.jpg",
     data: payload.data || {}
   };
   self.registration.showNotification(title, options);
