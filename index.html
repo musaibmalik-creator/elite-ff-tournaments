@@ -2123,7 +2123,7 @@ async function loadAdminWalletPlayers(){
   const select=$("walletPlayerSelect");
   select.innerHTML='<option value="">Loading players...</option>';
   const [{data:profiles,error:profileError},{data:wallets,error:walletError}]=await Promise.all([
-    supabase.from("profiles").select("id,display_name,ff_name,ff_uid,email,created_at,last_seen_at,last_login_at,is_online").order("created_at",{ascending:false}),
+    supabase.from("profiles").select("id,display_name,role,ff_name,ff_uid,email,created_at,last_seen_at,last_login_at,is_online").neq("role","admin").order("created_at",{ascending:false}),
     supabase.from("wallets").select("user_id,balance")
   ]);
   if(profileError||walletError){
