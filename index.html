@@ -1217,13 +1217,13 @@ button:focus-visible{
       <span class="action-icon">🏆</span><span class="action-copy"><strong>Tournaments</strong><small>Create, edit and manage matches</small></span><span class="action-arrow">›</span>
     </button>
     <button id="openPlayersButton" class="admin-action" type="button">
-      <span class="action-icon">👤</span><span class="action-copy"><strong>Players</strong><small>View and manage registrations</small></span><span class="action-arrow">›</span>
+      <span class="action-icon">👤</span><span class="action-copy"><strong>Players</strong><small>View automatic player registrations</small></span><span class="action-arrow">›</span>
     </button>
     <button id="openTeamsButton" class="admin-action" type="button">
-      <span class="action-icon">🛡️</span><span class="action-copy"><strong>CS Teams</strong><small>Manage Clash Squad teams</small></span><span class="action-arrow">›</span>
+      <span class="action-icon">🛡️</span><span class="action-copy"><strong>CS Teams</strong><small>View automatic match slots</small></span><span class="action-arrow">›</span>
     </button>
     <button id="openPaymentsButton" class="admin-action" type="button">
-      <span class="action-icon">💳</span><span class="action-copy"><strong>Tournament Payments</strong><small>Review tournament entry transactions</small></span><span class="action-arrow">›</span>
+      <span class="action-icon">💳</span><span class="action-copy"><strong>Tournament Payments</strong><small>Individual player slot payments from wallet</small></span><span class="action-arrow">›</span>
     </button>
     <button id="openDepositsButton" class="admin-action" type="button">
       <span class="action-icon">💰</span><span class="action-copy"><strong>Deposit History</strong><small>12-month deposit ledger and verification</small></span><span class="action-arrow">›</span>
@@ -1556,7 +1556,7 @@ button:focus-visible{
 
     <div class="top">
 
-      <h2>👥 Team Management</h2>
+      <h2>👥 Player Registrations</h2>
 
       <button
         id="backPlayersButton"
@@ -1650,77 +1650,22 @@ button:focus-visible{
   id="teamsSection"
   class="hidden"
 >
-
   <div class="card">
-
     <div class="top">
-
-      <h2>👥 CS Teams</h2>
-
-      <button
-        id="backTeamsButton"
-        class="secondary"
-        type="button"
-      >
-        Back
-      </button>
-
+      <h2>🎮 Match Slots & Team Overview</h2>
+      <button id="backTeamsButton" class="secondary" type="button">Back</button>
     </div>
-
-    <h3>
-      🎮 Generate Teams
-    </h3>
-
-    <p>
-      Approved players ko selected tournament ke CS mode
-      ke according Team A aur Team B mein divide kiya jayega.
-    </p>
-
-    <select id="teamTournament">
-
-      <option value="">
-        Select Tournament
-      </option>
-
+    <p>Har player apni entry fee apne wallet se pay karta hai. Slot aur team placement automatic hai; admin approval ya manual team generation ki zaroorat nahi.</p>
+    <select id="teamTournament" onchange="loadTeams()">
+      <option value="">Select Tournament</option>
     </select>
-
-    <button
-      id="generateTeamsButton"
-      type="button"
-    >
-      Generate CS Teams
-    </button>
-
+    <button id="generateTeamsButton" type="button">🔄 REFRESH SLOT OVERVIEW</button>
     <div id="teamMessage"></div>
-
   </div>
-
-
   <div class="card">
-
-    <h2>
-      🅰️ Team A
-    </h2>
-
-    <div id="teamAList">
-      No team generated yet.
-    </div>
-
+    <h2>REGISTERED SLOTS</h2>
+    <div id="teamOverviewList">Select a tournament to view its slots.</div>
   </div>
-
-
-  <div class="card">
-
-    <h2>
-      🅱️ Team B
-    </h2>
-
-    <div id="teamBList">
-      No team generated yet.
-    </div>
-
-  </div>
-
 </div>
 
 
@@ -1737,7 +1682,7 @@ button:focus-visible{
 
     <div class="top">
 
-      <h2>💳 Payments</h2>
+      <h2>🎟 Tournament Entry Fee Ledger</h2>
 
       <button
         id="backPaymentsButton"
@@ -4581,292 +4526,80 @@ $("generateTeamsButton")
 ===================================================== */
 
 async function loadTeams(){
-
-  const teamA =
-    $("teamAList");
-
-  const teamB =
-    $("teamBList");
-
-
-  teamA.innerHTML =
-    "Loading...";
-
-  teamB.innerHTML =
-    "Loading...";
-
-
-  const tournamentId =
-    $("teamTournament").value;
-
-
+  const list=$("teamOverviewList");
+  const tournamentId=$("teamTournament").value;
+  if(!list) return;
   if(!tournamentId){
-
-    teamA.innerHTML =
-      "Select a tournament first.";
-
-    teamB.innerHTML =
-      "Select a tournament first.";
-
+    list.innerHTML='<div class="message">Tournament select karein. Slots automatically yahan show honge.</div>';
     return;
-
   }
-
-
-  /* GET TOURNAMENT MODE */
-
-  const {
-    data: tournament,
-    error: tournamentError
-  } =
-    await supabase
-      .from("tournaments")
-      .select("cs_mode")
-      .eq(
-        "id",
-        tournamentId
-      )
-      .single();
-
-
-  if(tournamentError){
-
-    teamA.innerHTML =
-      "Error: " +
-      escapeHtml(
-        tournamentError.message
-      );
-
-    teamB.innerHTML =
-      "";
-
+  list.innerHTML="Loading registered slots...";
+  const {data:tournament,error:tournamentError}=await supabase
+    .from("tournaments")
+    .select("id,name,sport,max_teams,status,starts_at")
+    .eq("id",tournamentId)
+    .maybeSingle();
+  if(tournamentError||!tournament){
+    list.innerHTML="Tournament load error: "+escapeHtml(tournamentError?.message||"Tournament not found");
     return;
-
   }
+  const {data:teams,error:teamError}=await supabase
+    .from("teams").select("id,name").eq("tournament_id",tournamentId);
+  if(teamError){list.innerHTML="Teams load error: "+escapeHtml(teamError.message);return;}
+  const {data:players,error:playerError}=await supabase
+    .from("players")
+    .select("id,name,uid,user_id,status,slot_number,team_id,team_name,created_at")
+    .eq("tournament_id",tournamentId)
+    .not("user_id","is",null)
+    .order("created_at",{ascending:true});
+  if(playerError){list.innerHTML="Players load error: "+escapeHtml(playerError.message);return;}
 
+  const mode=String(tournament.sport||"").toLowerCase();
+  const cap=({cs_1v1:1,cs_2v2:2,cs_4v4:4,br_solo:1,br_duo:2,br_squad:4,lone_wolf:1})[mode]||0;
+  if(!cap){list.innerHTML="Unsupported tournament mode: "+escapeHtml(mode);return;}
+  const isHeadToHead=mode.startsWith("cs_")||mode==="lone_wolf";
+  const total=isHeadToHead?cap*2:Math.max(0,Number(tournament.max_teams||0))*cap;
+  if(!total){list.innerHTML="Tournament capacity is not set.";return;}
 
-  const mode =
-    tournament?.cs_mode ||
-    "1v1";
+  const teamByName=new Map((teams||[]).map(t=>[t.name,t]));
+  const teamById=new Map((teams||[]).map(t=>[t.id,t]));
+  const registered=players||[];
+  const allHeadToHeadFilled=registered.length>=total;
+  const groupCount=total/cap;
+  const cards=[];
+  for(let groupIndex=0;groupIndex<groupCount;groupIndex++){
+    let groupName;
+    if(isHeadToHead) groupName=groupIndex===0?"Team A":"Team B";
+    else if(mode==="br_solo") groupName="Slot "+(groupIndex+1);
+    else if(mode==="br_duo") groupName="Duo "+(groupIndex+1);
+    else groupName="Squad "+(groupIndex+1);
 
-
-  let playersPerTeam =
-    1;
-
-
-  if(mode === "2v2"){
-    playersPerTeam = 2;
-  }
-
-
-  if(mode === "4v4"){
-    playersPerTeam = 4;
-  }
-
-
-  /* GET APPROVED PLAYERS */
-
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from("players")
-            .select("*")
-      .eq(
-        "tournament_id",
-        tournamentId
-      )
-      .eq(
-        "status",
-        "approved"
-      );
-
-
-  if(error){
-
-    teamA.innerHTML =
-      "Error: " +
-      escapeHtml(
-        error.message
-      );
-
-    teamB.innerHTML =
-      "";
-
-    return;
-
-  }
-
-
-  if(!data || data.length === 0){
-
-    teamA.innerHTML =
-      "No approved players yet.";
-
-    teamB.innerHTML =
-      "";
-
-    return;
-
-  }
-
-
-  /* REQUIRED PLAYERS */
-
-  const requiredPlayers =
-    playersPerTeam * 2;
-
-
-  if(data.length < requiredPlayers){
-
-    teamA.innerHTML =
-      `Need ${requiredPlayers} approved players for ${mode}.<br>` +
-      `Currently available: ${data.length}`;
-
-    teamB.innerHTML =
-      "";
-
-    return;
-
-  }
-
-
-  /* =====================================================
-     SPLIT PLAYERS
-  ===================================================== */
-
-  const playersA =
-    data.slice(
-      0,
-      playersPerTeam
+    const team=teamByName.get(groupName);
+    const groupPlayers=registered.filter(p=>
+      (team && p.team_id===team.id) || (!team && p.team_name===groupName)
     );
-
-
-  const playersB =
-    data.slice(
-      playersPerTeam,
-      requiredPlayers
-    );
-
-
-  /* =====================================================
-     TEAM A
-  ===================================================== */
-
-  teamA.innerHTML =
-    `<p><b>CS ${escapeHtml(mode)}</b></p>` +
-
-    playersA
-      .map(
-        (player,index) => `
-
-          <div class="tournament-card">
-
-            <b>
-              ${index + 1}.
-              ${escapeHtml(
-                player.name ||
-                "Player"
-              )}
-            </b>
-
-            <br>
-
-            🆔 UID:
-            ${escapeHtml(
-              player.uid ||
-              "N/A"
-            )}
-
-          </div>
-
-        `
-      )
-      .join("");
-
-
-  /* =====================================================
-     TEAM B
-  ===================================================== */
-
-  teamB.innerHTML =
-    `<p><b>CS ${escapeHtml(mode)}</b></p>` +
-
-    playersB
-      .map(
-        (player,index) => `
-
-          <div class="tournament-card">
-
-            <b>
-              ${index + 1}.
-              ${escapeHtml(
-                player.name ||
-                "Player"
-              )}
-            </b>
-
-            <br>
-
-            🆔 UID:
-            ${escapeHtml(
-              player.uid ||
-              "N/A"
-            )}
-
-          </div>
-
-        `
-      )
-      .join("");
-
+    const groupFilled=groupPlayers.length>=cap;
+    const confirmed=isHeadToHead?allHeadToHeadFilled:groupFilled;
+    const slots=[];
+    for(let localSlot=1;localSlot<=cap;localSlot++){
+      const player=groupPlayers.find(p=>Number(p.slot_number||1)===localSlot);
+      slots.push(player
+        ? '<div class="info" style="margin:7px 0;padding:10px;border-left:3px solid '+(player.status==="confirmed"?"#20c997":"#ffc107")+'"><b>Slot '+localSlot+': '+escapeHtml(player.name||"Player")+'</b><br>UID: '+escapeHtml(player.uid||"-")+'<br><span class="badge">'+(player.status==="confirmed"?"CONFIRMED":"PAID • WAITING")+'</span></div>'
+        : '<div class="info" style="margin:7px 0;padding:10px;border:1px dashed #555;color:#999">Slot '+localSlot+' — AVAILABLE</div>'
+      );
+    }
+    cards.push('<div class="tournament-card" style="padding:14px;margin:12px 0"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h3>'+escapeHtml(groupName)+'</h3><span class="badge">'+(confirmed?"CONFIRMED":"WAITING")+'</span></div><p style="color:#aaa;font-size:12px;margin:7px 0">'+groupPlayers.length+'/'+cap+' players paid and registered</p>'+slots.join("")+'</div>');
+  }
+  list.innerHTML='<p style="color:#aaa;margin-bottom:12px">'+escapeHtml(tournament.name)+' • '+escapeHtml(mode.toUpperCase())+' • '+registered.length+'/'+total+' registered slots</p>'+cards.join("");
 }
-
-
-/* =====================================================
-   GENERATE CS TEAMS
-===================================================== */
 
 async function generateCSTeams(){
-
-  const message =
-    $("teamMessage");
-
-
-  const tournamentId =
-    $("teamTournament").value;
-
-
-  if(!tournamentId){
-
-    showMessage(
-      message,
-      "❌ Please select a tournament."
-    );
-
-    return;
-
-  }
-
-
-  showMessage(
-    message,
-    "⏳ Generating CS teams..."
-  );
-
-
   await loadTeams();
-
-
-  showMessage(
-    message,
-    "✅ CS Teams generated!",
-    true
-  );
-
 }
-  /* =====================================================
+
+$("generateTeamsButton").addEventListener("click",loadTeams);
+
+/* =====================================================
    PAYMENTS
 ===================================================== */
 
@@ -4912,117 +4645,47 @@ $("backPaymentsButton").addEventListener(
 ===================================================== */
 
 async function loadPayments(){
-
-  const paymentsList = $("paymentsList");
-
-  paymentsList.innerHTML = "Loading payments...";
-
-  const { data, error } = await supabase
-    .from("payments")
-    .select("*")
-    .order("created_at", {
-      ascending: false
-    });
-
+  const paymentsList=$("paymentsList");
+  paymentsList.innerHTML="Loading individual tournament entry payments...";
+  const {data:transactions,error}=await supabase
+    .from("wallet_transactions")
+    .select("id,user_id,amount,type,status,reference_id,created_at")
+    .eq("type","tournament_entry")
+    .order("created_at",{ascending:false})
+    .limit(500);
   if(error){
-
-    paymentsList.innerHTML =
-      "Payment Error: " + escapeHtml(error.message);
-
+    paymentsList.innerHTML="Entry-fee ledger error: "+escapeHtml(error.message);
     return;
   }
-
-  if(!data || data.length === 0){
-
-    paymentsList.innerHTML = "No payments found.";
-
+  if(!transactions||!transactions.length){
+    paymentsList.innerHTML="Abhi koi tournament entry payment record nahi hai.";
     return;
   }
-
-  paymentsList.innerHTML = data.map(payment => `
-
-    <div class="tournament-card">
-
-      <h3>💳 Payment</h3>
-
-      <p>
-        💰 Amount:
-        ₹${Number(payment.amount || 0).toFixed(2)}
-      </p>
-
-      <p>
-        🔢 UTR:
-        ${escapeHtml(payment.provider_payment_id || "-")}
-      </p>
-
-
-      <p>
-        🏆 Tournament ID:
-        ${escapeHtml(payment.tournament_id || "-")}
-      </p>
-
-      <p>
-        📌 Status:
-        <b>${escapeHtml(payment.status || "pending")}</b>
-      </p>
-
-      ${
-        payment.status === "rejected"
-          ? `
-            <p style="color:#ff6b6b;background:#2a1717;padding:10px;border-radius:8px">
-              <strong>Rejection Reason:</strong><br>
-              ${escapeHtml(payment.rejection_reason || "Reason not provided")}
-            </p>
-          `
-          : ""
-      }
-
-      <p>
-        📅 Date:
-        ${payment.created_at
-          ? new Date(payment.created_at).toLocaleString()
-          : "-"
-        }
-      </p>
-
-      ${
-        payment.status === "pending"
-          ? `
-            <button
-              type="button"
-              onclick="approvePayment('${payment.id}')"
-            >
-              ✅ Approve
-            </button>
-
-            <button
-              type="button"
-              class="danger"
-              onclick="rejectPayment('${payment.id}')"
-            >
-              ❌ Reject
-            </button>
-          `
-          : `
-            <p>
-              ${
-                payment.status === "approved"
-                  ? "🟢 Payment Approved"
-                  : "🔴 Payment Rejected"
-              }
-            </p>
-          `
-      }
-
-    </div>
-
-  `).join("");
-
+  const userIds=[...new Set(transactions.map(x=>x.user_id).filter(Boolean))];
+  const playerIds=[...new Set(transactions.map(x=>x.reference_id).filter(Boolean))];
+  const [{data:profiles},{data:players}]=await Promise.all([
+    userIds.length?supabase.from("profiles").select("id,display_name,ff_name,ff_uid").in("id",userIds):Promise.resolve({data:[]}),
+    playerIds.length?supabase.from("players").select("id,tournament_id,team_id,slot_number,name,uid").in("id",playerIds):Promise.resolve({data:[]})
+  ]);
+  const profileMap=new Map((profiles||[]).map(x=>[x.id,x]));
+  const playerMap=new Map((players||[]).map(x=>[x.id,x]));
+  const tournamentIds=[...new Set((players||[]).map(x=>x.tournament_id).filter(Boolean))];
+  const teamIds=[...new Set((players||[]).map(x=>x.team_id).filter(Boolean))];
+  const [{data:tournaments},{data:teams}]=await Promise.all([
+    tournamentIds.length?supabase.from("tournaments").select("id,name,sport").in("id",tournamentIds):Promise.resolve({data:[]}),
+    teamIds.length?supabase.from("teams").select("id,name").in("id",teamIds):Promise.resolve({data:[]})
+  ]);
+  const tournamentMap=new Map((tournaments||[]).map(x=>[x.id,x]));
+  const teamMap=new Map((teams||[]).map(x=>[x.id,x]));
+  paymentsList.innerHTML=transactions.map(tx=>{
+    const profile=profileMap.get(tx.user_id)||{};
+    const player=playerMap.get(tx.reference_id)||{};
+    const tournament=tournamentMap.get(player.tournament_id)||{};
+    const team=teamMap.get(player.team_id)||{};
+    return '<div class="tournament-card" style="padding:14px;margin:10px 0"><h3>🎟 '+escapeHtml(player.name||profile.ff_name||profile.display_name||"Player")+'</h3><p>UID: '+escapeHtml(player.uid||profile.ff_uid||"-")+'</p><p>Match: '+escapeHtml(tournament.name||"Tournament")+' • '+escapeHtml(tournament.sport||"")+'</p><p>Team/Group: '+escapeHtml(team.name||"-")+' • Slot: '+escapeHtml(player.slot_number??"-")+'</p><p>Entry fee paid: <strong>₹'+Math.abs(Number(tx.amount||0)).toFixed(2)+'</strong></p><p>Status: <b>'+escapeHtml(tx.status||"completed")+'</b></p><p style="color:#aaa;font-size:12px">'+(tx.created_at?new Date(tx.created_at).toLocaleString():"")+'</p></div>';
+  }).join("");
 }
 
-
-
-                      
 
 /* =====================================================
    APPROVE PAYMENT
