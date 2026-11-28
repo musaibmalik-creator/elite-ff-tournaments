@@ -1234,6 +1234,9 @@ button:focus-visible{
     <button id="openWalletManageButton" class="admin-action" type="button">
       <span class="action-icon">💳</span><span class="action-copy"><strong>Manage Player Wallets</strong><small>Add or deduct balance with audit history</small></span><span class="action-arrow">›</span>
     </button>
+    <button id="openPlayerBanButton" class="admin-action" type="button">
+      <span class="action-icon">🚫</span><span class="action-copy"><strong>Players Ban</strong><small>Ban or restore player app access</small></span><span class="action-arrow">›</span>
+    </button>
     <button id="openResultsButton" class="admin-action" type="button">
       <span class="action-icon">🥇</span><span class="action-copy"><strong>Match Results</strong><small>Publish kills, ranks and prizes</small></span><span class="action-arrow">›</span>
     </button>
@@ -1272,6 +1275,22 @@ button:focus-visible{
     <div id="walletAdjustMessage" class="message"></div>
     <h3 style="margin-top:22px">Recent Admin Adjustments</h3>
     <div id="walletAdjustmentHistory">Loading history...</div>
+  </div>
+</div>
+
+<!-- =====================================================
+     PLAYERS BAN MANAGEMENT
+===================================================== -->
+<div id="playerBanSection" class="hidden">
+  <div class="card">
+    <div class="top">
+      <h1>🚫 Players Ban</h1>
+      <button id="backPlayerBanButton" type="button">← Back</button>
+    </div>
+    <p class="info">Hack, cheating ya rule violation par player ko user app se block karein. UNBAN se access wapas mil jayega. Wallet aur tournament records delete nahi honge.</p>
+    <div id="playerBanStats" class="message">Loading player accounts...</div>
+    <div id="playerBanList" style="display:grid;gap:12px;margin-top:14px">Loading players...</div>
+    <div id="playerBanMessage" class="message"></div>
   </div>
 </div>
 
@@ -2115,6 +2134,79 @@ async function loadAdminWalletAdjustments(){
     return '<div class="payment-history-card" style="margin:9px 0;padding:12px"><strong>'+escapeHtml(p.display_name||p.ff_name||"Player")+'</strong><div style="font-size:12px;color:#a1a1aa;overflow-wrap:anywhere">'+escapeHtml(p.email||"Email unavailable")+'</div><div style="font-size:18px;color:'+(amount>=0?'#34d399':'#fda4af')+'">'+(amount>=0?'+':'−')+'₹'+Math.abs(amount).toFixed(2)+'</div><div>'+escapeHtml(tx.description||"Admin wallet adjustment")+'</div><small>'+new Date(tx.created_at).toLocaleString("en-IN")+'</small></div>';
   }).join("");
 }
+
+/* =========================================
+   PLAYERS BAN MANAGEMENT
+========================================= */
+function renderPlayerBanList(){
+  const box=$("playerBanList");
+  if(!box)return;
+  const banned=adminWalletProfiles.filter(p=>p.is_banned).length;
+  $("playerBanStats").textContent="Total players: "+adminWalletProfiles.length+" · Banned: "+banned+" · Active: "+(adminWalletProfiles.length-banned);
+  if(!adminWalletProfiles.length){
+    box.innerHTML='<div class="message">No registered players found.</div>';
+    return;
+  }
+  box.innerHTML=adminWalletProfiles.map(p=>{
+    const isBanned=!!p.is_banned;
+    const label=p.display_name||p.ff_name||"Player";
+    return '<div class="card" style="padding:15px;border:1px solid '+(isBanned?'#7f1d1d':'#374151')+';background:#111827">'
+      +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">'
+      +'<strong style="font-size:17px">'+escapeHtml(label)+'</strong>'
+      +'<span style="font-size:12px;font-weight:800;color:'+(isBanned?'#f87171':'#4ade80')+'">'+(isBanned?'● BANNED':'● ACTIVE')+'</span></div>'
+      +'<div style="color:#cbd5e1;font-size:13px;overflow-wrap:anywhere;margin-top:8px">✉ '+escapeHtml(p.email||"Email unavailable")+'</div>'
+      +'<div style="color:#cbd5e1;font-size:13px;margin-top:5px">🎮 Game Name: '+escapeHtml(p.ff_name||"Not added")+'</div>'
+      +'<div style="color:#cbd5e1;font-size:13px;margin-top:5px">🆔 FF UID: '+escapeHtml(p.ff_uid||"Not added")+'</div>'
+      +'<div style="color:#94a3b8;font-size:12px;margin-top:8px">Registered: '+escapeHtml(adminDate(p.created_at))+'</div>'
+      +(isBanned?'<div style="color:#fca5a5;font-size:12px;margin-top:8px">Reason: '+escapeHtml(p.ban_reason||"Not recorded")+'</div><div style="color:#94a3b8;font-size:11px;margin-top:4px">Banned: '+escapeHtml(adminDate(p.banned_at))+'</div>':'<textarea rows="2" maxlength="500" placeholder="Ban reason (e.g. Hack / cheating)" data-ban-reason="'+escapeHtml(p.id)+'" style="min-height:65px;margin-top:12px"></textarea>')
+      +'<button type="button" class="'+(isBanned?'successButton':'danger')+'" data-player-ban-action="'+(isBanned?'unban':'ban')+'" data-player-id="'+escapeHtml(p.id)+'">'+(isBanned?'✓ UNBAN PLAYER':'🚫 BAN PLAYER')+'</button>'
+      +'</div>';
+  }).join("");
+}
+async function loadPlayerBanList(){
+  const box=$("playerBanList");
+  box.innerHTML='<div class="message">Loading all player accounts...</div>';
+  $("playerBanMessage").textContent="";
+  const {data,error}=await supabase.rpc("admin_list_player_wallets");
+  if(error){
+    box.innerHTML='<div class="message error">Player list error: '+escapeHtml(error.message)+'</div>';
+    return;
+  }
+  adminWalletProfiles=data||[];
+  renderPlayerBanList();
+}
+async function changePlayerBan(userId,shouldBan,button){
+  const player=adminWalletProfiles.find(p=>p.id===userId);
+  if(!player)return;
+  const reasonInput=document.querySelector('[data-ban-reason="'+userId+'"]');
+  const reason=shouldBan?(reasonInput?.value||"").trim():"";
+  if(shouldBan&&!reason){alert("Ban reason likhna zaroori hai.");reasonInput?.focus();return;}
+  const playerName=player.display_name||player.ff_name||player.email||"Player";
+  if(!confirm((shouldBan?"BAN ":"UNBAN ")+playerName+"?"))return;
+  button.disabled=true;
+  const {error}=await supabase.rpc("admin_set_player_ban",{
+    p_user_id:userId,p_ban:shouldBan,p_reason:reason||null
+  });
+  button.disabled=false;
+  if(error){alert("Action failed: "+error.message);return;}
+  $("playerBanMessage").textContent=shouldBan?"🚫 "+playerName+" banned successfully.":"✅ "+playerName+" unbanned successfully.";
+  await loadPlayerBanList();
+}
+$("openPlayerBanButton").addEventListener("click",async()=>{
+  $("dashboard").classList.add("hidden");
+  $("playerBanSection").classList.remove("hidden");
+  await loadPlayerBanList();
+});
+$("backPlayerBanButton").addEventListener("click",()=>{
+  $("playerBanSection").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+});
+$("playerBanList").addEventListener("click",event=>{
+  const button=event.target.closest("[data-player-ban-action]");
+  if(!button)return;
+  changePlayerBan(button.dataset.playerId,button.dataset.playerBanAction==="ban",button);
+});
+
 /* =========================================
    OPEN MATCH RESULTS
 ========================================= */
@@ -2680,6 +2772,8 @@ function hideSections(){
 
   $("depositsSection")
     .classList.add("hidden");
+
+  if($("playerBanSection")) $("playerBanSection").classList.add("hidden");
 
 }
 
