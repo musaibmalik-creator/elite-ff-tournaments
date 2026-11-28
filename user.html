@@ -1472,6 +1472,13 @@ if(depositHistory){
         }
 
         ${item.payment_proof_url ? '<a href="'+item.payment_proof_url+'" target="_blank" rel="noopener" style="display:block;margin-top:9px;padding:9px;text-align:center;background:#174b39;color:#a7f3d0;border-radius:8px;text-decoration:none;font-weight:800;font-size:12px">VIEW PAYMENT SCREENSHOT</a>' : '<div style="color:#888;font-size:11px;margin-top:8px">Payment screenshot not uploaded.</div>'}
+        ${item.status === "pending" ? `
+          <div style="margin-top:10px;padding:10px;background:#242014;border:1px solid #6f5714;border-radius:8px">
+            <div style="color:#ffd76a;font-size:12px;margin-bottom:7px">Payment not verified yet? Upload or replace your screenshot here.</div>
+            <input id="depositProofFile_${safe(item.id)}" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%;color:#ddd;font-size:12px">
+            <button type="button" onclick="uploadDepositHistoryProof('${safe(item.id)}')" style="width:100%;margin-top:8px;padding:10px;background:#ffc107;color:#111;border:0;border-radius:8px;font-weight:900">UPLOAD / CHANGE SCREENSHOT</button>
+          </div>
+        ` : ""}
         <div style="color:#888;font-size:11px;margin-top:5px">
           ${safe(dateFormat(item.created_at))}
         </div>
@@ -2724,6 +2731,48 @@ async function submitDeposit(){
   );
   await loadWallet();
 }
+
+/* UPDATE SCREENSHOT FROM PENDING DEPOSIT HISTORY */
+
+window.uploadDepositHistoryProof = async function(depositId){
+  if(!currentUser){ alert("Please login again."); return; }
+  const input=document.getElementById("depositProofFile_"+depositId);
+  const screenshot=input?.files?.[0];
+  if(!screenshot){ alert("Pehle payment screenshot select karein."); return; }
+  if(!["image/jpeg","image/png","image/webp"].includes(screenshot.type) || screenshot.size>5*1024*1024){
+    alert("Sirf JPG, PNG ya WEBP screenshot upload karein (max 5 MB)."); return;
+  }
+  const button=input.parentElement.querySelector("button");
+  if(button){ button.disabled=true; button.textContent="UPLOADING..."; }
+  const {data:deposit,error:depositError}=await supabaseClient.from("deposits")
+    .select("id,status,payment_proof_path").eq("id",depositId)
+    .eq("user_id",currentUser.id).maybeSingle();
+  if(depositError || !deposit || deposit.status!=="pending"){
+    if(button){ button.disabled=false; button.textContent="UPLOAD / CHANGE SCREENSHOT"; }
+    alert("Sirf apne pending deposit ka screenshot update kar sakte hain."); return;
+  }
+  const ext=screenshot.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"") || "jpg";
+  const proofPath=currentUser.id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2)+"."+ext;
+  const {error:uploadError}=await supabaseClient.storage.from("deposit-proofs")
+    .upload(proofPath,screenshot,{upsert:false,contentType:screenshot.type});
+  if(uploadError){
+    if(button){ button.disabled=false; button.textContent="UPLOAD / CHANGE SCREENSHOT"; }
+    alert("Screenshot upload failed: "+uploadError.message); return;
+  }
+  const {error:updateError}=await supabaseClient.rpc("update_pending_deposit_proof",{
+    p_deposit_id:depositId,p_payment_proof_path:proofPath
+  });
+  if(updateError){
+    await supabaseClient.storage.from("deposit-proofs").remove([proofPath]);
+    if(button){ button.disabled=false; button.textContent="UPLOAD / CHANGE SCREENSHOT"; }
+    alert("Screenshot save nahi hua: "+updateError.message); return;
+  }
+  if(deposit.payment_proof_path){
+    await supabaseClient.storage.from("deposit-proofs").remove([deposit.payment_proof_path]);
+  }
+  alert("Payment screenshot successfully updated. Admin can now view it in Deposit section.");
+  await loadWallet();
+};
 
 /* PLAYER BANK STATEMENT UPLOAD: only after 3 days on approved withdrawals */
 
