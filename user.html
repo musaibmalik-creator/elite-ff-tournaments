@@ -1066,15 +1066,6 @@ async function updatePassword(){
     document.getElementById("loginSection").style.display="flex";
   },1500);
 }
-/* OPEN RESET PASSWORD SECTION */
-
-supabaseClient.auth.onAuthStateChange((event, session)=>{
-  if(event === "PASSWORD_RECOVERY" && session){
-    document.getElementById("loginSection").style.display="none";
-    document.getElementById("forgotPasswordSection").style.display="none";
-    document.getElementById("resetPasswordSection").style.display="flex";
-  }
-});
   
 
 
