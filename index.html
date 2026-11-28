@@ -1231,6 +1231,9 @@ button:focus-visible{
     <button id="openWithdrawalsButton" class="admin-action" type="button">
       <span class="action-icon">💸</span><span class="action-copy"><strong>Withdrawal History</strong><small>12-month payouts, UPI, UTR and proof</small></span><span class="action-arrow">›</span>
     </button>
+    <button id="openWalletManageButton" class="admin-action" type="button">
+      <span class="action-icon">💳</span><span class="action-copy"><strong>Manage Player Wallets</strong><small>Add or deduct balance with audit history</small></span><span class="action-arrow">›</span>
+    </button>
     <button id="openResultsButton" class="admin-action" type="button">
       <span class="action-icon">🥇</span><span class="action-copy"><strong>Match Results</strong><small>Publish kills, ranks and prizes</small></span><span class="action-arrow">›</span>
     </button>
@@ -1250,6 +1253,33 @@ button:focus-visible{
   
 
   
+<!-- =====================================================
+     ADMIN WALLET MANAGEMENT
+===================================================== -->
+<div id="walletManageSection" class="hidden">
+  <div class="card">
+    <div class="top">
+      <h1>💳 Manage Player Wallets</h1>
+      <button id="backWalletManageButton" type="button">← Back</button>
+    </div>
+    <p class="info">Player select karein, amount aur reason likhein. Add ya deduct karne par wallet aur transaction history dono update honge.</p>
+    <label for="walletPlayerSelect">Select Player</label>
+    <select id="walletPlayerSelect"><option value="">Loading players...</option></select>
+    <div id="walletSelectedBalance" class="message">Select a player to view current balance.</div>
+    <label for="walletAdjustAmount">Amount (₹)</label>
+    <input id="walletAdjustAmount" type="number" min="0.01" max="1000000" step="0.01" placeholder="Enter amount">
+    <label for="walletAdjustReason">Reason (required)</label>
+    <input id="walletAdjustReason" type="text" maxlength="160" placeholder="e.g. Tournament reward correction">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+      <button id="walletAddButton" type="button">➕ ADD MONEY</button>
+      <button id="walletDeductButton" class="secondary" type="button">➖ DEDUCT MONEY</button>
+    </div>
+    <div id="walletAdjustMessage" class="message"></div>
+    <h3 style="margin-top:22px">Recent Admin Adjustments</h3>
+    <div id="walletAdjustmentHistory">Loading history...</div>
+  </div>
+</div>
+
 <!-- =====================================================
      WITHDRAWALS
 ===================================================== -->
@@ -1973,6 +2003,88 @@ if (backWithdrawalsButton) {
 
 }
   
+/* =========================================
+   ADMIN WALLET MANAGEMENT
+========================================= */
+let adminWalletProfiles = [];
+let adminWalletBalances = new Map();
+
+$("openWalletManageButton").addEventListener("click",async()=>{
+  $("dashboard").classList.add("hidden");
+  $("walletManageSection").classList.remove("hidden");
+  await loadAdminWalletPlayers();
+  await loadAdminWalletAdjustments();
+});
+$("backWalletManageButton").addEventListener("click",()=>{
+  $("walletManageSection").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+});
+$("walletPlayerSelect").addEventListener("change",showAdminSelectedWallet);
+
+async function loadAdminWalletPlayers(){
+  const select=$("walletPlayerSelect");
+  select.innerHTML='<option value="">Loading players...</option>';
+  const [{data:profiles,error:profileError},{data:wallets,error:walletError}]=await Promise.all([
+    supabase.from("profiles").select("id,display_name,ff_name,ff_uid").order("display_name"),
+    supabase.from("wallets").select("user_id,balance")
+  ]);
+  if(profileError||walletError){
+    select.innerHTML='<option value="">Could not load players</option>';
+    $("walletAdjustMessage").textContent="Load error: "+(profileError||walletError).message;
+    return;
+  }
+  adminWalletProfiles=profiles||[];
+  adminWalletBalances=new Map((wallets||[]).map(w=>[w.user_id,Number(w.balance||0)]));
+  select.innerHTML='<option value="">-- Choose player --</option>'+adminWalletProfiles.map(p=>{
+    const label=p.display_name||p.ff_name||"Player";
+    const uid=p.ff_uid?" · UID "+p.ff_uid:"";
+    return '<option value="'+escapeHtml(p.id)+'">'+escapeHtml(label+uid)+'</option>';
+  }).join("");
+  showAdminSelectedWallet();
+}
+function showAdminSelectedWallet(){
+  const id=$("walletPlayerSelect").value;
+  const p=adminWalletProfiles.find(x=>x.id===id);
+  if(!p){$("walletSelectedBalance").textContent="Select a player to view current balance.";return;}
+  $("walletSelectedBalance").textContent=(p.display_name||p.ff_name||"Player")+" · Current wallet: ₹"+(adminWalletBalances.get(id)||0).toFixed(2);
+}
+async function loadAdminWalletAdjustments(){
+  const box=$("walletAdjustmentHistory");
+  const {data,error}=await supabase.from("wallet_transactions")
+    .select("id,user_id,amount,type,status,description,created_at")
+    .eq("type","admin_adjustment").order("created_at",{ascending:false}).limit(30);
+  if(error){box.textContent="History error: "+error.message;return;}
+  if(!data||!data.length){box.textContent="No manual wallet adjustments yet.";return;}
+  const ids=[...new Set(data.map(x=>x.user_id))];
+  const {data:profiles}=await supabase.from("profiles").select("id,display_name,ff_name,ff_uid").in("id",ids);
+  const map=new Map((profiles||[]).map(p=>[p.id,p]));
+  box.innerHTML=data.map(tx=>{
+    const p=map.get(tx.user_id)||{},amount=Number(tx.amount||0);
+    return '<div class="payment-history-card" style="margin:9px 0;padding:12px"><strong>'+escapeHtml(p.display_name||p.ff_name||"Player")+'</strong><div style="font-size:18px;color:'+(amount>=0?'#34d399':'#fda4af')+'">'+(amount>=0?'+':'−')+'₹'+Math.abs(amount).toFixed(2)+'</div><div>'+escapeHtml(tx.description||"Admin wallet adjustment")+'</div><small>'+new Date(tx.created_at).toLocaleString("en-IN")+'</small></div>';
+  }).join("");
+}
+async function applyAdminWalletAdjustment(direction){
+  const userId=$("walletPlayerSelect").value,amount=Number($("walletAdjustAmount").value);
+  const reason=$("walletAdjustReason").value.trim(),message=$("walletAdjustMessage");
+  if(!userId){message.textContent="Pehle player select karein.";return;}
+  if(!Number.isFinite(amount)||amount<=0||amount>1000000){message.textContent="Valid amount enter karein.";return;}
+  if(reason.length<3){message.textContent="Reason kam az kam 3 characters ka hona chahiye.";return;}
+  const player=adminWalletProfiles.find(p=>p.id===userId),action=direction>0?"ADD":"DEDUCT";
+  if(!confirm(action+" ₹"+amount.toFixed(2)+" "+(player?.display_name||player?.ff_name||"selected player")+" ke wallet mein?"))return;
+  $("walletAddButton").disabled=true;$("walletDeductButton").disabled=true;
+  message.textContent="Updating wallet...";
+  const {data,error}=await supabase.rpc("admin_adjust_wallet",{p_user_id:userId,p_amount:direction*amount,p_reason:reason});
+  $("walletAddButton").disabled=false;$("walletDeductButton").disabled=false;
+  if(error){message.textContent="Wallet update failed: "+error.message;return;}
+  const newBalance=Number(Array.isArray(data)?data[0]?.new_balance:data?.new_balance);
+  adminWalletBalances.set(userId,newBalance);
+  $("walletAdjustAmount").value="";$("walletAdjustReason").value="";
+  message.textContent="Success! New wallet balance: ₹"+newBalance.toFixed(2);
+  showAdminSelectedWallet();await loadAdminWalletAdjustments();
+}
+$("walletAddButton").addEventListener("click",()=>applyAdminWalletAdjustment(1));
+$("walletDeductButton").addEventListener("click",()=>applyAdminWalletAdjustment(-1));
+
 /* =========================================
    OPEN MATCH RESULTS
 ========================================= */
