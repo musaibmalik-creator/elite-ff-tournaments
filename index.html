@@ -2025,7 +2025,7 @@ async function loadAdminWalletPlayers(){
   const select=$("walletPlayerSelect");
   select.innerHTML='<option value="">Loading players...</option>';
   const [{data:profiles,error:profileError},{data:wallets,error:walletError}]=await Promise.all([
-    supabase.from("profiles").select("id,display_name,ff_name,ff_uid").order("display_name"),
+    supabase.from("profiles").select("id,display_name,ff_name,ff_uid,email").order("display_name"),
     supabase.from("wallets").select("user_id,balance")
   ]);
   if(profileError||walletError){
@@ -2037,8 +2037,9 @@ async function loadAdminWalletPlayers(){
   adminWalletBalances=new Map((wallets||[]).map(w=>[w.user_id,Number(w.balance||0)]));
   select.innerHTML='<option value="">-- Choose player --</option>'+adminWalletProfiles.map(p=>{
     const label=p.display_name||p.ff_name||"Player";
+    const email=p.email?" · "+p.email:" · Email unavailable";
     const uid=p.ff_uid?" · UID "+p.ff_uid:"";
-    return '<option value="'+escapeHtml(p.id)+'">'+escapeHtml(label+uid)+'</option>';
+    return '<option value="'+escapeHtml(p.id)+'">'+escapeHtml(label+email+uid)+'</option>';
   }).join("");
   showAdminSelectedWallet();
 }
@@ -2056,11 +2057,11 @@ async function loadAdminWalletAdjustments(){
   if(error){box.textContent="History error: "+error.message;return;}
   if(!data||!data.length){box.textContent="No manual wallet adjustments yet.";return;}
   const ids=[...new Set(data.map(x=>x.user_id))];
-  const {data:profiles}=await supabase.from("profiles").select("id,display_name,ff_name,ff_uid").in("id",ids);
+  const {data:profiles}=await supabase.from("profiles").select("id,display_name,ff_name,ff_uid,email").in("id",ids);
   const map=new Map((profiles||[]).map(p=>[p.id,p]));
   box.innerHTML=data.map(tx=>{
     const p=map.get(tx.user_id)||{},amount=Number(tx.amount||0);
-    return '<div class="payment-history-card" style="margin:9px 0;padding:12px"><strong>'+escapeHtml(p.display_name||p.ff_name||"Player")+'</strong><div style="font-size:18px;color:'+(amount>=0?'#34d399':'#fda4af')+'">'+(amount>=0?'+':'−')+'₹'+Math.abs(amount).toFixed(2)+'</div><div>'+escapeHtml(tx.description||"Admin wallet adjustment")+'</div><small>'+new Date(tx.created_at).toLocaleString("en-IN")+'</small></div>';
+    return '<div class="payment-history-card" style="margin:9px 0;padding:12px"><strong>'+escapeHtml(p.display_name||p.ff_name||"Player")+'</strong><div style="font-size:12px;color:#a1a1aa;overflow-wrap:anywhere">'+escapeHtml(p.email||"Email unavailable")+'</div><div style="font-size:18px;color:'+(amount>=0?'#34d399':'#fda4af')+'">'+(amount>=0?'+':'−')+'₹'+Math.abs(amount).toFixed(2)+'</div><div>'+escapeHtml(tx.description||"Admin wallet adjustment")+'</div><small>'+new Date(tx.created_at).toLocaleString("en-IN")+'</small></div>';
   }).join("");
 }
 async function applyAdminWalletAdjustment(direction){
