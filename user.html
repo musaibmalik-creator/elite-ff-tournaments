@@ -842,6 +842,25 @@ SAVE FREE FIRE DETAILS
 
 
 
+<!-- NOTIFICATION PREFERENCES -->
+<div id="notificationPreferences" style="margin:18px 0;padding:16px;border:1px solid #514000;border-radius:15px;background:linear-gradient(145deg,#191919,#0d0d0d);">
+  <h3 style="color:#ffc107;font-size:16px;margin-bottom:6px;">🔔 NOTIFICATION SETTINGS</h3>
+  <p style="color:#999;font-size:12px;line-height:1.5;margin-bottom:12px;">Choose which Elite FF alerts you want to receive on this account.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #333;">
+    <div><strong style="font-size:14px;">All Notifications</strong><div style="font-size:11px;color:#888;margin-top:3px;">Master ON / OFF</div></div>
+    <input id="notifEnabled" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:22px;height:22px;accent-color:#ffc107;">
+  </div>
+  <div id="notificationPreferenceOptions">
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🎯 Match Notifications <input id="notifMatch" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🏆 Tournament Notifications <input id="notifTournament" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🔐 Room ID &amp; Password Alerts <input id="notifRoom" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">💰 Wallet &amp; Entry Fee Alerts <input id="notifWallet" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;font-size:13px;">📢 Important Announcements <input id="notifAnnouncement" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+  </div>
+  <div id="notificationPrefsMessage" style="min-height:18px;margin-top:8px;color:#ffc107;font-size:12px;">Loading notification settings...</div>
+  <button class="btn btnDark" type="button" onclick="showOnly('notificationsSection')" style="margin-top:10px;">OPEN NOTIFICATION INBOX</button>
+</div>
+
 <!-- TERMS & CONDITIONS BUTTON -->
 <button class="btn btnDark" type="button" style="margin:18px 0;border:1px solid #ffc107;color:#ffc107;" onclick="showOnly('termsSection')">
   📜 TERMS & CONDITIONS <span style="float:right">›</span>
@@ -1255,6 +1274,7 @@ loadTopPlayers();
 
 if(sectionId==="profileSection"){
 loadProfile();
+loadNotificationPreferences();
 }
 
 if(sectionId==="homeSection"){
@@ -3079,6 +3099,53 @@ async function enablePushNotifications(){
     say("Notification setup failed: "+(error.message||error));
     refreshNotificationPrompt();
   }
+}
+
+/* ACCOUNT NOTIFICATION PREFERENCES */
+const notificationPreferenceDefaults={
+  enabled:true,match_notifications:true,tournament_notifications:true,
+  room_notifications:true,wallet_notifications:true,announcement_notifications:true
+};
+function renderNotificationPreferenceState(prefs){
+  const ids={enabled:"notifEnabled",match_notifications:"notifMatch",tournament_notifications:"notifTournament",room_notifications:"notifRoom",wallet_notifications:"notifWallet",announcement_notifications:"notifAnnouncement"};
+  Object.entries(ids).forEach(([key,id])=>{
+    const el=document.getElementById(id);if(el) el.checked=prefs[key]!==false;
+  });
+  const master=document.getElementById("notifEnabled");
+  const options=document.getElementById("notificationPreferenceOptions");
+  if(options){
+    options.style.opacity=master&&master.checked?"1":".45";
+    options.querySelectorAll("input").forEach(el=>el.disabled=!!(master&&!master.checked));
+  }
+}
+async function loadNotificationPreferences(){
+  if(!currentUser)return;
+  const message=document.getElementById("notificationPrefsMessage");
+  const {data,error}=await supabaseClient.from("user_notification_preferences")
+    .select("enabled,match_notifications,tournament_notifications,room_notifications,wallet_notifications,announcement_notifications")
+    .eq("user_id",currentUser.id).maybeSingle();
+  if(error){if(message)message.textContent="Settings load nahi hui: "+error.message;return;}
+  renderNotificationPreferenceState({...notificationPreferenceDefaults,...(data||{})});
+  if(message)message.textContent="Your notification preferences are saved to your account.";
+}
+async function saveNotificationPreferences(){
+  if(!currentUser)return;
+  const message=document.getElementById("notificationPrefsMessage");
+  const prefs={
+    user_id:currentUser.id,
+    enabled:document.getElementById("notifEnabled")?.checked!==false,
+    match_notifications:document.getElementById("notifMatch")?.checked!==false,
+    tournament_notifications:document.getElementById("notifTournament")?.checked!==false,
+    room_notifications:document.getElementById("notifRoom")?.checked!==false,
+    wallet_notifications:document.getElementById("notifWallet")?.checked!==false,
+    announcement_notifications:document.getElementById("notifAnnouncement")?.checked!==false,
+    updated_at:new Date().toISOString()
+  };
+  renderNotificationPreferenceState(prefs);
+  if(message)message.textContent="Saving...";
+  const {error}=await supabaseClient.from("user_notification_preferences").upsert(prefs,{onConflict:"user_id"});
+  if(error){if(message)message.textContent="Save failed: "+error.message;return;}
+  if(message)message.textContent="✅ Notification settings saved.";
 }
 
 /* Refresh when user returns after changing browser notification settings */
