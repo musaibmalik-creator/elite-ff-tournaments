@@ -1263,6 +1263,8 @@ button:focus-visible{
       <button id="backWalletManageButton" type="button">← Back</button>
     </div>
     <p class="info">Player select karein, amount aur reason likhein. Add ya deduct karne par wallet aur transaction history dono update honge.</p>
+    <label for="walletPlayerSearch">Find Player (Name / Email / UID)</label>
+    <input id="walletPlayerSearch" type="search" placeholder="Search player name, email or UID">
     <label for="walletPlayerSelect">Select Player</label>
     <select id="walletPlayerSelect"><option value="">Loading players...</option></select>
     <div id="walletSelectedBalance" class="message">Select a player to view current balance.</div>
@@ -2020,6 +2022,23 @@ $("backWalletManageButton").addEventListener("click",()=>{
   $("dashboard").classList.remove("hidden");
 });
 $("walletPlayerSelect").addEventListener("change",showAdminSelectedWallet);
+$("walletPlayerSearch").addEventListener("input",renderAdminWalletPlayerOptions);
+
+function renderAdminWalletPlayerOptions(){
+  const select=$("walletPlayerSelect"),term=String($("walletPlayerSearch").value||"").trim().toLowerCase();
+  const current=select.value;
+  const filtered=adminWalletProfiles.filter(p=>
+    [p.display_name,p.ff_name,p.email,p.ff_uid].some(v=>String(v||"").toLowerCase().includes(term))
+  );
+  select.innerHTML='<option value="">-- Choose player ('+filtered.length+') --</option>'+filtered.map(p=>{
+    const label=p.display_name||p.ff_name||"Player";
+    const email=p.email?" · "+p.email:" · Email unavailable";
+    const uid=p.ff_uid?" · UID "+p.ff_uid:"";
+    return '<option value="'+escapeHtml(p.id)+'">'+escapeHtml(label+email+uid)+'</option>';
+  }).join("");
+  if(current && filtered.some(p=>p.id===current)) select.value=current;
+  showAdminSelectedWallet();
+}
 
 async function loadAdminWalletPlayers(){
   const select=$("walletPlayerSelect");
@@ -2035,13 +2054,7 @@ async function loadAdminWalletPlayers(){
   }
   adminWalletProfiles=profiles||[];
   adminWalletBalances=new Map((wallets||[]).map(w=>[w.user_id,Number(w.balance||0)]));
-  select.innerHTML='<option value="">-- Choose player --</option>'+adminWalletProfiles.map(p=>{
-    const label=p.display_name||p.ff_name||"Player";
-    const email=p.email?" · "+p.email:" · Email unavailable";
-    const uid=p.ff_uid?" · UID "+p.ff_uid:"";
-    return '<option value="'+escapeHtml(p.id)+'">'+escapeHtml(label+email+uid)+'</option>';
-  }).join("");
-  showAdminSelectedWallet();
+  renderAdminWalletPlayerOptions();
 }
 function showAdminSelectedWallet(){
   const id=$("walletPlayerSelect").value;
