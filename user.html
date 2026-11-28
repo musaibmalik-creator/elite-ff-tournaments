@@ -1318,6 +1318,7 @@ loadWallet();
 let elitePresenceTimer=null;
 async function updateElitePresence(isLogin=false){
   if(!currentUser)return;
+  if(!(await checkPlayerAccess(currentUser,false)))return;
   const {error}=await supabaseClient.rpc("touch_my_presence",{p_login:isLogin});
   if(error)console.warn("Presence update:",error.message);
 }
@@ -1338,6 +1339,25 @@ async function stopElitePresenceTracking(){
 document.addEventListener("visibilitychange",()=>{
   if(!document.hidden&&currentUser)updateElitePresence(false);
 });
+
+/* PLAYER ACCESS / BAN CHECK */
+async function checkPlayerAccess(user,showMessageBox=true){
+  const {data,error}=await supabaseClient.rpc("get_my_access_status");
+  if(error){
+    if(showMessageBox)setMessage("authMessage","Account status verify nahi ho saka. Internet check karke dobara try karo.");
+    return false;
+  }
+  if(data && data.is_banned){
+    await supabaseClient.auth.signOut();
+    currentUser=null;
+    if(elitePresenceTimer){clearInterval(elitePresenceTimer);elitePresenceTimer=null;}
+    document.getElementById("appSection").classList.add("hidden");
+    document.getElementById("loginSection").style.display="flex";
+    setMessage("authMessage","🚫 Your account is banned. Reason: "+(data.reason||"Rules violation")+". Admin se contact karein.");
+    return false;
+  }
+  return true;
+}
 
 /* LOGIN */
 
@@ -1362,6 +1382,7 @@ setMessage("authMessage",error.message);
 return;
 }
 
+if(!(await checkPlayerAccess(data.user)))return;
 currentUser = data.user;
 startElitePresenceTracking(true);
 
@@ -1420,6 +1441,7 @@ async function createSignupAccount(){
     if(error) throw error;
 
     if(data.session){
+      if(!(await checkPlayerAccess(data.user)))return;
       currentUser=data.user;
       startElitePresenceTracking(true);
       document.getElementById("signupSection").style.display="none";
@@ -1472,6 +1494,7 @@ return;
 
 if(data.session){
 
+if(!(await checkPlayerAccess(data.session.user)))return;
 currentUser=data.session.user;
 startElitePresenceTracking(false);
 
