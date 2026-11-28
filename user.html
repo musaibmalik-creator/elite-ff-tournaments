@@ -643,7 +643,6 @@ button:active{transform:scale(.985)}
       <button class="copyBtn" type="button" onclick="copyUPI()">📋 COPY UPI ID</button>
       <div style="color:#999;font-size:11px;margin-top:9px">Scan QR, then enter the exact total amount shown above.</div>
     </div>
-    <button class="btn btnGold" type="button" onclick="openDepositUPI()">PAY NOW · OPEN UPI APP</button>
     <button class="copyBtn" type="button" style="width:100%;margin-top:10px" onclick="showDepositUTRStep()">I HAVE COMPLETED PAYMENT</button>
     <button class="copyBtn" type="button" style="width:100%;margin-top:8px" onclick="backToDepositAmount()">← CHANGE AMOUNT</button>
   </div>
@@ -2767,23 +2766,6 @@ function continueDepositToPayment(){
   document.getElementById("depositStepUTR").style.display="none";
   renderDepositUPIQR();
   setMessage("depositMessage","");
-}
-
-function openDepositUPI(){
-  if(!pendingDepositAmount || pendingDepositAmount<10){
-    setMessage("depositMessage","Pehle deposit amount select karo.");
-    return;
-  }
-  const fee=Math.round((pendingDepositAmount*0.10+Number.EPSILON)*100)/100;
-  const total=(pendingDepositAmount+fee).toFixed(2);
-  const params=new URLSearchParams({
-    pa:"elightffarena@ptaxis",
-    pn:"Mohammad Musaib",
-    am:total,
-    cu:"INR",
-    tn:"Elite FF wallet deposit"
-  });
-  window.location.href="upi://pay?"+params.toString();
 }
 
 function showDepositUTRStep(){
