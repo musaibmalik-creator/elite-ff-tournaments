@@ -2136,7 +2136,14 @@ async function deleteAdminPlayerAccount(userId,button){
   if(error||!data?.success){
     button.disabled=false;
     button.textContent="🗑️ PERMANENTLY DELETE ACCOUNT";
-    alert("Account deletion failed: "+(data?.error||error?.message||"Unknown error"));
+    let detail=data?.error||error?.message||"Unknown error";
+    try{
+      if(error?.context && typeof error.context.json==="function"){
+        const response=await error.context.json();
+        detail=response.error||response.message||detail;
+      }
+    }catch(e){}
+    alert("Account deletion failed: "+detail);
     await loadAdminWalletPlayers();
     return;
   }
