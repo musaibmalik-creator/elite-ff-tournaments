@@ -1457,7 +1457,7 @@ async function createSignupAccount(){
       refreshNotificationPrompt();
       await loadWallet();
       await loadProfile();
-      await loadUserNotifications();
+      await loadUserNotifications(true);
     }else{
       setMessage("signupMessage","Account created successfully. Email confirmation required ho toh email verify karke login karo.");
     }
