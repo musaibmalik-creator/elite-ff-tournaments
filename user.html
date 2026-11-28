@@ -381,10 +381,24 @@ button:active{transform:scale(.985)}
 <input id="password" class="input" type="password" placeholder="Password" autocomplete="current-password">
 
 <button class="btn btnGold" onclick="loginUser()">LOGIN</button>
-<button class="btn btnDark" onclick="signupUser()">SIGN UP</button>
+<button class="btn btnDark" onclick="showSignup()">SIGN UP</button>
 <button type="button" onclick="showForgotPassword()" style="background:none;border:none;color:#d4af37;margin-top:12px">Forgot Password?</button>
 
 <div id="authMessage" class="message"></div>
+</div>
+</section>
+
+<!-- SIGN UP -->
+<section id="signupSection" style="display:none;min-height:100vh;justify-content:center;align-items:center;padding:20px">
+<div class="loginBox">
+<div class="logo">CREATE ACCOUNT</div>
+<div class="subLogo">Join Elite FF Tournaments</div>
+<input id="signupEmail" class="input" type="email" placeholder="Email" autocomplete="email">
+<input id="signupPassword" class="input" type="password" placeholder="Create Password" autocomplete="new-password">
+<input id="signupConfirmPassword" class="input" type="password" placeholder="Confirm Password" autocomplete="new-password">
+<button class="btn btnGold" onclick="createSignupAccount()">CREATE ACCOUNT</button>
+<div id="signupMessage" class="message"></div>
+<button class="btn btnDark" onclick="backToLoginFromSignup()">BACK TO LOGIN</button>
 </div>
 </section>
 
@@ -1339,45 +1353,64 @@ if(targetTournament) await openTournamentDashboard(targetTournament);
 
 /* SIGNUP */
 
-async function signupUser(){
-
-const email = document.getElementById("email").value.trim();
-const password = document.getElementById("password").value;
-
-if(!email || !password){
-setMessage("authMessage","Email aur password enter karo.");
-return;
+function showSignup(){
+  document.getElementById("loginSection").style.display="none";
+  document.getElementById("forgotPasswordSection").style.display="none";
+  document.getElementById("resetPasswordSection").style.display="none";
+  document.getElementById("signupSection").style.display="flex";
+  setMessage("signupMessage","");
 }
 
-if(password.length<6){
-setMessage("authMessage","Password minimum 6 characters ka hona chahiye.");
-return;
+function backToLoginFromSignup(){
+  document.getElementById("signupSection").style.display="none";
+  document.getElementById("loginSection").style.display="flex";
 }
 
-setMessage("authMessage","Account create ho raha hai...");
+async function createSignupAccount(){
+  const email=document.getElementById("signupEmail").value.trim();
+  const password=document.getElementById("signupPassword").value;
+  const confirmPassword=document.getElementById("signupConfirmPassword").value;
 
-const {data,error} = await supabaseClient.auth.signUp({
-email,password
-});
+  if(!email||!password||!confirmPassword){
+    setMessage("signupMessage","Email aur dono password fields fill karo.");
+    return;
+  }
+  if(password.length<6){
+    setMessage("signupMessage","Password minimum 6 characters ka hona chahiye.");
+    return;
+  }
+  if(password!==confirmPassword){
+    setMessage("signupMessage","Passwords match nahi karte.");
+    return;
+  }
 
-if(error){
-setMessage("authMessage",error.message);
-return;
-}
+  const button=document.querySelector('#signupSection button.btnGold');
+  button.disabled=true;
+  button.textContent="CREATING ACCOUNT...";
+  setMessage("signupMessage","Account create ho raha hai...");
 
-if(data.session){
+  try{
+    const {data,error}=await supabaseClient.auth.signUp({email,password});
+    if(error) throw error;
 
-currentUser=data.user;
-document.getElementById("loginSection").style.display="none";
-document.getElementById("appSection").classList.remove("hidden");
-
-showOnly("homeSection");
-await loadWallet();
-await loadProfile();
-
-}else{
-setMessage("authMessage","Account created successfully. Ab login karo.");
-}
+    if(data.session){
+      currentUser=data.user;
+      document.getElementById("signupSection").style.display="none";
+      document.getElementById("appSection").classList.remove("hidden");
+      showOnly("homeSection");
+      refreshNotificationPrompt();
+      await loadWallet();
+      await loadProfile();
+      await loadUserNotifications();
+    }else{
+      setMessage("signupMessage","Account created successfully. Email confirmation required ho toh email verify karke login karo.");
+    }
+  }catch(error){
+    setMessage("signupMessage",error.message);
+  }finally{
+    button.disabled=false;
+    button.textContent="CREATE ACCOUNT";
+  }
 }
 
 /* LOGOUT */
