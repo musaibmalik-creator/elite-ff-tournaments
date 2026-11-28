@@ -1861,34 +1861,16 @@ if(!profileError){
 
 }
 
-  /* LOAD LINKED PLAYER */
+  /* PROFILE IS THE SOURCE OF TRUTH FOR FREE FIRE DETAILS.
+     Old tournament player rows may contain stale names, so do not let them overwrite profile details. */
 
-  const {data: player, error: playerError} =
-    await supabaseClient
-      .from("players")
-      .eq("user_id",currentUser.id)
-      .order("created_at",{ascending:false})
-      .limit(1)
-      .maybeSingle();
-
-  if(!playerError && player){
-
-    if(ffName){
-      ffName.textContent = player.name || "Not Added";
-    }
-
-    if(uid){
-      uid.textContent = player.uid || "Not Added";
-    }
-
-  }else{
-
+  if(!profileError){
     if(ffName) ffName.textContent = profile?.ff_name || "Not Added";
-
-    if(uid){
-      uid.textContent = profile?.ff_uid || "Not Added";
-    }
-
+    if(uid) uid.textContent = profile?.ff_uid || "Not Added";
+  }else{
+    console.error("Profile Free Fire details load error:",profileError);
+    if(ffName) ffName.textContent = "Unable to load";
+    if(uid) uid.textContent = "Unable to load";
   }
 
   /* LOAD MATCHES JOINED
@@ -1989,23 +1971,32 @@ async function saveFFUID(){
 
   message.textContent = "Saving Free Fire Details...";
 
-  const {error} = await supabaseClient
+  const {data:savedProfile,error} = await supabaseClient
     .from("profiles")
     .update({
       ff_name: ffName,
       ff_uid: uid
     })
-    .eq("id",currentUser.id);
+    .eq("id",currentUser.id)
+    .select("id,ff_name,ff_uid")
+    .maybeSingle();
 
   if(error){
-    message.textContent = "Error: " + error.message;
+    message.textContent = "Save failed: " + error.message;
     return;
   }
 
-  document.getElementById("profileUID").textContent = uid;
+  if(!savedProfile){
+    message.textContent = "Profile record nahi mila. Please logout/login karke dobara try karein.";
+    return;
+  }
 
-  message.textContent =
-    "Free Fire Name & UID saved successfully! ✅";
+  const profileName = document.getElementById("profileFFName");
+  const profileUID = document.getElementById("profileUID");
+  if(profileName) profileName.textContent = savedProfile.ff_name || ffName;
+  if(profileUID) profileUID.textContent = savedProfile.ff_uid || uid;
+
+  message.textContent = "Free Fire Name & UID saved successfully! ✅";
 
 }
 
