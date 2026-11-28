@@ -2423,7 +2423,7 @@ async function updateWithdrawalStatus(
   if (newStatus === "approved") {
     const {data: withdrawalInfo,error: withdrawalInfoError} = await supabase
       .from("withdrawals")
-      .select("amount,fee_amount,payout_amount,upi_id,payment_proof_path")
+      .select("amount,fee_amount,payout_amount,upi_id")
       .eq("id",withdrawalId)
       .maybeSingle();
 
@@ -2431,11 +2431,6 @@ async function updateWithdrawalStatus(
       alert("Withdrawal details load nahi ho sake. Please refresh.");
       return;
     }
-    if(!withdrawalInfo.payment_proof_path){
-      alert("Pehle actual UPI transfer ka screenshot/PDF upload karein. Proof ke baghair payout ko successful mark nahi kar sakte.");
-      return;
-    }
-
     const requested=Number(withdrawalInfo.amount||0);
     const fee=Number(withdrawalInfo.fee_amount||0);
     const payout=Number(withdrawalInfo.payout_amount ?? requested);
