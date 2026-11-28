@@ -1370,21 +1370,28 @@ async function loadWallet(){
     .eq("user_id",currentUser.id)
     .maybeSingle();
 
-  if(walletError){
-    console.error("Wallet Balance Error:",walletError.message);
-  }
-
-  const walletAmount = Number(wallet?.balance || 0);
-  const pendingWithdrawals = (withdrawals || []).reduce((total,item)=>{
-    return total + (item.status === "pending" ? Number(item.amount || 0) : 0);
-  },0);
-  const availableBalance = Math.max(0,walletAmount - pendingWithdrawals);
-
   const walletBalance = document.getElementById("walletBalance");
   const profileBalance = document.getElementById("profileBalance");
 
-  if(walletBalance) walletBalance.textContent = "₹" + availableBalance.toFixed(2);
-  if(profileBalance) profileBalance.textContent = "₹" + availableBalance.toFixed(2);
+  if(walletError){
+    console.error("Wallet Balance Error:",walletError);
+    const walletReadMessage = "Wallet read error: " + walletError.message;
+    if(walletBalance) walletBalance.textContent = walletReadMessage;
+    if(profileBalance) profileBalance.textContent = walletReadMessage;
+  } else if(!wallet){
+    console.error("Wallet Balance Error: No wallet row returned for user",currentUser.id);
+    if(walletBalance) walletBalance.textContent = "Wallet record not found";
+    if(profileBalance) profileBalance.textContent = "Wallet record not found";
+  } else {
+    const walletAmount = Number(wallet.balance || 0);
+    const pendingWithdrawals = (withdrawals || []).reduce((total,item)=>{
+      return total + (item.status === "pending" ? Number(item.amount || 0) : 0);
+    },0);
+    const availableBalance = Math.max(0,walletAmount - pendingWithdrawals);
+
+    if(walletBalance) walletBalance.textContent = "₹" + availableBalance.toFixed(2);
+    if(profileBalance) profileBalance.textContent = "₹" + availableBalance.toFixed(2);
+  }
 
   /* SAFE TEXT */
 
