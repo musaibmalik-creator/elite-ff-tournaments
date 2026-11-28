@@ -752,6 +752,26 @@ button:active{transform:scale(.985)}
   <div id="notificationPermissionMessage" class="message">Allow notifications to receive match updates when your screen is off.</div>
 </div>
 <div id="userNotificationsList"><div class="empty">Loading notifications...</div></div>
+
+<!-- NOTIFICATION PREFERENCES -->
+<div id="notificationPreferences" style="margin:10px 0;padding:16px;border:1px solid #514000;border-radius:15px;background:linear-gradient(145deg,#191919,#0d0d0d);">
+  <h3 style="color:#ffc107;font-size:16px;margin-bottom:6px;">🔔 NOTIFICATION SETTINGS</h3>
+  <p style="color:#999;font-size:12px;line-height:1.5;margin-bottom:12px;">Choose which Elite FF alerts you want to receive on this account.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #333;">
+    <div><strong style="font-size:14px;">All Notifications</strong><div style="font-size:11px;color:#888;margin-top:3px;">Master ON / OFF</div></div>
+    <input id="notifEnabled" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:22px;height:22px;accent-color:#ffc107;">
+  </div>
+  <div id="notificationPreferenceOptions">
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🎯 Match Notifications <input id="notifMatch" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🏆 Tournament Notifications <input id="notifTournament" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🔐 Room ID &amp; Password Alerts <input id="notifRoom" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">💰 Wallet &amp; Entry Fee Alerts <input id="notifWallet" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;font-size:13px;">📢 Important Announcements <input id="notifAnnouncement" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
+  </div>
+  <div id="notificationPrefsMessage" style="min-height:18px;margin-top:8px;color:#ffc107;font-size:12px;">Loading notification settings...</div>
+</div>
+
+
 </div>
 
 
@@ -869,24 +889,6 @@ SAVE FREE FIRE DETAILS
   <span><strong>🔔 NOTIFICATIONS</strong><small style="display:block;color:#aaa;font-size:11px;margin-top:4px;">Tap to open your notification inbox</small></span>
   <span style="display:flex;align-items:center;gap:9px;"><span id="profileNotificationCount" style="display:none;background:#e53935;color:#fff;border-radius:20px;padding:3px 8px;font-size:11px;">0</span><span style="font-size:22px;">›</span></span>
 </button>
-
-<!-- NOTIFICATION PREFERENCES -->
-<div id="notificationPreferences" style="margin:10px 0;padding:16px;border:1px solid #514000;border-radius:15px;background:linear-gradient(145deg,#191919,#0d0d0d);">
-  <h3 style="color:#ffc107;font-size:16px;margin-bottom:6px;">🔔 NOTIFICATION SETTINGS</h3>
-  <p style="color:#999;font-size:12px;line-height:1.5;margin-bottom:12px;">Choose which Elite FF alerts you want to receive on this account.</p>
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #333;">
-    <div><strong style="font-size:14px;">All Notifications</strong><div style="font-size:11px;color:#888;margin-top:3px;">Master ON / OFF</div></div>
-    <input id="notifEnabled" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:22px;height:22px;accent-color:#ffc107;">
-  </div>
-  <div id="notificationPreferenceOptions">
-    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🎯 Match Notifications <input id="notifMatch" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
-    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🏆 Tournament Notifications <input id="notifTournament" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
-    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">🔐 Room ID &amp; Password Alerts <input id="notifRoom" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
-    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #292929;font-size:13px;">💰 Wallet &amp; Entry Fee Alerts <input id="notifWallet" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
-    <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;font-size:13px;">📢 Important Announcements <input id="notifAnnouncement" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
-  </div>
-  <div id="notificationPrefsMessage" style="min-height:18px;margin-top:8px;color:#ffc107;font-size:12px;">Loading notification settings...</div>
-</div>
 
 <!-- TERMS & CONDITIONS BUTTON -->
 <button class="btn btnDark" type="button" style="margin:18px 0;border:1px solid #ffc107;color:#ffc107;" onclick="showOnly('termsSection')">
@@ -1304,7 +1306,6 @@ loadTopPlayers();
 
 if(sectionId==="profileSection"){
 loadProfile();
-loadNotificationPreferences();
 }
 
 if(sectionId==="homeSection"){
@@ -1321,6 +1322,7 @@ loadMyTournaments();
 
 if(sectionId==="notificationsSection"){
 loadUserNotifications();
+loadNotificationPreferences();
 }
 
 if(sectionId==="depositSection" || sectionId==="withdrawSection"){
