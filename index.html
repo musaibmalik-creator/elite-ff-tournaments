@@ -2060,7 +2060,10 @@ function renderAdminAllUsers(){
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:7px">'
       +'<button type="button" class="successButton" data-user-wallet-action="add" data-user-id="'+escapeHtml(p.id)+'">＋ ADD</button>'
       +'<button type="button" class="danger" data-user-wallet-action="deduct" data-user-id="'+escapeHtml(p.id)+'">− DEDUCT</button>'
-      +'</div></div>';
+      +'</div>'
+      +'<button type="button" class="danger" data-user-delete-account="'+escapeHtml(p.id)+'" style="width:100%;margin-top:12px;border:1px solid rgba(239,68,68,.45)">🗑️ PERMANENTLY DELETE ACCOUNT</button>'
+      +'<div style="color:#fca5a5;font-size:11px;line-height:1.5;margin-top:7px">Permanent: login, wallet, deposits, withdrawals and tournament records linked to this account will be deleted.</div>'
+      +'</div>';
   }).join("");
 }
 async function adjustWalletFromUserCard(userId,direction,button){
@@ -2099,10 +2102,50 @@ $("backWalletManageButton").addEventListener("click",()=>{
   $("dashboard").classList.remove("hidden");
 });
 $("adminAllUsersList").addEventListener("click",event=>{
+  const deleteButton=event.target.closest("[data-user-delete-account]");
+  if(deleteButton){
+    deleteAdminPlayerAccount(deleteButton.dataset.userDeleteAccount,deleteButton);
+    return;
+  }
   const button=event.target.closest("[data-user-wallet-action]");
   if(!button)return;
   adjustWalletFromUserCard(button.dataset.userId,button.dataset.userWalletAction==="add"?1:-1,button);
 });
+
+async function deleteAdminPlayerAccount(userId,button){
+  const player=adminWalletProfiles.find(p=>p.id===userId);
+  if(!player)return;
+  if(!player.email){alert("Is account ka email record nahi mila. Safety ke liye delete cancel kar diya.");return;}
+  const playerName=player.display_name||player.ff_name||player.email;
+  const typedEmail=prompt(
+    "PERMANENT ACCOUNT DELETION\n\nPlayer: "+playerName+
+    "\nEmail: "+player.email+
+    "\n\nIs account ka login, wallet, deposits, withdrawals aur linked tournament records permanently delete honge. Ye undo nahi ho sakta.\n\nConfirm karne ke liye player ka exact email type karein:"
+  );
+  if(typedEmail===null)return;
+  if(typedEmail.trim().toLowerCase()!==player.email.trim().toLowerCase()){
+    alert("Email match nahi hua. Account delete nahi kiya gaya.");
+    return;
+  }
+  if(!confirm("FINAL CONFIRMATION\n\nKya aap waqai "+player.email+" ka account permanently delete karna chahte hain?"))return;
+  button.disabled=true;
+  button.textContent="DELETING ACCOUNT...";
+  const {data,error}=await supabase.functions.invoke("admin-delete-player",{
+    body:{user_id:userId,confirm_email:typedEmail.trim()}
+  });
+  if(error||!data?.success){
+    button.disabled=false;
+    button.textContent="🗑️ PERMANENTLY DELETE ACCOUNT";
+    alert("Account deletion failed: "+(data?.error||error?.message||"Unknown error"));
+    await loadAdminWalletPlayers();
+    return;
+  }
+  adminWalletProfiles=adminWalletProfiles.filter(p=>p.id!==userId);
+  adminWalletBalances.delete(userId);
+  renderAdminAllUsers();
+  $("walletAdjustMessage").textContent="✅ "+playerName+" ka account permanently delete ho gaya.";
+  await loadAdminWalletPlayers();
+}
 
 async function loadAdminWalletPlayers(){
   const box=$("adminAllUsersList");
