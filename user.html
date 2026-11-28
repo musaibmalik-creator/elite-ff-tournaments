@@ -744,7 +744,9 @@ button:active{transform:scale(.985)}
 <!-- NOTIFICATIONS -->
 
 <div id="notificationsSection" class="section">
+<button class="btn btnDark" type="button" onclick="showOnly('profileSection')" style="margin-bottom:12px;">← BACK TO PROFILE</button>
 <h2 class="sectionTitle">🔔 Notifications</h2>
+<p style="color:#999;font-size:12px;margin:-5px 0 14px;">Your latest account, tournament, wallet and important announcements.</p>
 <div id="notificationPagePrompt">
   <button class="btn btnGold" type="button" onclick="enablePushNotifications()">ENABLE PHONE NOTIFICATIONS</button>
   <div id="notificationPermissionMessage" class="message">Allow notifications to receive match updates when your screen is off.</div>
@@ -862,8 +864,14 @@ SAVE FREE FIRE DETAILS
 
 
 
+<!-- NOTIFICATION INBOX SHORTCUT -->
+<button class="btn btnDark" type="button" onclick="showOnly('notificationsSection')" style="width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;margin:18px 0 10px;padding:16px;border:1px solid #ffc107;color:#ffc107;">
+  <span><strong>🔔 NOTIFICATIONS</strong><small style="display:block;color:#aaa;font-size:11px;margin-top:4px;">Tap to open your notification inbox</small></span>
+  <span style="display:flex;align-items:center;gap:9px;"><span id="profileNotificationCount" style="display:none;background:#e53935;color:#fff;border-radius:20px;padding:3px 8px;font-size:11px;">0</span><span style="font-size:22px;">›</span></span>
+</button>
+
 <!-- NOTIFICATION PREFERENCES -->
-<div id="notificationPreferences" style="margin:18px 0;padding:16px;border:1px solid #514000;border-radius:15px;background:linear-gradient(145deg,#191919,#0d0d0d);">
+<div id="notificationPreferences" style="margin:10px 0;padding:16px;border:1px solid #514000;border-radius:15px;background:linear-gradient(145deg,#191919,#0d0d0d);">
   <h3 style="color:#ffc107;font-size:16px;margin-bottom:6px;">🔔 NOTIFICATION SETTINGS</h3>
   <p style="color:#999;font-size:12px;line-height:1.5;margin-bottom:12px;">Choose which Elite FF alerts you want to receive on this account.</p>
   <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #333;">
@@ -878,7 +886,6 @@ SAVE FREE FIRE DETAILS
     <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;font-size:13px;">📢 Important Announcements <input id="notifAnnouncement" type="checkbox" checked onchange="saveNotificationPreferences()" style="width:20px;height:20px;accent-color:#ffc107;"></label>
   </div>
   <div id="notificationPrefsMessage" style="min-height:18px;margin-top:8px;color:#ffc107;font-size:12px;">Loading notification settings...</div>
-  <button class="btn btnDark" type="button" onclick="showOnly('notificationsSection')" style="margin-top:10px;">OPEN NOTIFICATION INBOX</button>
 </div>
 
 <!-- TERMS & CONDITIONS BUTTON -->
@@ -3289,6 +3296,8 @@ async function loadUserNotifications(showBanWelcome=false){
   const unread=unreadNormal+unreadBan;
   const badge=document.getElementById("notificationBadge");
   if(badge){badge.textContent=unread>9?"9+":String(unread);badge.style.display=unread?"inline-block":"none";}
+  const profileCount=document.getElementById("profileNotificationCount");
+  if(profileCount){profileCount.textContent=unread>9?"9+":String(unread);profileCount.style.display=unread?"inline-block":"none";}
 
   const normalHtml=data.map(n=>`
     <div class="tournamentCard" style="border-color:${n.read_at?"#303030":"#8a6a00"};cursor:pointer;"
