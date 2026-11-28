@@ -4,277 +4,155 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Account - Elite FF Tournaments</title>
-
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0b0f19;
-      color: white;
-      padding: 20px;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 400px;
-      background: #151b2b;
-      padding: 28px;
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #9ca3af;
-      margin-bottom: 25px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 14px;
-    }
-
-    input {
-      width: 100%;
-      padding: 13px;
-      margin-bottom: 17px;
-      border: 1px solid #30384d;
-      border-radius: 10px;
-      background: #0d1320;
-      color: white;
-      outline: none;
-      font-size: 15px;
-    }
-
-    input:focus {
-      border-color: #4f8cff;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      background: #4f8cff;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .message {
-      margin-top: 15px;
-      text-align: center;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .back {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
-      color: #8ab4ff;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    /* ELITE FF BLACK & GOLD SIGN-UP THEME */
-    body{
-      background:
-        radial-gradient(circle at 50% 0%,rgba(255,193,7,.14),transparent 42%),
-        linear-gradient(180deg,#111 0%,#070707 100%);
-      color:#fff;
-    }
-    .card{
-      background:linear-gradient(145deg,#171717,#0d0d0d);
-      border:1px solid rgba(255,193,7,.3);
-      border-radius:22px;
-      box-shadow:0 18px 48px rgba(0,0,0,.48),0 0 28px rgba(255,193,7,.07);
-    }
-    h1{color:#ffc107;letter-spacing:.4px}
-    .subtitle{color:#aaa}
-    label{color:#ddd}
-    input{
-      background:#151515;
-      border:1px solid #393939;
-      border-radius:11px;
-    }
-    input:focus{border-color:#ffc107;outline:none;box-shadow:0 0 0 3px rgba(255,193,7,.1)}
-    button{
-      background:linear-gradient(135deg,#ffda55,#ffc107 55%,#e5a900);
-      color:#111;
-      border-radius:11px;
-      box-shadow:0 7px 18px rgba(255,193,7,.13);
-    }
-    .back{color:#ffc107}
-    .message{color:#ffc107}
-    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
-
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 0%,rgba(255,193,7,.14),transparent 42%),linear-gradient(180deg,#111 0%,#070707 100%);color:#fff;padding:20px}
+    .card{width:100%;max-width:420px;background:linear-gradient(145deg,#171717,#0d0d0d);padding:28px;border:1px solid rgba(255,193,7,.3);border-radius:22px;box-shadow:0 18px 48px rgba(0,0,0,.48),0 0 28px rgba(255,193,7,.07)}
+    h1{text-align:center;margin-bottom:8px;color:#ffc107;letter-spacing:.4px}
+    .subtitle{text-align:center;color:#aaa;margin-bottom:25px}
+    label{display:block;margin-bottom:7px;font-size:14px;color:#ddd}
+    input{width:100%;padding:13px;margin-bottom:17px;border:1px solid #393939;border-radius:11px;background:#151515;color:white;outline:none;font-size:15px}
+    input:focus{border-color:#ffc107;box-shadow:0 0 0 3px rgba(255,193,7,.1)}
+    button{width:100%;padding:14px;border:0;border-radius:11px;background:linear-gradient(135deg,#ffda55,#ffc107 55%,#e5a900);color:#111;font-size:16px;font-weight:bold;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .message{margin-top:15px;text-align:center;font-size:14px;line-height:1.5;color:#ffc107;overflow-wrap:anywhere}
+    .back{display:block;text-align:center;margin-top:20px;color:#ffc107;text-decoration:none;font-size:14px}
+    .hidden{display:none}
+    .hint{font-size:12px;color:#aaa;margin-top:-10px;margin-bottom:16px;line-height:1.4}
   </style>
 </head>
-
 <body>
-
   <div class="card">
-
     <h1>Create Account</h1>
-
-    <p class="subtitle">
-      Join Elite FF Tournaments
-    </p>
+    <p class="subtitle">Join Elite FF Tournaments</p>
 
     <form id="signupForm">
-
       <label for="email">Email</label>
-      <input
-        type="email"
-        id="email"
-        placeholder="Enter your email"
-        required
-      >
+      <input type="email" id="email" placeholder="Enter your email" autocomplete="email" required>
+
+      <label for="phone">Mobile Number</label>
+      <input type="tel" id="phone" placeholder="+91 9876543210" autocomplete="tel" inputmode="tel" required>
+      <p class="hint">India number country code ke saath enter karein, e.g. +91 9876543210.</p>
 
       <label for="password">Password</label>
-      <input
-        type="password"
-        id="password"
-        placeholder="Create a password"
-        minlength="6"
-        required
-      >
+      <input type="password" id="password" placeholder="Create a password" minlength="6" autocomplete="new-password" required>
 
       <label for="confirmPassword">Confirm Password</label>
-      <input
-        type="password"
-        id="confirmPassword"
-        placeholder="Confirm your password"
-        minlength="6"
-        required
-      >
+      <input type="password" id="confirmPassword" placeholder="Confirm your password" minlength="6" autocomplete="new-password" required>
 
-      <button type="submit" id="signupBtn">
-        Create Account
-      </button>
-
+      <button type="submit" id="signupBtn">Create Account & Send OTP</button>
     </form>
 
-    <div id="message" class="message"></div>
+    <form id="otpForm" class="hidden">
+      <label for="otp">Enter 6-Digit OTP</label>
+      <input type="text" id="otp" placeholder="Enter OTP" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required>
+      <button type="submit" id="verifyBtn">Verify OTP</button>
+    </form>
 
-    <a href="user.html" class="back">
-      ← Back to Login
-    </a>
-
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+    <a href="user.html" class="back">← Back to Login</a>
   </div>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
+    const SUPABASE_URL = "https://yenhkcditizmcekjeswy.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const SUPABASE_URL =
-    "https://yenhkcditizmcekjeswy.supabase.co";
-    
-    const SUPABASE_KEY =
-    "sb_publishable_W5nO87IBUz1ic5Z0G1ZVPw_3KY8U1qD";
-
-    const { createClient } = supabase;
-
-    const supabaseClient = createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-    const form = document.getElementById("signupForm");
+    const signupForm = document.getElementById("signupForm");
+    const otpForm = document.getElementById("otpForm");
     const signupBtn = document.getElementById("signupBtn");
+    const verifyBtn = document.getElementById("verifyBtn");
     const message = document.getElementById("message");
+    let pendingPhone = "";
 
-    form.addEventListener("submit", async function(e) {
+    function normalizeIndianPhone(value) {
+      let digits = value.replace(/[^0-9]/g, "");
+      if (digits.length === 10) digits = "91" + digits;
+      if (digits.length === 12 && digits.startsWith("91")) return "+" + digits;
+      return "";
+    }
 
+    signupForm.addEventListener("submit", async function(e) {
       e.preventDefault();
-
-      const email =
-        document.getElementById("email").value.trim();
-
-      const password =
-        document.getElementById("password").value;
-
-      const confirmPassword =
-        document.getElementById("confirmPassword").value;
-
       message.textContent = "";
 
-      if (password !== confirmPassword) {
+      const email = document.getElementById("email").value.trim();
+      const phone = normalizeIndianPhone(document.getElementById("phone").value.trim());
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
 
+      if (!phone) {
+        message.textContent = "Valid 10-digit Indian mobile number enter karein.";
+        return;
+      }
+      if (password !== confirmPassword) {
         message.textContent = "Passwords do not match.";
         return;
-
       }
-
       if (password.length < 6) {
-
-        message.textContent =
-          "Password must be at least 6 characters.";
-
+        message.textContent = "Password must be at least 6 characters.";
         return;
       }
 
       signupBtn.disabled = true;
       signupBtn.textContent = "Creating Account...";
-
       try {
-
-        const { data, error } =
-          await supabaseClient.auth.signUp({
-            email: email,
-            password: password
-          });
-
-        if (error) {
-          throw error;
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password
+        });
+        if (error) throw error;
+        if (!data.user) throw new Error("Account create nahi ho saka. Please try again.");
+        if (!data.session) {
+          throw new Error("Email confirmation/session enabled nahi hai. Supabase Auth settings check karni hongi.");
         }
 
-        if (data.user) {
-
-          message.textContent =
-            "Account created successfully!";
-
-          setTimeout(() => {
-            window.location.href = "user.html";
-          }, 1500);
-
+        pendingPhone = phone;
+        const { error: phoneError } = await supabaseClient.auth.updateUser({ phone: pendingPhone });
+        if (phoneError) {
+          throw new Error("Account create ho gaya, lekin OTP send nahi hua: " + phoneError.message);
         }
 
+        signupForm.classList.add("hidden");
+        otpForm.classList.remove("hidden");
+        message.textContent = "OTP " + pendingPhone + " par send ho gaya. Apna 6-digit code enter karein.";
       } catch (error) {
-
-        message.textContent =
-          "Error: " + error.message;
-
+        message.textContent = "Error: " + error.message;
         signupBtn.disabled = false;
-        signupBtn.textContent = "Create Account";
+        signupBtn.textContent = "Create Account & Send OTP";
       }
-
     });
 
-  </script>
+    otpForm.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const token = document.getElementById("otp").value.trim();
+      if (!/^[0-9]{6}$/.test(token)) {
+        message.textContent = "6-digit OTP enter karein.";
+        return;
+      }
 
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = "Verifying...";
+      message.textContent = "";
+      try {
+        const { error } = await supabaseClient.auth.verifyOtp({
+          phone: pendingPhone,
+          token,
+          type: "phone_change"
+        });
+        if (error) throw error;
+
+        message.textContent = "Mobile number verified! Registration complete.";
+        setTimeout(() => {
+          window.location.href = "user.html";
+        }, 1200);
+      } catch (error) {
+        message.textContent = "OTP verification failed: " + error.message;
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = "Verify OTP";
+      }
+    });
+  </script>
 </body>
 </html>
