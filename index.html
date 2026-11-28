@@ -2417,12 +2417,10 @@ async function updateWithdrawalStatus(
   withdrawalId,
   newStatus
 ) {
-
   let paymentDetails = "";
   let rejectionReason = "";
 
   if (newStatus === "approved") {
-
     const {data: withdrawalInfo,error: withdrawalInfoError} = await supabase
       .from("withdrawals")
       .select("amount,fee_amount,payout_amount,upi_id,payment_proof_path")
@@ -2433,7 +2431,6 @@ async function updateWithdrawalStatus(
       alert("Withdrawal details load nahi ho sake. Please refresh.");
       return;
     }
-
     if(!withdrawalInfo.payment_proof_path){
       alert("Pehle actual UPI transfer ka screenshot/PDF upload karein. Proof ke baghair payout ko successful mark nahi kar sakte.");
       return;
@@ -2454,107 +2451,49 @@ async function updateWithdrawalStatus(
     paymentDetails = prompt(
       "₹"+payout.toFixed(2)+" transfer karne ke baad UTR number enter karein:"
     );
-
     if (paymentDetails === null) return;
-
     paymentDetails = paymentDetails.trim();
-
     if (!paymentDetails) {
       alert("UTR number zaroor enter karein.");
       return;
     }
-
-  }
-
-  if (newStatus === "rejected") {
-
-    rejectionReason = prompt(
-      "Withdrawal reject karne ki wajah likhein:"
-    );
-
+  } else if (newStatus === "rejected") {
+    rejectionReason = prompt("Withdrawal reject karne ki wajah likhein:");
     if (rejectionReason === null) return;
-
     rejectionReason = rejectionReason.trim();
-
     if (!rejectionReason) {
       alert("Rejection reason likhna zaroori hai.");
       return;
     }
-
+  } else {
+    alert("Invalid withdrawal action.");
+    return;
   }
 
-  const confirmed = confirm(
-    `Are you sure you want to ${newStatus} this withdrawal?`
-  );
-
-  if (!confirmed) return;
+  if (!confirm(`Are you sure you want to ${newStatus} this withdrawal?`)) return;
 
   let result;
-
   if (newStatus === "approved") {
-
-    result = await supabase.rpc(
-      "approve_withdrawal_and_debit_wallet",
-      {
-        p_withdrawal_id: withdrawalId
-      }
-    );
-
+    result = await supabase.rpc("approve_withdrawal_and_debit_wallet", {
+      p_withdrawal_id: withdrawalId,
+      p_payment_details: paymentDetails
+    });
   } else {
-
-    result = await supabase.rpc(
-      "admin_update_withdrawal_status",
-      {
-        p_withdrawal_id: withdrawalId,
-        p_new_status: "rejected"
-      }
-    );
-
+    result = await supabase.rpc("admin_reject_withdrawal", {
+      p_withdrawal_id: withdrawalId,
+      p_rejection_reason: rejectionReason
+    });
   }
 
   const { error } = result;
-
   if (error) {
     alert("Withdrawal failed: " + error.message);
     return;
   }
 
-  const updateData =
-    newStatus === "approved"
-      ? {
-          payment_details: paymentDetails,
-          paid_at: new Date().toISOString(),
-          rejection_reason: null
-        }
-      : {
-          rejection_reason: rejectionReason
-        };
-
-  const {
-    error: detailsError
-  } = await supabase
-    .from("withdrawals")
-    .update(updateData)
-    .eq("id", withdrawalId);
-
-  if (detailsError) {
-    alert(
-      "Status updated, but details save failed: " +
-      detailsError.message
-    );
-    await loadWithdrawals();
-    return;
-  }
-
   alert(`Withdrawal ${newStatus} successfully.`);
-
   await loadWithdrawals();
-
 }
-  
-
-  
-
 
 
 /* =====================================================
