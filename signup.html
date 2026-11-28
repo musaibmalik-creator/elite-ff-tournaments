@@ -30,23 +30,13 @@
       <label for="email">Email</label>
       <input type="email" id="email" placeholder="Enter your email" autocomplete="email" required>
 
-      <label for="phone">Mobile Number</label>
-      <input type="tel" id="phone" placeholder="+91 9876543210" autocomplete="tel" inputmode="tel" required>
-      <p class="hint">India number country code ke saath enter karein, e.g. +91 9876543210.</p>
-
       <label for="password">Password</label>
       <input type="password" id="password" placeholder="Create a password" minlength="6" autocomplete="new-password" required>
 
       <label for="confirmPassword">Confirm Password</label>
       <input type="password" id="confirmPassword" placeholder="Confirm your password" minlength="6" autocomplete="new-password" required>
 
-      <button type="submit" id="signupBtn">Create Account & Send OTP</button>
-    </form>
-
-    <form id="otpForm" class="hidden">
-      <label for="otp">Enter 6-Digit OTP</label>
-      <input type="text" id="otp" placeholder="Enter OTP" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required>
-      <button type="submit" id="verifyBtn">Verify OTP</button>
+      <button type="submit" id="signupBtn">Create Account</button>
     </form>
 
     <div id="message" class="message" role="status" aria-live="polite"></div>
@@ -60,32 +50,17 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const signupForm = document.getElementById("signupForm");
-    const otpForm = document.getElementById("otpForm");
     const signupBtn = document.getElementById("signupBtn");
-    const verifyBtn = document.getElementById("verifyBtn");
     const message = document.getElementById("message");
-    let pendingPhone = "";
-
-    function normalizeIndianPhone(value) {
-      let digits = value.replace(/[^0-9]/g, "");
-      if (digits.length === 10) digits = "91" + digits;
-      if (digits.length === 12 && digits.startsWith("91")) return "+" + digits;
-      return "";
-    }
 
     signupForm.addEventListener("submit", async function(e) {
       e.preventDefault();
       message.textContent = "";
 
       const email = document.getElementById("email").value.trim();
-      const phone = normalizeIndianPhone(document.getElementById("phone").value.trim());
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
 
-      if (!phone) {
-        message.textContent = "Valid 10-digit Indian mobile number enter karein.";
-        return;
-      }
       if (password !== confirmPassword) {
         message.textContent = "Passwords do not match.";
         return;
@@ -105,52 +80,20 @@
         if (error) throw error;
         if (!data.user) throw new Error("Account create nahi ho saka. Please try again.");
         if (!data.session) {
-          throw new Error("Email confirmation/session enabled nahi hai. Supabase Auth settings check karni hongi.");
+          message.textContent = "Account created. Please check your email to confirm your account, then log in.";
+          signupBtn.disabled = false;
+          signupBtn.textContent = "Create Account";
+          return;
         }
 
-        pendingPhone = phone;
-        const { error: phoneError } = await supabaseClient.auth.updateUser({ phone: pendingPhone });
-        if (phoneError) {
-          throw new Error("Account create ho gaya, lekin OTP send nahi hua: " + phoneError.message);
-        }
-
-        signupForm.classList.add("hidden");
-        otpForm.classList.remove("hidden");
-        message.textContent = "OTP " + pendingPhone + " par send ho gaya. Apna 6-digit code enter karein.";
-      } catch (error) {
-        message.textContent = "Error: " + error.message;
-        signupBtn.disabled = false;
-        signupBtn.textContent = "Create Account & Send OTP";
-      }
-    });
-
-    otpForm.addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const token = document.getElementById("otp").value.trim();
-      if (!/^[0-9]{6}$/.test(token)) {
-        message.textContent = "6-digit OTP enter karein.";
-        return;
-      }
-
-      verifyBtn.disabled = true;
-      verifyBtn.textContent = "Verifying...";
-      message.textContent = "";
-      try {
-        const { error } = await supabaseClient.auth.verifyOtp({
-          phone: pendingPhone,
-          token,
-          type: "phone_change"
-        });
-        if (error) throw error;
-
-        message.textContent = "Mobile number verified! Registration complete.";
+        message.textContent = "Account created successfully! Redirecting to login...";
         setTimeout(() => {
           window.location.href = "user.html";
         }, 1200);
       } catch (error) {
-        message.textContent = "OTP verification failed: " + error.message;
-        verifyBtn.disabled = false;
-        verifyBtn.textContent = "Verify OTP";
+        message.textContent = "Error: " + error.message;
+        signupBtn.disabled = false;
+        signupBtn.textContent = "Create Account";
       }
     });
   </script>
