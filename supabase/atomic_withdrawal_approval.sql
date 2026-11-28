@@ -28,10 +28,7 @@ BEGIN
   WHERE id = p_withdrawal_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Withdrawal not found'; END IF;
   IF v_withdrawal.status <> 'pending' THEN RAISE EXCEPTION 'Withdrawal is not pending'; END IF;
-  IF v_withdrawal.payment_proof_path IS NULL OR btrim(v_withdrawal.payment_proof_path) = '' THEN
-    RAISE EXCEPTION 'Payment proof is required before approval';
-  END IF;
-
+  -- User proof is not required before admin approval.\n  -- Bank-statement screenshot is requested only if the user reports non-receipt.\n
   SELECT * INTO v_wallet FROM public.wallets
   WHERE user_id = v_withdrawal.user_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Wallet not found'; END IF;
