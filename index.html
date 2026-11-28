@@ -1268,24 +1268,7 @@ button:focus-visible{
       <div class="card"><small>Online</small><h2 id="adminOnlineUsers" style="color:#22c55e">0</h2></div>
       <div class="card"><small>Offline</small><h2 id="adminOfflineUsers" style="color:#f87171">0</h2></div>
     </div>
-    <label for="adminAllUsersSearch">Search All Users (Name / Email / FF UID)</label>
-    <input id="adminAllUsersSearch" type="search" placeholder="Search any player...">
-    <div id="adminAllUsersList" style="display:grid;gap:12px;margin:14px 0">Loading all users...</div>
-    <hr style="border-color:#333;margin:22px 0">
-    <h3>Quick Wallet Adjustment</h3>
-    <label for="walletPlayerSearch">Find Player (Name / Email / UID)</label>
-    <input id="walletPlayerSearch" type="search" placeholder="Search player name, email or UID">
-    <label for="walletPlayerSelect">Select Player</label>
-    <select id="walletPlayerSelect"><option value="">Loading players...</option></select>
-    <div id="walletSelectedBalance" class="message">Select a player to view current balance.</div>
-    <label for="walletAdjustAmount">Amount (₹)</label>
-    <input id="walletAdjustAmount" type="number" min="0.01" max="1000000" step="0.01" placeholder="Enter amount">
-    <label for="walletAdjustReason">Reason (required)</label>
-    <input id="walletAdjustReason" type="text" maxlength="160" placeholder="e.g. Tournament reward correction">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
-      <button id="walletAddButton" type="button">➕ ADD MONEY</button>
-      <button id="walletDeductButton" class="secondary" type="button">➖ DEDUCT MONEY</button>
-    </div>
+    <div id="adminAllUsersList" style="display:grid;gap:12px;margin:14px 0">Loading all registered players...</div>
     <div id="walletAdjustMessage" class="message"></div>
     <h3 style="margin-top:22px">Recent Admin Adjustments</h3>
     <div id="walletAdjustmentHistory">Loading history...</div>
@@ -2026,62 +2009,64 @@ function adminUserOnline(p){
   return Date.now()-new Date(p.last_seen_at).getTime()<120000;
 }
 function adminDate(value){
-  return value?new Date(value).toLocaleString("en-IN"):"Never";
+  return value?new Date(value).toLocaleString("en-IN"):"Not recorded";
 }
 function renderAdminAllUsers(){
   const box=$("adminAllUsersList");
   if(!box)return;
-  const term=String($("adminAllUsersSearch")?.value||"").trim().toLowerCase();
-  const filtered=adminWalletProfiles.filter(p=>
-    [p.display_name,p.ff_name,p.email,p.ff_uid].some(v=>String(v||"").toLowerCase().includes(term))
-  );
   const online=adminWalletProfiles.filter(adminUserOnline).length;
   $("adminTotalUsers").textContent=adminWalletProfiles.length;
   $("adminOnlineUsers").textContent=online;
   $("adminOfflineUsers").textContent=adminWalletProfiles.length-online;
-  if(!filtered.length){box.innerHTML='<div class="empty">No matching users found.</div>';return;}
-  box.innerHTML=filtered.map(p=>{
+  if(!adminWalletProfiles.length){
+    box.innerHTML='<div class="message">Abhi koi registered player account nahi mila.</div>';
+    return;
+  }
+  box.innerHTML=adminWalletProfiles.map(p=>{
     const balance=adminWalletBalances.get(p.id)||0;
     const isOnline=adminUserOnline(p);
-    return '<div class="card" style="padding:14px;border:1px solid '+(isOnline?'#166534':'#374151')+';background:#111827">'
+    return '<div class="card" style="padding:15px;border:1px solid '+(isOnline?'#166534':'#374151')+';background:#111827">'
       +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">'
-      +'<strong style="font-size:16px">'+escapeHtml(p.display_name||p.ff_name||"Player")+'</strong>'
+      +'<strong style="font-size:17px">'+escapeHtml(p.display_name||p.ff_name||"Player")+'</strong>'
       +'<span style="color:'+(isOnline?'#4ade80':'#f87171')+';font-size:12px;font-weight:800">'+(isOnline?'● ONLINE':'● OFFLINE')+'</span></div>'
-      +'<div style="color:#cbd5e1;font-size:13px;overflow-wrap:anywhere;margin-top:7px">✉ '+escapeHtml(p.email||"Email unavailable")+'</div>'
+      +'<div style="color:#cbd5e1;font-size:13px;overflow-wrap:anywhere;margin-top:8px">✉ '+escapeHtml(p.email||"Email unavailable")+'</div>'
       +'<div style="color:#cbd5e1;font-size:13px;margin-top:5px">🎮 Game Name: '+escapeHtml(p.ff_name||"Not added")+'</div>'
       +'<div style="color:#cbd5e1;font-size:13px;margin-top:5px">🆔 FF UID: '+escapeHtml(p.ff_uid||"Not added")+'</div>'
-      +'<div style="color:#94a3b8;font-size:12px;margin-top:8px">Joined: '+escapeHtml(adminDate(p.created_at))+'</div>'
+      +'<div style="color:#94a3b8;font-size:12px;margin-top:9px">Registered: '+escapeHtml(adminDate(p.created_at))+'</div>'
       +'<div style="color:#94a3b8;font-size:12px;margin-top:4px">Last login: '+escapeHtml(adminDate(p.last_login_at))+'</div>'
       +'<div style="color:#94a3b8;font-size:12px;margin-top:4px">Last active: '+escapeHtml(adminDate(p.last_seen_at))+'</div>'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding:10px;border-radius:9px;background:#0b1220">'
-      +'<span style="color:#94a3b8">Wallet Balance</span><strong style="font-size:20px;color:#fbbf24">₹'+balance.toFixed(2)+'</strong></div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'
-      +'<input type="number" min="0.01" step="0.01" placeholder="Amount ₹" data-user-amount="'+escapeHtml(p.id)+'">'
-      +'<input type="text" maxlength="160" placeholder="Reason" data-user-reason="'+escapeHtml(p.id)+'">'
-      +'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">'
-      +'<button type="button" data-user-wallet-action="add" data-user-id="'+escapeHtml(p.id)+'">＋ ADD</button>'
-      +'<button type="button" class="secondary" data-user-wallet-action="deduct" data-user-id="'+escapeHtml(p.id)+'">− DEDUCT</button>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:13px;padding:12px;border-radius:10px;background:#0b1220">'
+      +'<span style="color:#cbd5e1;font-size:13px">Wallet Balance</span><strong style="font-size:22px;color:#fbbf24">₹'+balance.toFixed(2)+'</strong></div>'
+      +'<input type="number" min="0.01" max="1000000" step="0.01" placeholder="Amount to add / deduct (₹)" data-user-amount="'+escapeHtml(p.id)+'" style="margin-top:12px">'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:7px">'
+      +'<button type="button" class="successButton" data-user-wallet-action="add" data-user-id="'+escapeHtml(p.id)+'">＋ ADD</button>'
+      +'<button type="button" class="danger" data-user-wallet-action="deduct" data-user-id="'+escapeHtml(p.id)+'">− DEDUCT</button>'
       +'</div></div>';
   }).join("");
 }
 async function adjustWalletFromUserCard(userId,direction,button){
   const amount=Number(document.querySelector('[data-user-amount="'+userId+'"]')?.value);
-  const reason=String(document.querySelector('[data-user-reason="'+userId+'"]')?.value||"").trim();
   const player=adminWalletProfiles.find(p=>p.id===userId);
   if(!player)return;
   if(!Number.isFinite(amount)||amount<=0||amount>1000000){alert("Valid amount enter karein.");return;}
-  if(reason.length<3){alert("Reason kam az kam 3 characters ka hona chahiye.");return;}
   const action=direction>0?"ADD":"DEDUCT";
-  if(!confirm(action+" ₹"+amount.toFixed(2)+" "+(player.display_name||player.ff_name||player.email)+" ke wallet mein?"))return;
+  const playerName=player.display_name||player.ff_name||player.email||"Player";
+  if(!confirm(action+" ₹"+amount.toFixed(2)+" "+playerName+" ke wallet mein?"))return;
   button.disabled=true;
-  const {data,error}=await supabase.rpc("admin_adjust_wallet",{p_user_id:userId,p_amount:direction*amount,p_reason:reason});
+  const {data,error}=await supabase.rpc("admin_adjust_wallet",{
+    p_user_id:userId,
+    p_amount:direction*amount,
+    p_reason:direction>0?"Admin manual wallet credit":"Admin manual wallet deduction"
+  });
   button.disabled=false;
   if(error){alert("Wallet update failed: "+error.message);return;}
-  const newBalance=Number(Array.isArray(data)?data[0]?.new_balance:data?.new_balance);
-  adminWalletBalances.set(userId,newBalance);
+  const row=Array.isArray(data)?data[0]:data;
+  const newBalance=Number(row?.new_balance);
   await loadAdminWalletPlayers();
   await loadAdminWalletAdjustments();
-  $("walletAdjustMessage").textContent="Success! "+(player.display_name||player.email)+" ka new balance ₹"+newBalance.toFixed(2);
+  $("walletAdjustMessage").textContent="✅ "+playerName+" ka wallet update ho gaya. New balance: ₹"+newBalance.toFixed(2);
+  const amountInput=document.querySelector('[data-user-amount="'+userId+'"]');
+  if(amountInput)amountInput.value="";
 }
 
 $("openWalletManageButton").addEventListener("click",async()=>{
@@ -2094,54 +2079,27 @@ $("backWalletManageButton").addEventListener("click",()=>{
   $("walletManageSection").classList.add("hidden");
   $("dashboard").classList.remove("hidden");
 });
-$("walletPlayerSelect").addEventListener("change",showAdminSelectedWallet);
-$("walletPlayerSearch").addEventListener("input",renderAdminWalletPlayerOptions);
-$("adminAllUsersSearch").addEventListener("input",renderAdminAllUsers);
 $("adminAllUsersList").addEventListener("click",event=>{
   const button=event.target.closest("[data-user-wallet-action]");
   if(!button)return;
   adjustWalletFromUserCard(button.dataset.userId,button.dataset.userWalletAction==="add"?1:-1,button);
 });
 
-function renderAdminWalletPlayerOptions(){
-  const select=$("walletPlayerSelect"),term=String($("walletPlayerSearch").value||"").trim().toLowerCase();
-  const current=select.value;
-  const filtered=adminWalletProfiles.filter(p=>
-    [p.display_name,p.ff_name,p.email,p.ff_uid].some(v=>String(v||"").toLowerCase().includes(term))
-  );
-  select.innerHTML='<option value="">-- Choose player ('+filtered.length+') --</option>'+filtered.map(p=>{
-    const label=p.display_name||p.ff_name||"Player";
-    const email=p.email?" · "+p.email:" · Email unavailable";
-    const uid=p.ff_uid?" · UID "+p.ff_uid:"";
-    return '<option value="'+escapeHtml(p.id)+'">'+escapeHtml(label+email+uid)+'</option>';
-  }).join("");
-  if(current && filtered.some(p=>p.id===current)) select.value=current;
-  showAdminSelectedWallet();
-}
-
 async function loadAdminWalletPlayers(){
-  const select=$("walletPlayerSelect");
-  select.innerHTML='<option value="">Loading players...</option>';
-  const [{data:profiles,error:profileError},{data:wallets,error:walletError}]=await Promise.all([
-    supabase.from("profiles").select("id,display_name,role,ff_name,ff_uid,email,created_at,last_seen_at,last_login_at,is_online").neq("role","admin").order("created_at",{ascending:false}),
-    supabase.from("wallets").select("user_id,balance")
-  ]);
-  if(profileError||walletError){
-    select.innerHTML='<option value="">Could not load players</option>';
-    $("walletAdjustMessage").textContent="Load error: "+(profileError||walletError).message;
+  const box=$("adminAllUsersList");
+  if(box)box.innerHTML='<div class="message">Loading all registered players...</div>';
+  $("walletAdjustMessage").textContent="";
+  const {data,error}=await supabase.rpc("admin_list_player_wallets");
+  if(error){
+    if(box)box.innerHTML='<div class="message error">Player list load error: '+escapeHtml(error.message)+'</div>';
+    $("walletAdjustMessage").textContent="Load error: "+error.message;
     return;
   }
-  adminWalletProfiles=profiles||[];
-  adminWalletBalances=new Map((wallets||[]).map(w=>[w.user_id,Number(w.balance||0)]));
-  renderAdminWalletPlayerOptions();
+  adminWalletProfiles=data||[];
+  adminWalletBalances=new Map(adminWalletProfiles.map(p=>[p.id,Number(p.balance||0)]));
   renderAdminAllUsers();
 }
-function showAdminSelectedWallet(){
-  const id=$("walletPlayerSelect").value;
-  const p=adminWalletProfiles.find(x=>x.id===id);
-  if(!p){$("walletSelectedBalance").textContent="Select a player to view current balance.";return;}
-  $("walletSelectedBalance").textContent=(p.display_name||p.ff_name||"Player")+" · Current wallet: ₹"+(adminWalletBalances.get(id)||0).toFixed(2);
-}
+
 async function loadAdminWalletAdjustments(){
   const box=$("walletAdjustmentHistory");
   const {data,error}=await supabase.from("wallet_transactions")
