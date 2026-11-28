@@ -231,6 +231,140 @@ button{cursor:pointer}
   background:#202020;border-left:3px solid #ffc107;color:#ddd;
 }
 
+
+/* PROFESSIONAL MOBILE-FIRST POLISH */
+:root{
+  color-scheme:dark;
+  --elite-gold:#ffc107;
+  --elite-gold-soft:#d6a642;
+  --elite-line:rgba(255,255,255,.09);
+  --elite-muted:#a6a6a6;
+}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(ellipse at 50% -15%,rgba(255,193,7,.09),transparent 42%),
+    linear-gradient(180deg,#090909 0%,#070707 100%);
+  letter-spacing:.08px;
+}
+.topbar{
+  min-height:64px;
+  padding:12px max(15px,calc((100vw - 760px)/2 + 15px));
+  background:rgba(8,8,8,.88);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,193,7,.16);
+  box-shadow:0 8px 24px rgba(0,0,0,.22);
+}
+.topTitle{letter-spacing:.45px;text-shadow:0 0 18px rgba(255,193,7,.15)}
+.container{padding-top:18px;padding-bottom:24px}
+.sectionTitle{
+  font-size:20px;
+  letter-spacing:.45px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.hero{
+  position:relative;
+  overflow:hidden;
+  padding:27px 21px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,193,7,.16),transparent 45%),
+    linear-gradient(135deg,#241b00 0%,#111 58%,#171717 100%);
+  border-color:rgba(255,193,7,.32);
+  box-shadow:0 14px 35px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.04);
+}
+.hero h1{letter-spacing:-.55px;text-shadow:0 3px 20px rgba(255,193,7,.12)}
+.hero p{max-width:520px}
+.wallet{
+  background:linear-gradient(145deg,#171717,#0e0e0e);
+  border-color:var(--elite-line);
+  box-shadow:0 12px 28px rgba(0,0,0,.2);
+}
+.balance{letter-spacing:-1px}
+.smallBtn,.btn,.joinBtn,.copyBtn,.tournamentStatusTab{
+  transition:transform .16s ease,border-color .16s ease,background .16s ease,filter .16s ease;
+}
+.smallBtn{border-color:#444;background:linear-gradient(145deg,#202020,#151515)}
+.quick{
+  background:linear-gradient(145deg,#191919,#101010);
+  border-color:var(--elite-line);
+  box-shadow:0 7px 18px rgba(0,0,0,.15);
+  min-height:76px;
+  font-weight:700;
+}
+.quickIcon{filter:drop-shadow(0 2px 6px rgba(255,193,7,.16))}
+.gameCard{
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 10px 24px rgba(0,0,0,.22);
+}
+.gameCard img{transition:transform .35s ease,opacity .25s ease}
+.gameOverlay{background:linear-gradient(180deg,transparent 20%,rgba(0,0,0,.92))}
+.tournamentCard{
+  border-color:rgba(255,255,255,.11);
+  background:linear-gradient(150deg,#171717 0%,#101010 100%);
+  box-shadow:0 12px 28px rgba(0,0,0,.2);
+}
+.tournamentCardBody{padding:16px}
+.tournamentMetric,.tournamentMeta{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.09);
+}
+.tournamentStatusTab{letter-spacing:.3px}
+.formBox,.infoBox{
+  background:linear-gradient(145deg,#171717,#101010);
+  border-color:rgba(255,255,255,.1);
+  box-shadow:0 10px 24px rgba(0,0,0,.16);
+}
+.input,select,textarea{
+  min-height:46px;
+  border-color:#393939;
+  background:#151515;
+  transition:border-color .18s ease,box-shadow .18s ease;
+}
+.input:focus,select:focus,textarea:focus{
+  border-color:var(--elite-gold);
+  box-shadow:0 0 0 3px rgba(255,193,7,.1);
+}
+.btnGold,.joinBtn{
+  background:linear-gradient(135deg,#ffda55,#ffc107 55%,#e5a900);
+  box-shadow:0 7px 18px rgba(255,193,7,.12);
+}
+.btnDark{background:linear-gradient(145deg,#252525,#171717);border-color:#414141}
+.profileBox{box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.bottomNav{
+  height:calc(72px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  background:rgba(10,10,10,.94);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+  border-top:1px solid rgba(255,193,7,.17);
+  box-shadow:0 -8px 24px rgba(0,0,0,.25);
+}
+.navInner{height:72px}
+.navBtn{font-weight:700;transition:color .15s ease}
+.navBtn.active{color:var(--elite-gold);text-shadow:0 0 14px rgba(255,193,7,.25)}
+button:focus-visible,a:focus-visible{
+  outline:2px solid var(--elite-gold);
+  outline-offset:3px;
+}
+button:active{transform:scale(.985)}
+@media(hover:hover){
+  .gameCard:hover img{transform:scale(1.045);opacity:.95}
+  .tournamentCard:hover{border-color:rgba(255,193,7,.28)}
+  .smallBtn:hover,.btnDark:hover{border-color:rgba(255,193,7,.45)}
+}
+@media(max-width:420px){
+  .container{padding-top:14px}
+  .hero{padding:23px 17px}
+  .sectionTitle{font-size:19px}
+  .tournamentCardBody{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important}
+}
+
 </style>
 </head>
 
