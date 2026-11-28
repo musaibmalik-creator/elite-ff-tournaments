@@ -135,6 +135,33 @@ Deno.serve(async (req) => {
       throw new Error("Unknown notification type");
     }
 
+    // Respect each recipient's saved notification preferences before creating inbox rows or sending push.
+    const category = type === "room_released"
+      ? "room"
+      : String(payload.category || "announcement").toLowerCase();
+    const preferenceColumn: Record<string, string> = {
+      match: "match_notifications",
+      tournament: "tournament_notifications",
+      room: "room_notifications",
+      wallet: "wallet_notifications",
+      announcement: "announcement_notifications",
+    };
+    const preferenceField = preferenceColumn[category];
+    if (!preferenceField) throw new Error("Invalid notification category");
+    if (recipients.length) {
+      const { data: preferences, error: preferenceError } = await adminClient
+        .from("user_notification_preferences")
+        .select("user_id,enabled,match_notifications,tournament_notifications,room_notifications,wallet_notifications,announcement_notifications")
+        .in("user_id", recipients);
+      if (preferenceError) throw new Error("Unable to load notification preferences");
+      const preferenceByUser = new Map((preferences || []).map((p: any) => [p.user_id, p]));
+      recipients = recipients.filter((userId) => {
+        const pref: any = preferenceByUser.get(userId);
+        if (!pref) return true; // New accounts receive notifications by default.
+        return pref.enabled !== false && pref[preferenceField] !== false;
+      });
+    }
+
     if (!recipients.length) {
       return new Response(JSON.stringify({ success: true, sent: 0, message: "No recipients yet" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
