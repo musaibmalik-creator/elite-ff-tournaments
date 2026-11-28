@@ -48,8 +48,14 @@ BEGIN
   FOR UPDATE;
 
   IF NOT FOUND THEN RAISE EXCEPTION 'Tournament not found.'; END IF;
-  IF lower(coalesce(tour.status,'')) IN ('closed','completed','cancelled','full') THEN
-    RAISE EXCEPTION 'Tournament is not accepting players.';
+  IF lower(coalesce(tour.status,'')) NOT IN ('open','upcoming','registration_open') THEN
+    RAISE EXCEPTION 'Tournament registration is closed.';
+  END IF;
+  IF tour.starts_at IS NOT NULL AND tour.starts_at <= now() THEN
+    RAISE EXCEPTION 'Tournament registration has ended because the match has started.';
+  END IF;
+  IF coalesce(tour.entry_fee,0) < 0 THEN
+    RAISE EXCEPTION 'Tournament entry fee cannot be negative.';
   END IF;
 
   IF EXISTS(
